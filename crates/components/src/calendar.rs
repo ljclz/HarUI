@@ -3,6 +3,10 @@
 //! 支持：月面板 6×7 网格、上下月切换、今天、选定日期、范围检查。
 //! 不依赖 chrono，使用蔡勒公式计算星期。
 
+use har_ui_core::theme::Theme;
+use iced::widget::{button, container, text};
+use iced::{Color, Element, Length, Padding};
+
 /// 简化日期（不依赖 chrono）
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct SimpleDate {
@@ -201,6 +205,154 @@ impl Calendar {
             }
         }
         grid
+    }
+
+    /// 渲染 Calendar 为 iced::Element
+    ///
+    /// - 顶部：月份头 "YYYY-MM" + 上月/下月按钮
+    /// - 中部：星期表头 + 6 行 × 7 列日期格
+    /// - on_pick 参数为日期字符串 "YYYY-MM-DD"
+    pub fn view<'a, Message: Clone + 'a>(
+        &'a self,
+        theme: &'a Theme,
+        on_pick: impl Fn(String) -> Message + 'a,
+    ) -> Element<'a, Message> {
+        let text_primary = Color::from(theme.neutral.text_primary);
+        let text_regular = Color::from(theme.neutral.text_regular);
+        let text_secondary = Color::from(theme.neutral.text_secondary);
+        let text_placeholder = Color::from(theme.neutral.text_placeholder);
+        let primary = Color::from(theme.primary.base);
+        let border_lighter = Color::from(theme.neutral.border_lighter);
+
+        // 月份头：上月按钮 + "YYYY-MM" + 下月按钮
+        let month_str = format!("{:04}-{:02}", self.year, self.month);
+        let month_text = text(month_str).color(text_primary).size(16.0);
+        let header = iced::widget::Row::new()
+            .push(button(text("<").color(text_regular).size(14.0))
+                .padding(Padding::from([4u16, 8u16]))
+                .style(move |_t, _status| iced::widget::button::Style {
+                    background: None,
+                    text_color: text_regular,
+                    border: iced::Border::default(),
+                    shadow: iced::Shadow::default(),
+                }))
+            .push(iced::widget::Space::with_width(Length::Fixed(8.0)))
+            .push(month_text)
+            .push(iced::widget::Space::with_width(Length::Fixed(8.0)))
+            .push(button(text(">").color(text_regular).size(14.0))
+                .padding(Padding::from([4u16, 8u16]))
+                .style(move |_t, _status| iced::widget::button::Style {
+                    background: None,
+                    text_color: text_regular,
+                    border: iced::Border::default(),
+                    shadow: iced::Shadow::default(),
+                }))
+            .align_y(iced::Alignment::Center)
+            .spacing(0);
+
+        // 星期表头（周一→周日）
+        let weekday_labels = ["一", "二", "三", "四", "五", "六", "日"];
+        let weekday_row_children: Vec<Element<'a, Message>> = weekday_labels
+            .iter()
+            .map(|label| {
+                let cell = container(text(*label).color(text_secondary).size(12.0))
+                    .width(Length::FillPortion(1))
+                    .padding(Padding::from([6u16, 0u16]))
+                    .style(move |_t| iced::widget::container::Style {
+                        text_color: None,
+                        background: None,
+                        border: iced::Border {
+                            color: border_lighter,
+                            width: 1.0,
+                            radius: iced::border::radius(0.0),
+                        },
+                        shadow: iced::Shadow::default(),
+                    });
+                cell.into()
+            })
+            .collect();
+        let weekday_row = iced::widget::Row::with_children(weekday_row_children).spacing(0);
+
+        // 6 行 × 7 列日期格
+        let grid = self.month_grid();
+        let mut rows: Vec<Element<'a, Message>> = Vec::new();
+        for week in 0..6 {
+            let mut row_children: Vec<Element<'a, Message>> = Vec::new();
+            for day_idx in 0..7 {
+                let date = grid[week * 7 + day_idx];
+                let in_month = self.is_current_month(&date);
+                let is_today = self.is_today(&date);
+                let is_selected = self
+                    .selected
+                    .map(|s| s == date)
+                    .unwrap_or(false);
+                let in_range = self.in_range(&date);
+
+                // 颜色规则
+                let day_color = if is_selected {
+                    Color::WHITE
+                } else if is_today {
+                    primary
+                } else if !in_month {
+                    text_placeholder
+                } else {
+                    text_regular
+                };
+
+                let (bg, border_color) = if is_selected {
+                    (Some(iced::Background::Color(primary)), primary)
+                } else if in_range {
+                    (
+                        Some(iced::Background::Color(Color { a: 0.1, ..primary })),
+                        border_lighter,
+                    )
+                } else {
+                    (None, border_lighter)
+                };
+
+                let date_str = format!("{:04}-{:02}-{:02}", date.year, date.month, date.day);
+                let date_btn = button(text(date.day.to_string()).color(day_color).size(13.0))
+                    .padding(Padding::from([6u16, 0u16]))
+                    .width(Length::Fill)
+                    .on_press((on_pick)(date_str))
+                    .style(move |_t, _status| iced::widget::button::Style {
+                        background: bg,
+                        text_color: day_color,
+                        border: iced::Border {
+                            color: border_color,
+                            width: 1.0,
+                            radius: iced::border::radius(0.0),
+                        },
+                        shadow: iced::Shadow::default(),
+                    });
+                row_children.push(date_btn.into());
+            }
+            let row = iced::widget::Row::with_children(row_children).spacing(0);
+            rows.push(row.into());
+        }
+        let grid_col = iced::widget::Column::with_children(rows).spacing(0);
+
+        let outer = iced::widget::Column::new()
+            .push(header)
+            .push(iced::widget::Space::with_height(Length::Fixed(8.0)))
+            .push(weekday_row)
+            .push(grid_col)
+            .spacing(0);
+
+        container(outer)
+            .width(Length::Fill)
+            .padding(Padding::from(8u16))
+            .style(move |_t| iced::widget::container::Style {
+                text_color: None,
+                background: Some(iced::Background::Color(Color::from(theme.neutral.bg_overlay))),
+                border: iced::Border {
+                    color: border_lighter,
+                    width: 1.0,
+                    radius: iced::border::radius(4.0),
+                },
+                shadow: iced::Shadow::default(),
+            })
+            .into()
     }
 }
 

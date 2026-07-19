@@ -1,6 +1,10 @@
 //! Radio 单选框组件 — 参考 Element Plus `<el-radio>` 与 `<el-radio-group>`。
 //! 支持：单个 Radio（checked/disabled/size/border）与 RadioGroup（单选/disabled/互斥/clear/toggle）。
 
+use har_ui_core::theme::Theme;
+use iced::widget::{button, container, text};
+use iced::{Color, Element, Length, Padding};
+
 /// Radio 尺寸
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum RadioSize {
@@ -108,6 +112,113 @@ impl Radio {
             _ => {}
         }
     }
+
+    // ---------- 视觉辅助 ----------
+
+    /// 按 size 计算 padding
+    fn padding_for_size(size: RadioSize) -> Padding {
+        Self::padding_for_size_pub(size)
+    }
+
+    /// 按 size 计算 padding（pub 版本，供 RadioGroup 调用）
+    pub fn padding_for_size_pub(size: RadioSize) -> Padding {
+        match size {
+            RadioSize::Large => Padding::from([10u16, 14u16]),
+            RadioSize::Default => Padding::from([8u16, 12u16]),
+            RadioSize::Small => Padding::from([6u16, 10u16]),
+        }
+    }
+
+    /// 按 size 计算 font size
+    fn font_size_for_size(size: RadioSize) -> f32 {
+        Self::font_size_for_size_pub(size)
+    }
+
+    /// 按 size 计算 font size（pub 版本，供 RadioGroup 调用）
+    pub fn font_size_for_size_pub(size: RadioSize) -> f32 {
+        match size {
+            RadioSize::Large => 16.0,
+            RadioSize::Default => 14.0,
+            RadioSize::Small => 12.0,
+        }
+    }
+
+    /// 渲染单个 Radio 为 iced::Element
+    ///
+    /// # 参数
+    /// - `theme`: HarUI 主题引用
+    /// - `on_press`: 点击时发出的消息
+    pub fn view<'a, Message: Clone + 'a>(
+        &'a self,
+        theme: &'a Theme,
+        on_press: Message,
+    ) -> Element<'a, Message> {
+        let primary = Color::from(theme.primary.base);
+        let text_color = if self.disabled {
+            Color::from(theme.neutral.text_disabled)
+        } else {
+            Color::from(theme.neutral.text_regular)
+        };
+        let dot_color = if self.disabled {
+            Color::from(theme.neutral.text_disabled)
+        } else if self.checked {
+            primary
+        } else {
+            Color::from(theme.neutral.border_base)
+        };
+
+        // 圆点指示器（用 Unicode 字符 ●/○）
+        let dot = if self.checked { "●" } else { "○" };
+        let size = Self::font_size_for_size(self.size);
+
+        let content = iced::widget::Row::new()
+            .push(text(dot).color(dot_color).size(size + 2.0))
+            .push(iced::widget::Space::with_width(Length::Fixed(6.0)))
+            .push(text(self.label.clone()).color(text_color).size(size))
+            .align_y(iced::Alignment::Center);
+
+        let mut btn = button(content)
+            .padding(Self::padding_for_size(self.size))
+            .style(move |_t, status| {
+                let bg = if self.border {
+                    match status {
+                        iced::widget::button::Status::Hovered
+                        | iced::widget::button::Status::Pressed => {
+                            Some(iced::Background::Color(Color {
+                                a: 0.05,
+                                ..Color::from(theme.primary.base)
+                            }))
+                        }
+                        _ => Some(iced::Background::Color(Color::from(
+                            theme.neutral.bg_overlay,
+                        ))),
+                    }
+                } else {
+                    None
+                };
+                let border = if self.border {
+                    iced::Border {
+                        color: if self.checked { primary } else { Color::from(theme.neutral.border_base) },
+                        width: 1.0,
+                        radius: iced::border::radius(4.0),
+                    }
+                } else {
+                    iced::Border::default()
+                };
+                iced::widget::button::Style {
+                    background: bg,
+                    text_color,
+                    border,
+                    shadow: iced::Shadow::default(),
+                }
+            });
+
+        if !self.disabled {
+            btn = btn.on_press(on_press);
+        }
+
+        btn.into()
+    }
 }
 
 // ---------- RadioGroup ----------
@@ -188,6 +299,71 @@ impl RadioGroup {
             // Group 不处理单个 Radio 的消息
             _ => {}
         }
+    }
+
+    /// 渲染 RadioGroup 为 iced::Element（横排多个 Radio）
+    ///
+    /// # 参数
+    /// - `theme`: HarUI 主题引用
+    /// - `options`: 选项列表，每项为 (value, label)
+    /// - `on_change`: 选中某项时发出消息，参数为该项 value
+    pub fn view<'a, Message: Clone + 'a>(
+        &'a self,
+        theme: &'a Theme,
+        options: &'a [(&'a str, &'a str)],
+        on_change: impl Fn(String) -> Message + 'a,
+    ) -> Element<'a, Message> {
+        if options.is_empty() {
+            return container(text("")).into();
+        }
+
+        let primary = Color::from(theme.primary.base);
+        let text_regular = Color::from(theme.neutral.text_regular);
+        let text_disabled = Color::from(theme.neutral.text_disabled);
+        let border_base = Color::from(theme.neutral.border_base);
+        let size = Radio::font_size_for_size_pub(self.size);
+        let padding = Radio::padding_for_size_pub(self.size);
+
+        // 预计算所有 Message（on_change 是 Fn，可多次调用）
+        let mut radios: Vec<Element<'a, Message>> = Vec::with_capacity(options.len());
+        for (value, label) in options {
+            let is_checked = self.is_checked(value);
+            let dot_color = if self.disabled {
+                text_disabled
+            } else if is_checked {
+                primary
+            } else {
+                border_base
+            };
+            let label_color = if self.disabled { text_disabled } else { text_regular };
+            let dot = if is_checked { "●" } else { "○" };
+
+            let content = iced::widget::Row::new()
+                .push(text(dot).color(dot_color).size(size + 2.0))
+                .push(iced::widget::Space::with_width(Length::Fixed(6.0)))
+                .push(text(label.to_string()).color(label_color).size(size))
+                .align_y(iced::Alignment::Center);
+
+            let mut btn = button(content)
+                .padding(padding)
+                .style(move |_t, _status| {
+                    iced::widget::button::Style {
+                        background: None,
+                        text_color: label_color,
+                        border: iced::Border::default(),
+                        shadow: iced::Shadow::default(),
+                    }
+                });
+            if !self.disabled {
+                btn = btn.on_press(on_change(value.to_string()));
+            }
+            radios.push(btn.into());
+        }
+
+        iced::widget::Row::with_children(radios)
+            .spacing(12)
+            .align_y(iced::Alignment::Center)
+            .into()
     }
 }
 

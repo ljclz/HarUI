@@ -16,6 +16,27 @@
 //!      └──────────────────────────────┘
 //!              (提交文本)
 //! ```
+//!
+//! ## R.3 IME 事件桥接（subscription）
+//!
+//! [`subscription`] 提供 iced 事件流到 IME 事件的桥接，输出 [`ImeBridgeEvent`]。
+//!
+//! ### iced 0.13.x 平台限制
+//! - `iced::window::Event` 在 0.13.x **不暴露 `Ime` 变体**
+//!   （源码确认：`iced_core-0.13.2/src/window/event.rs` 与
+//!   `iced_winit-0.13.0/src/conversion.rs` 中 `WindowEvent::Ime` 落入 `_ => None`）
+//! - 因此 `Enabled` / `Disabled` / `Preedit` 三类事件目前**无法从 iced 事件流捕获**
+//! - 仅 `Commit` 变体可触发：通过 `keyboard::Event::KeyPressed { text: Some(s), .. }`
+//!   中含非 ASCII 字符（典型 CJK 输入）推断 IME 提交
+//! - 完整 IME 支持（含 Preedit 显示）由 `text_input` widget 在 winit 层内部处理
+//!
+//! ### R.3.4 真机测试说明
+//! - 本模块的单元测试仅验证类型可构造与函数签名
+//! - 中文输入真机测试需在 Windows / macOS / Linux 上运行 demo 程序手动验证：
+//!   1. 焦点进入 Input 组件
+//!   2. 切换到中文输入法（如搜狗 / 微软拼音 / macOS 自带拼音）
+//!   3. 输入拼音并选词，验证 Input.value 正确更新且组合期不触发 onChange
+//!   4. 验证 Digit / Price 模式下 IME 提交的非数字字符被过滤
 
 /// IME 状态
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -248,6 +269,81 @@ impl ImeProcessor {
 impl Default for ImeProcessor {
     fn default() -> Self {
         Self::new()
+    }
+}
+
+// ============================================================================
+// R.3.1 IME 事件桥接（iced Subscription）
+// ============================================================================
+
+use iced::advanced::widget::Id as WidgetId;
+use iced::event::{self, Event, Status};
+use iced::keyboard;
+use iced::window::Id as WindowId;
+use iced::Subscription;
+
+/// IME 桥接事件（R.3.1）
+///
+/// 通过 iced 事件流捕获的 IME 相关事件，携带目标 widget 的 [`WidgetId`]。
+///
+/// ## iced 0.13.x 实际触发情况
+/// - `Commit`：当 `keyboard::Event::KeyPressed` 的 `text` 字段含非 ASCII 字符时触发
+///   （CJK 输入法提交文本的典型特征）
+/// - `Enabled` / `Disabled` / `Preedit`：iced 0.13.x 不暴露 `window::Event::Ime`，
+///   这三个变体保留为 API 占位，等待 iced 后续版本支持
+#[derive(Debug, Clone, PartialEq)]
+pub enum ImeBridgeEvent {
+    /// IME 启用（占位，iced 0.13.x 暂不触发）
+    Enabled { id: WidgetId },
+    /// IME 禁用（占位，iced 0.13.x 暂不触发）
+    Disabled { id: WidgetId },
+    /// 预编辑文本（占位，iced 0.13.x 暂不触发）
+    Preedit {
+        id: WidgetId,
+        text: String,
+        cursor: Option<(usize, usize)>,
+    },
+    /// 提交文本（通过键盘事件 text 字段含非 ASCII 字符推断）
+    Commit { id: WidgetId, text: String },
+}
+
+/// 默认 IME 桥接 widget Id（哨兵值）
+///
+/// iced 0.13.x 事件流不携带目标 widget 信息，使用此哨兵作为占位。
+/// 调用方可根据自身应用上下文映射到具体的 Input widget Id。
+pub const DEFAULT_IME_ID: &str = "har-ui-ime";
+
+/// IME 事件订阅（R.3.1）
+///
+/// 返回 [`Subscription<ImeBridgeEvent>`]，接入 iced 事件流并过滤 IME 相关事件。
+///
+/// ## 实现细节
+/// 通过 [`iced::event::listen_with`] 订阅所有 iced 事件，过滤
+/// `keyboard::Event::KeyPressed { text: Some(s), .. }` 且 `s` 含非 ASCII 字符的事件，
+/// 转换为 [`ImeBridgeEvent::Commit`]。
+///
+/// ## 限制
+/// iced 0.13.x 在 winit 转换层未暴露 `WindowEvent::Ime`，因此无法捕获
+/// `Enabled` / `Disabled` / `Preedit` 事件。完整 IME 支持由 `text_input` widget
+/// 在 winit 层内部处理，无需应用层订阅。
+pub fn subscription() -> Subscription<ImeBridgeEvent> {
+    event::listen_with(filter_ime_event)
+}
+
+/// `listen_with` 的过滤函数（函数指针，非闭包，符合 iced 0.13.x 签名约束）
+fn filter_ime_event(
+    event: Event,
+    _status: Status,
+    _window: WindowId,
+) -> Option<ImeBridgeEvent> {
+    match event {
+        Event::Keyboard(keyboard::Event::KeyPressed {
+            text: Some(text), ..
+        }) if text.chars().any(|c| !c.is_ascii()) => Some(ImeBridgeEvent::Commit {
+            id: WidgetId::new(DEFAULT_IME_ID),
+            text: text.to_string(),
+        }),
+        _ => None,
     }
 }
 

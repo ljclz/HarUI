@@ -2,6 +2,10 @@
 //!
 //! 支持：max、value、disabled、allow_half、increase/decrease、clear、show_text。
 
+use har_ui_core::theme::Theme;
+use iced::widget::{button, container, text};
+use iced::{Color, Element, Length, Padding};
+
 /// Rate 消息
 #[derive(Debug, Clone, PartialEq)]
 pub enum RateMessage {
@@ -134,6 +138,99 @@ impl Rate {
                 self.value = 0.0;
             }
         }
+    }
+
+    /// 渲染 Rate 为 iced::Element
+    ///
+    /// # 参数
+    /// - `theme`: HarUI 主题引用
+    /// - `on_change`: 评分变化回调；参数为新分值（u32，已按整数星计算）
+    pub fn view<'a, Message: Clone + 'a>(
+        &'a self,
+        theme: &'a Theme,
+        on_change: impl Fn(u32) -> Message + 'a,
+    ) -> Element<'a, Message> {
+        let text_primary = Color::from(theme.neutral.text_primary);
+        let text_regular = Color::from(theme.neutral.text_regular);
+        let text_placeholder = Color::from(theme.neutral.text_placeholder);
+        let text_disabled = Color::from(theme.neutral.text_disabled);
+        let primary = Color::from(theme.primary.base);
+        let bg_overlay = Color::from(theme.neutral.bg_overlay);
+
+        let mut stars: Vec<Element<'a, Message>> = Vec::with_capacity(self.max as usize);
+        for i in 1..=self.max {
+            let star_char = if (self.value as f64) >= i as f64 {
+                "★"
+            } else if self.allow_half && (self.value as f64) >= (i as f64) - 0.5 {
+                "⯨"
+            } else {
+                "☆"
+            };
+            let star_color = if self.disabled {
+                text_disabled
+            } else {
+                primary
+            };
+            let value_to_set = i;
+
+            let mut star_btn = button(text(star_char).color(star_color).size(20.0))
+                .padding(Padding::from([2u16, 2u16]))
+                .style(move |_t, _status| iced::widget::button::Style {
+                    background: None,
+                    text_color: star_color,
+                    border: iced::Border::default(),
+                    shadow: iced::Shadow::default(),
+                });
+            if !self.disabled {
+                star_btn = star_btn.on_press(on_change(value_to_set));
+            }
+            stars.push(star_btn.into());
+        }
+
+        let stars_row = iced::widget::Row::with_children(stars)
+            .spacing(2)
+            .align_y(iced::Alignment::Center);
+
+        // show_text / show_score：右侧显示文本
+        let row_elem: Element<'a, Message> = if self.show_text || self.show_score {
+            let label = if self.show_score {
+                format!("{:.1}", self.value)
+            } else {
+                // show_text：按 value 映射文本
+                match self.value as i32 {
+                    0 => "未评分".to_string(),
+                    1 => "极差".to_string(),
+                    2 => "失望".to_string(),
+                    3 => "一般".to_string(),
+                    4 => "满意".to_string(),
+                    _ => "惊喜".to_string(),
+                }
+            };
+            let label_color = if self.value == 0.0 {
+                text_placeholder
+            } else {
+                text_regular
+            };
+            iced::widget::Row::new()
+                .push(stars_row)
+                .push(iced::widget::Space::with_width(Length::Fixed(8.0)))
+                .push(text(label).color(label_color).size(14.0))
+                .align_y(iced::Alignment::Center)
+                .into()
+        } else {
+            stars_row.into()
+        };
+
+        container(row_elem)
+            .width(Length::Fill)
+            .padding(Padding::from([4u16, 8u16]))
+            .style(move |_t| iced::widget::container::Style {
+                text_color: Some(text_primary),
+                background: Some(iced::Background::Color(bg_overlay)),
+                border: iced::Border::default(),
+                shadow: iced::Shadow::default(),
+            })
+            .into()
     }
 }
 

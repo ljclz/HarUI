@@ -3,6 +3,10 @@
 //! 参考 Element Plus `<el-tag>`。
 //! 支持：6 种 type、3 种 effect、3 种 size、closable、自定义颜色、hit 边框。
 
+use har_ui_core::theme::Theme;
+use iced::widget::{button, container, text};
+use iced::{Color, Element, Padding};
+
 /// Tag 类型
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum TagType {
@@ -147,6 +151,128 @@ impl Tag {
             }
         }
     }
+
+    /// 按类型选调色板
+    fn palette_for_type<'a>(theme: &'a Theme, t: TagType) -> &'a har_ui_core::theme::color::ColorPalette {
+        match t {
+            TagType::Primary => &theme.primary,
+            TagType::Success => &theme.success,
+            TagType::Warning => &theme.warning,
+            TagType::Danger => &theme.danger,
+            TagType::Info => &theme.info,
+            TagType::Default => &theme.info,
+        }
+    }
+
+    /// 按 size 计算 padding 与 font_size
+    fn size_props(size: TagSize) -> (Padding, f32) {
+        match size {
+            TagSize::Large => (Padding::from([6u16, 12u16]), 16.0),
+            TagSize::Default => (Padding::from([4u16, 10u16]), 14.0),
+            TagSize::Small => (Padding::from([2u16, 8u16]), 12.0),
+        }
+    }
+
+    /// 渲染 Tag 为 iced::Element
+    ///
+    /// # 参数
+    /// - `theme`: HarUI 主题引用
+    /// - `on_close`: 关闭按钮回调（closable=true 时使用）
+    pub fn view<'a, Message: Clone + 'a>(
+        &'a self,
+        theme: &'a Theme,
+        on_close: impl Fn() -> Message + 'a,
+    ) -> Element<'a, Message> {
+        // closed 状态：返回空 container
+        if self.closed {
+            return container(text("")).into();
+        }
+
+        let palette = Self::palette_for_type(theme, self.tag_type);
+        let base_color = Color::from(palette.base);
+        let (padding, font_size) = Self::size_props(self.size);
+
+        // 按 effect 计算 bg / text / border
+        let (bg_color, text_color, border_color) = match self.effect {
+            TagEffect::Dark => (
+                Color { a: 1.0, ..base_color },
+                Color::WHITE,
+                Color { a: 0.0, ..base_color },
+            ),
+            TagEffect::Light => (
+                Color { a: 0.1, ..base_color },
+                base_color,
+                Color { a: 0.0, ..base_color },
+            ),
+            TagEffect::Plain => (
+                Color { a: 0.0, ..base_color },
+                base_color,
+                base_color,
+            ),
+        };
+
+        // 自定义 color 覆盖
+        let custom = self.color.as_ref().and_then(|c| parse_hex(c));
+        let (bg_color, text_color, border_color) = if let Some(c) = custom {
+            (c, c, c)
+        } else {
+            (bg_color, text_color, border_color)
+        };
+
+        // 文本
+        let label = text(self.text.clone()).color(text_color).size(font_size);
+
+        // hit 边框：border_color 加深
+        let final_border_color = if self.hit {
+            Color { a: 1.0, ..base_color }
+        } else {
+            border_color
+        };
+
+        let mut row = iced::widget::Row::new()
+            .push(label)
+            .align_y(iced::Alignment::Center);
+
+        // 关闭按钮
+        if self.closable {
+            let close_btn = button(text("×").color(text_color).size(font_size))
+                .padding(Padding::from([0u16, 4u16]))
+                .on_press(on_close())
+                .style(move |_t, _status| iced::widget::button::Style {
+                    background: None,
+                    text_color,
+                    border: iced::Border::default(),
+                    shadow: iced::Shadow::default(),
+                });
+            row = row.push(close_btn);
+        }
+
+        container(row)
+            .padding(padding)
+            .style(move |_t| iced::widget::container::Style {
+                text_color: Some(text_color),
+                background: Some(iced::Background::Color(bg_color)),
+                border: iced::Border {
+                    color: final_border_color,
+                    width: if self.effect == TagEffect::Plain || self.hit { 1.0 } else { 0.0 },
+                    radius: iced::border::radius(4.0),
+                },
+                shadow: iced::Shadow::default(),
+            })
+            .into()
+    }
+}
+
+/// 解析 hex 颜色（#RRGGBB）为 Color
+fn parse_hex(hex: &str) -> Option<Color> {
+    let hex = hex.trim_start_matches('#');
+    if hex.len() == 6 {
+        let r = u8::from_str_radix(&hex[0..2], 16).ok()?;
+        let g = u8::from_str_radix(&hex[2..4], 16).ok()?;
+        let b = u8::from_str_radix(&hex[4..6], 16).ok()?;
+        return Some(Color::from_rgb8(r, g, b));
+    }
+    None
 }
 
 #[cfg(test)]

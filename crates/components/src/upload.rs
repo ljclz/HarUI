@@ -2,6 +2,10 @@
 //!
 //! 支持：拖拽上传、文件列表、accept、limit、multiple、状态机（Ready/Uploading/Success/Error）、删除。
 
+use har_ui_core::theme::Theme;
+use iced::widget::{button, container, text};
+use iced::{Color, Element, Length, Padding};
+
 /// 上传状态
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum UploadStatus {
@@ -206,6 +210,104 @@ impl Upload {
                 }
             }
         }
+    }
+
+    /// 渲染 Upload 为 iced::Element
+    ///
+    /// 渲染触发按钮 + 文件列表（每项显示名称、大小、状态、进度）。
+    ///
+    /// # 参数
+    /// - `theme`: HarUI 主题引用
+    /// - `on_trigger`: 点击触发上传按钮的回调
+    pub fn view<'a, Message: Clone + 'a>(
+        &'a self,
+        theme: &'a Theme,
+        on_trigger: impl Fn() -> Message + 'a,
+    ) -> Element<'a, Message> {
+        let text_primary = Color::from(theme.neutral.text_primary);
+        let text_regular = Color::from(theme.neutral.text_regular);
+        let text_placeholder = Color::from(theme.neutral.text_placeholder);
+        let border_lighter = Color::from(theme.neutral.border_lighter);
+        let primary = Color::from(theme.primary.base);
+        let bg_overlay = Color::from(theme.neutral.bg_overlay);
+        let success_color = Color::from_rgb8(103, 194, 58);
+        let error_color = Color::from_rgb8(245, 108, 108);
+
+        // 触发按钮
+        let trigger_text = text("点击上传").color(iced::Color::WHITE).size(14.0);
+        let trigger_btn = button(trigger_text)
+            .padding(Padding::from([8u16, 16u16]))
+            .on_press(on_trigger())
+            .style(move |_t, _status| iced::widget::button::Style {
+                background: Some(iced::Background::Color(primary)),
+                text_color: iced::Color::WHITE,
+                border: iced::Border {
+                    color: primary,
+                    width: 1.0,
+                    radius: iced::border::radius(4.0),
+                },
+                shadow: iced::Shadow::default(),
+            });
+
+        let mut col_children: Vec<Element<'a, Message>> = Vec::new();
+        col_children.push(trigger_btn.into());
+
+        // accept 提示
+        if !self.accept.is_empty() {
+            let accept_text = format!("支持格式：{}", self.accept.join(", "));
+            let hint = text(accept_text).color(text_placeholder).size(12.0);
+            col_children.push(hint.into());
+        }
+
+        // 文件列表
+        for file in &self.file_list {
+            let status_str = match file.status() {
+                UploadStatus::Ready => "待上传".to_string(),
+                UploadStatus::Uploading => format!("上传中 {}%", file.progress()),
+                UploadStatus::Success => "成功".to_string(),
+                UploadStatus::Error => {
+                    format!("失败：{}", file.error().unwrap_or("未知错误"))
+                }
+            };
+            let status_color = match file.status() {
+                UploadStatus::Ready => text_placeholder,
+                UploadStatus::Uploading => primary,
+                UploadStatus::Success => success_color,
+                UploadStatus::Error => error_color,
+            };
+
+            let name_text = text(file.name().to_string()).color(text_primary).size(14.0);
+            let size_text = format!("({} bytes)", file.size());
+            let size_label = text(size_text).color(text_placeholder).size(12.0);
+            let status_label = text(status_str).color(status_color).size(12.0);
+
+            let file_row = iced::widget::Row::new()
+                .push(name_text)
+                .push(iced::widget::Space::with_width(Length::Fixed(6.0)))
+                .push(size_label)
+                .push(iced::widget::Space::with_width(Length::Fixed(6.0)))
+                .push(status_label)
+                .align_y(iced::Alignment::Center);
+
+            let file_wrap = container(file_row)
+                .width(Length::Fill)
+                .padding(Padding::from([6u16, 8u16]))
+                .style(move |_t| iced::widget::container::Style {
+                    text_color: Some(text_regular),
+                    background: Some(iced::Background::Color(bg_overlay)),
+                    border: iced::Border {
+                        color: border_lighter,
+                        width: 1.0,
+                        radius: iced::border::radius(2.0),
+                    },
+                    shadow: iced::Shadow::default(),
+                });
+            col_children.push(file_wrap.into());
+        }
+
+        container(iced::widget::Column::with_children(col_children).spacing(4))
+            .width(Length::Fill)
+            .into()
     }
 }
 

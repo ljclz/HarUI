@@ -2,6 +2,10 @@
 //!
 //! 支持：固定位置（top/bottom）、偏移、滚动事件触发、目标容器、状态变化事件。
 
+use har_ui_core::theme::Theme;
+use iced::widget::{container, text};
+use iced::{Color, Element, Length, Padding};
+
 /// 固定位置
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum AffixPosition {
@@ -112,6 +116,61 @@ impl Affix {
                 }
             }
         }
+    }
+
+    /// 渲染 Affix 为 iced::Element
+    ///
+    /// 当 `is_fixed()` 为 true 时，容器加边框（模拟固定态视觉反馈），
+    /// 否则以普通容器包裹传入的 content。
+    ///
+    /// # 参数
+    /// - `theme`: HarUI 主题引用
+    /// - `content`: 被包裹的内容
+    pub fn view<'a, Message: Clone + 'a>(
+        &'a self,
+        theme: &'a Theme,
+        content: Element<'a, Message>,
+    ) -> Element<'a, Message> {
+        let primary = Color::from(theme.primary.base);
+        let border_light = Color::from(theme.neutral.border_light);
+        let text_secondary = Color::from(theme.neutral.text_secondary);
+
+        let (border_color, border_width, label) = if self.fixed {
+            (primary, 2.0, "[affixed] ")
+        } else {
+            (border_light, 0.0, "")
+        };
+
+        let mut row_children: Vec<Element<'a, Message>> = Vec::new();
+        if !label.is_empty() {
+            row_children.push(
+                text(label.to_string())
+                    .color(text_secondary)
+                    .size(12.0)
+                    .into(),
+            );
+        }
+        row_children.push(content);
+
+        let inner = iced::widget::Row::with_children(row_children)
+            .spacing(0)
+            .align_y(iced::Alignment::Center);
+
+        let wrap = container(inner)
+            .width(Length::Fill)
+            .padding(Padding::from([8u16, 12u16]))
+            .style(move |_t| iced::widget::container::Style {
+                text_color: None,
+                background: None,
+                border: iced::Border {
+                    color: border_color,
+                    width: border_width,
+                    radius: iced::border::radius(4.0),
+                },
+                shadow: iced::Shadow::default(),
+            });
+
+        wrap.into()
     }
 }
 

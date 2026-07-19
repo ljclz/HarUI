@@ -6,6 +6,10 @@
 //! 内置月面板 6×7 网格（复用蔡勒公式），不依赖 iced 渲染层即可计算面板数据。
 //! 调用方通过 `panel_grid()` 获取 42 格日期数据后自行渲染（iced 无原生日历）。
 
+use har_ui_core::theme::Theme;
+use iced::widget::{button, container, text};
+use iced::{Color, Element, Length, Padding};
+
 /// 选择器类型
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum DatePickerType {
@@ -345,6 +349,174 @@ impl DatePicker {
                 self.panel_month = m.clamp(1, 12);
             }
         }
+    }
+
+    /// 渲染 DatePicker 为 iced::Element
+    ///
+    /// # 参数
+    /// - `theme`: HarUI 主题引用
+    /// - `on_pick`: 回调；约定字符串：
+    ///   `"YYYY-MM-DD"` 选择具体日期；`"__toggle__"` 切换面板；
+    ///   `"__prev_month__"` / `"__next_month__"` / `"__prev_year__"` / `"__next_year__"` 面板导航
+    pub fn view<'a, Message: Clone + 'a>(
+        &'a self,
+        theme: &'a Theme,
+        on_pick: impl Fn(String) -> Message + 'a,
+    ) -> Element<'a, Message> {
+        let text_primary = Color::from(theme.neutral.text_primary);
+        let text_regular = Color::from(theme.neutral.text_regular);
+        let text_placeholder = Color::from(theme.neutral.text_placeholder);
+        let text_disabled = Color::from(theme.neutral.text_disabled);
+        let border_lighter = Color::from(theme.neutral.border_lighter);
+        let primary = Color::from(theme.primary.base);
+        let bg_overlay = Color::from(theme.neutral.bg_overlay);
+
+        let formatted = self.formatted_value();
+        let has_value = !formatted.is_empty();
+        let display_text = if has_value { formatted } else { self.placeholder.clone() };
+        let display_color = if self.disabled {
+            text_disabled
+        } else if has_value {
+            text_regular
+        } else {
+            text_placeholder
+        };
+
+        let arrow = if self.visible { "▲" } else { "▼" };
+        let trigger_content = iced::widget::Row::new()
+            .push(text(display_text).color(display_color))
+            .push(iced::widget::Space::with_width(Length::Fill))
+            .push(text(arrow).color(text_regular));
+
+        let mut trigger_btn = button(trigger_content)
+            .padding(Padding::from([8u16, 12u16]))
+            .width(Length::Fill)
+            .style(move |_t, _status| iced::widget::button::Style {
+                background: Some(iced::Background::Color(bg_overlay)),
+                text_color: text_regular,
+                border: iced::Border {
+                    color: border_lighter,
+                    width: 1.0,
+                    radius: iced::border::radius(4.0),
+                },
+                shadow: iced::Shadow::default(),
+            });
+        if !self.disabled {
+            trigger_btn = trigger_btn.on_press(on_pick("__toggle__".to_string()));
+        }
+
+        if !self.visible {
+            return container(trigger_btn).into();
+        }
+
+        let mut panel_children: Vec<Element<'a, Message>> = Vec::new();
+
+        let header_text = format!("{} 年 {} 月", self.panel_year, self.panel_month);
+        let header_row = iced::widget::Row::new()
+            .push(button(text("<<").color(text_regular))
+                .on_press(on_pick("__prev_year__".to_string()))
+                .padding(Padding::from([2u16, 6u16])))
+            .push(button(text("<").color(text_regular))
+                .on_press(on_pick("__prev_month__".to_string()))
+                .padding(Padding::from([2u16, 6u16])))
+            .push(iced::widget::Space::with_width(Length::Fill))
+            .push(text(header_text).color(text_primary).size(14.0))
+            .push(iced::widget::Space::with_width(Length::Fill))
+            .push(button(text(">").color(text_regular))
+                .on_press(on_pick("__next_month__".to_string()))
+                .padding(Padding::from([2u16, 6u16])))
+            .push(button(text(">>").color(text_regular))
+                .on_press(on_pick("__next_year__".to_string()))
+                .padding(Padding::from([2u16, 6u16])))
+            .align_y(iced::Alignment::Center);
+        panel_children.push(header_row.into());
+
+        let weekdays = ["一", "二", "三", "四", "五", "六", "日"];
+        let weekday_children: Vec<Element<'a, Message>> = weekdays
+            .iter()
+            .map(|d| {
+                container(text(*d).color(text_placeholder).size(12.0))
+                    .width(Length::FillPortion(1))
+                    .into()
+            })
+            .collect();
+        let weekday_row = iced::widget::Row::with_children(weekday_children).spacing(0);
+        panel_children.push(weekday_row.into());
+
+        let grid = self.panel_grid();
+        for row_idx in 0..6 {
+            let mut row_children: Vec<Element<'a, Message>> = Vec::with_capacity(7);
+            for col_idx in 0..7 {
+                let idx = row_idx * 7 + col_idx;
+                let cell = grid[idx];
+                let is_selected = cell.is_selected;
+                let is_today = cell.is_today;
+                let in_range = cell.in_range;
+                let is_current_month = cell.is_current_month;
+                let cell_text_color = if is_selected {
+                    bg_overlay
+                } else if !is_current_month {
+                    text_placeholder
+                } else if is_today {
+                    primary
+                } else {
+                    text_regular
+                };
+                let day_str = cell.date.day.to_string();
+                let date_label = format!(
+                    "{:04}-{:02}-{:02}",
+                    cell.date.year, cell.date.month, cell.date.day
+                );
+
+                let mut day_btn = button(text(day_str).color(cell_text_color).size(13.0))
+                    .padding(Padding::from([4u16, 0u16]))
+                    .width(Length::FillPortion(1))
+                    .style(move |_t, _status| iced::widget::button::Style {
+                        background: if is_selected {
+                            Some(iced::Background::Color(primary))
+                        } else if in_range {
+                            Some(iced::Background::Color(Color { a: 0.1, ..primary }))
+                        } else {
+                            None
+                        },
+                        text_color: cell_text_color,
+                        border: iced::Border {
+                            color: primary,
+                            width: if is_today { 1.0 } else { 0.0 },
+                            radius: iced::border::radius(2.0),
+                        },
+                        shadow: iced::Shadow::default(),
+                    });
+                day_btn = day_btn.on_press(on_pick(date_label));
+                row_children.push(day_btn.into());
+            }
+            let row = iced::widget::Row::with_children(row_children).spacing(0);
+            panel_children.push(row.into());
+        }
+
+        let panel = container(
+            iced::widget::Column::with_children(panel_children).spacing(4),
+        )
+        .width(Length::Fill)
+        .padding(Padding::from(8u16))
+        .style(move |_t| iced::widget::container::Style {
+            text_color: Some(text_primary),
+            background: Some(iced::Background::Color(bg_overlay)),
+            border: iced::Border {
+                color: border_lighter,
+                width: 1.0,
+                radius: iced::border::radius(4.0),
+            },
+            shadow: iced::Shadow::default(),
+        });
+
+        container(
+            iced::widget::Column::new()
+                .push(trigger_btn)
+                .push(panel)
+                .spacing(4),
+        )
+        .into()
     }
 }
 

@@ -2,6 +2,10 @@
 //!
 //! 支持：默认空状态图片、自定义 image/description、尺寸、附加内容。
 
+use har_ui_core::theme::Theme;
+use iced::widget::{container, text};
+use iced::{Color, Element, Length, Padding};
+
 /// 空状态图片类型
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum EmptyImage {
@@ -92,6 +96,61 @@ impl Empty {
 
     pub fn has_extra(&self) -> bool {
         self.has_extra
+    }
+
+    /// 按 size 计算 icon 尺寸
+    fn icon_size(size: EmptySize) -> f32 {
+        match size {
+            EmptySize::Small => 40.0,
+            EmptySize::Normal => 64.0,
+            EmptySize::Large => 100.0,
+        }
+    }
+
+    /// 按 image 类型选 emoji
+    fn icon_emoji(image: EmptyImage) -> &'static str {
+        match image {
+            EmptyImage::Default => "📭",
+            EmptyImage::Error => "⚠️",
+            EmptyImage::Network => "📡",
+            EmptyImage::Custom => "🖼",
+        }
+    }
+
+    /// 渲染 Empty 为 iced::Element
+    pub fn view<'a>(&'a self, theme: &'a Theme) -> Element<'a, ()> {
+        let icon_size = Self::icon_size(self.size);
+        let icon_str = if self.image == EmptyImage::Custom && self.image_url.is_some() {
+            "🖼"
+        } else {
+            Self::icon_emoji(self.image)
+        };
+        let icon_text = text(icon_str).size(icon_size);
+        let desc_text = text(self.description.clone())
+            .color(Color::from(theme.neutral.text_secondary))
+            .size(if self.size == EmptySize::Small { 12.0 } else { 14.0 });
+
+        let mut col = iced::widget::Column::new()
+            .push(icon_text)
+            .push(iced::widget::Space::with_height(Length::Fixed(8.0)))
+            .push(desc_text)
+            .spacing(0)
+            .align_x(iced::alignment::Horizontal::Center);
+
+        if self.has_extra {
+            col = col.push(iced::widget::Space::with_height(Length::Fixed(12.0)));
+            col = col.push(
+                text("[extra slot]")
+                    .color(Color::from(theme.neutral.text_placeholder))
+                    .size(12.0),
+            );
+        }
+
+        container(col)
+            .width(Length::Fill)
+            .padding(Padding::from([24u16, 16u16]))
+            .align_x(iced::alignment::Horizontal::Center)
+            .into()
     }
 }
 

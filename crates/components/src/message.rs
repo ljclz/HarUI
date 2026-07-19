@@ -4,6 +4,10 @@
 //! 支持：4 种 type、自动关闭(duration)、手动关闭、叠加展示、垂直堆叠 offset。
 //! 通过 MessageManager 集中管理多条消息的创建/关闭/自动过期。
 
+use har_ui_core::theme::Theme;
+use iced::widget::{container, text};
+use iced::{Color, Element, Length, Padding};
+
 /// 消息类型
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum MessageType {
@@ -70,6 +74,46 @@ impl MessageItem {
         } else {
             false
         }
+    }
+
+    /// 渲染 MessageItem 为 iced::Element
+    ///
+    /// - `closed == true` 时返回空容器
+    /// - 否则按 msg_type 上色：图标 + 文本
+    pub fn view<'a>(&'a self, theme: &'a Theme) -> Element<'a, ()> {
+        if self.closed {
+            return container(text("")).into();
+        }
+
+        let (icon, accent) = match self.msg_type {
+            MessageType::Info => ("ℹ", Color::from(theme.info.base)),
+            MessageType::Success => ("✓", Color::from(theme.success.base)),
+            MessageType::Warning => ("⚠", Color::from(theme.warning.base)),
+            MessageType::Error => ("✕", Color::from(theme.danger.base)),
+        };
+        let text_color = Color::from(theme.neutral.text_primary);
+        let bg = Color::from(theme.neutral.bg_overlay);
+
+        let row = iced::widget::Row::new()
+            .push(text(icon).color(accent).size(16.0))
+            .push(iced::widget::Space::with_width(Length::Fixed(8.0)))
+            .push(text(self.text.clone()).color(text_color).size(14.0))
+            .align_y(iced::Alignment::Center)
+            .padding(Padding::from([10u16, 16u16]));
+
+        container(row)
+            .width(Length::Fill)
+            .style(move |_t| iced::widget::container::Style {
+                text_color: None,
+                background: Some(iced::Background::Color(bg)),
+                border: iced::Border {
+                    color: accent,
+                    width: 1.0,
+                    radius: iced::border::radius(4.0),
+                },
+                shadow: iced::Shadow::default(),
+            })
+            .into()
     }
 }
 

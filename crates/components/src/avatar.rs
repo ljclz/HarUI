@@ -2,6 +2,10 @@
 //!
 //! 支持：3 种来源（icon/text/image）、4 种尺寸、2 种形状、4 种 fit、加载失败 fallback。
 
+use har_ui_core::theme::Theme;
+use iced::widget::{container, text};
+use iced::{Color, Element, Length};
+
 /// 来源类型
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum AvatarSource {
@@ -170,6 +174,65 @@ impl Avatar {
             self.text = Some(fb);
             self.source = AvatarSource::Text;
         }
+    }
+
+    /// 按 size 计算像素尺寸
+    fn pixel_size_for(size: AvatarSize, override_size: Option<u32>) -> u32 {
+        if let Some(s) = override_size {
+            return s.max(16);
+        }
+        match size {
+            AvatarSize::Large => 56,
+            AvatarSize::Default => 40,
+            AvatarSize::Small => 28,
+        }
+    }
+
+    /// 渲染 Avatar 为 iced::Element
+    pub fn view<'a>(&'a self, theme: &'a Theme) -> Element<'a, ()> {
+        let px = Self::pixel_size_for(self.size, self.pixel_size) as f32;
+        let radius = match self.shape {
+            AvatarShape::Circle => px / 2.0,
+            AvatarShape::Square => 4.0,
+        };
+        let bg = Color::from(theme.neutral.bg_overlay);
+        let text_color = Color::from(theme.neutral.text_primary);
+
+        // 内容：按 source 选择 icon/text/image
+        // iced 0.13.1 暂无内置 image widget（需 features），简化为占位
+        let content: Element<'a, ()> = match self.source {
+            AvatarSource::Icon => {
+                let icon_text = self.icon.clone().unwrap_or_else(|| "👤".to_string());
+                text(icon_text).color(text_color).size(px * 0.5).into()
+            }
+            AvatarSource::Text => {
+                let t = self.text.clone().unwrap_or_default();
+                text(t).color(text_color).size(px * 0.45).into()
+            }
+            AvatarSource::Image => {
+                // 简化：图片显示为占位框（实际加载需 features=["image"]）
+                let url = self.image_url.clone().unwrap_or_default();
+                let label = if url.is_empty() { "IMG".to_string() } else { "🖼".to_string() };
+                text(label).color(text_color).size(px * 0.4).into()
+            }
+        };
+
+        container(content)
+            .width(Length::Fixed(px))
+            .height(Length::Fixed(px))
+            .align_x(iced::alignment::Horizontal::Center)
+            .align_y(iced::alignment::Vertical::Center)
+            .style(move |_t| iced::widget::container::Style {
+                text_color: Some(text_color),
+                background: Some(iced::Background::Color(bg)),
+                border: iced::Border {
+                    color: Color::TRANSPARENT,
+                    width: 0.0,
+                    radius: iced::border::radius(radius),
+                },
+                shadow: iced::Shadow::default(),
+            })
+            .into()
     }
 }
 

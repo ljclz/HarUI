@@ -2,6 +2,10 @@
 //! 支持：单个 Checkbox（checked/disabled/indeterminate/size/border/true-value/false-value）
 //! 与 CheckboxGroup（多选/min/max/disabled/全选/取消全选/indeterminate 计算属性）。
 
+use har_ui_core::theme::Theme;
+use iced::widget::{button, container, text};
+use iced::{Color, Element, Length, Padding};
+
 /// Checkbox 尺寸
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum CheckboxSize {
@@ -165,6 +169,113 @@ impl Checkbox {
             _ => {}
         }
     }
+
+    // ---------- 视觉辅助 ----------
+
+    /// 按 size 计算 padding
+    pub fn padding_for_size(size: CheckboxSize) -> Padding {
+        match size {
+            CheckboxSize::Large => Padding::from([10u16, 14u16]),
+            CheckboxSize::Default => Padding::from([8u16, 12u16]),
+            CheckboxSize::Small => Padding::from([6u16, 10u16]),
+        }
+    }
+
+    /// 按 size 计算 font size
+    pub fn font_size_for_size(size: CheckboxSize) -> f32 {
+        match size {
+            CheckboxSize::Large => 16.0,
+            CheckboxSize::Default => 14.0,
+            CheckboxSize::Small => 12.0,
+        }
+    }
+
+    /// 渲染单个 Checkbox 为 iced::Element
+    ///
+    /// # 参数
+    /// - `theme`: HarUI 主题引用
+    /// - `on_toggle`: 点击切换时发出的消息
+    pub fn view<'a, Message: Clone + 'a>(
+        &'a self,
+        theme: &'a Theme,
+        on_toggle: Message,
+    ) -> Element<'a, Message> {
+        let primary = Color::from(theme.primary.base);
+        let text_color = if self.disabled {
+            Color::from(theme.neutral.text_disabled)
+        } else {
+            Color::from(theme.neutral.text_regular)
+        };
+        let box_color = if self.disabled {
+            Color::from(theme.neutral.text_disabled)
+        } else if self.checked || self.indeterminate {
+            primary
+        } else {
+            Color::from(theme.neutral.border_base)
+        };
+
+        // 框指示器：☐ 未选 / ☑ 已选 / ▣ 半选（用 - 减号）
+        let indicator = if self.indeterminate {
+            "▣"
+        } else if self.checked {
+            "☑"
+        } else {
+            "☐"
+        };
+        let size = Self::font_size_for_size(self.size);
+
+        let content = iced::widget::Row::new()
+            .push(text(indicator).color(box_color).size(size + 2.0))
+            .push(iced::widget::Space::with_width(Length::Fixed(6.0)))
+            .push(text(self.label.clone()).color(text_color).size(size))
+            .align_y(iced::Alignment::Center);
+
+        let mut btn = button(content)
+            .padding(Self::padding_for_size(self.size))
+            .style(move |_t, status| {
+                let bg = if self.border {
+                    match status {
+                        iced::widget::button::Status::Hovered
+                        | iced::widget::button::Status::Pressed => {
+                            Some(iced::Background::Color(Color {
+                                a: 0.05,
+                                ..Color::from(theme.primary.base)
+                            }))
+                        }
+                        _ => Some(iced::Background::Color(Color::from(
+                            theme.neutral.bg_overlay,
+                        ))),
+                    }
+                } else {
+                    None
+                };
+                let border = if self.border {
+                    iced::Border {
+                        color: if self.checked || self.indeterminate {
+                            primary
+                        } else {
+                            Color::from(theme.neutral.border_base)
+                        },
+                        width: 1.0,
+                        radius: iced::border::radius(4.0),
+                    }
+                } else {
+                    iced::Border::default()
+                };
+                iced::widget::button::Style {
+                    background: bg,
+                    text_color,
+                    border,
+                    shadow: iced::Shadow::default(),
+                }
+            });
+
+        if !self.disabled {
+            btn = btn.on_press(on_toggle);
+        }
+
+        btn.into()
+    }
 }
 
 // ---------- CheckboxGroup ----------
@@ -288,6 +399,71 @@ impl CheckboxGroup {
             }
             _ => {}
         }
+    }
+
+    /// 渲染 CheckboxGroup 为 iced::Element（横排多个 Checkbox）
+    ///
+    /// # 参数
+    /// - `theme`: HarUI 主题引用
+    /// - `options`: 选项列表，每项为 (value, label)
+    /// - `on_toggle`: 切换某项时发出消息，参数为该项 value
+    pub fn view<'a, Message: Clone + 'a>(
+        &'a self,
+        theme: &'a Theme,
+        options: &'a [(&'a str, &'a str)],
+        on_toggle: impl Fn(String) -> Message + 'a,
+    ) -> Element<'a, Message> {
+        if options.is_empty() {
+            return container(text("")).into();
+        }
+
+        let primary = Color::from(theme.primary.base);
+        let text_regular = Color::from(theme.neutral.text_regular);
+        let text_disabled = Color::from(theme.neutral.text_disabled);
+        let border_base = Color::from(theme.neutral.border_base);
+        let size = Checkbox::font_size_for_size(CheckboxSize::Default);
+        let padding = Checkbox::padding_for_size(CheckboxSize::Default);
+
+        // 预计算所有 Message（on_toggle 是 Fn，可多次调用）
+        let mut boxes: Vec<Element<'a, Message>> = Vec::with_capacity(options.len());
+        for (value, label) in options {
+            let is_checked = self.value.iter().any(|v| v == value);
+            // max 上限且未选中：禁用此选项
+            let option_disabled = self.disabled || (self.at_max() && !is_checked);
+            let box_color = if option_disabled {
+                text_disabled
+            } else if is_checked {
+                primary
+            } else {
+                border_base
+            };
+            let label_color = if option_disabled { text_disabled } else { text_regular };
+            let indicator = if is_checked { "☑" } else { "☐" };
+
+            let content = iced::widget::Row::new()
+                .push(text(indicator).color(box_color).size(size + 2.0))
+                .push(iced::widget::Space::with_width(Length::Fixed(6.0)))
+                .push(text(label.to_string()).color(label_color).size(size))
+                .align_y(iced::Alignment::Center);
+
+            let mut btn = button(content)
+                .padding(padding)
+                .style(move |_t, _status| iced::widget::button::Style {
+                    background: None,
+                    text_color: label_color,
+                    border: iced::Border::default(),
+                    shadow: iced::Shadow::default(),
+                });
+            if !option_disabled {
+                btn = btn.on_press(on_toggle(value.to_string()));
+            }
+            boxes.push(btn.into());
+        }
+
+        iced::widget::Row::with_children(boxes)
+            .spacing(12)
+            .align_y(iced::Alignment::Center)
+            .into()
     }
 }
 

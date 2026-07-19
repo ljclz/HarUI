@@ -10,7 +10,7 @@
 use har_ui_components::input::{
     Input, InputMessage, InputMode, InputState,
 };
-use har_ui_core::utils::ime::{ImeEvent, ProcessResult};
+use har_ui_core::utils::ime::ImeEvent;
 
 #[test]
 fn test_input_default_mode_is_text() {

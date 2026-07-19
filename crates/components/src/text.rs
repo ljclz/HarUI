@@ -2,6 +2,10 @@
 //!
 //! 支持：6 种 type、3 种 size、truncated、tag、copyable、max_lines。
 
+use har_ui_core::theme::Theme;
+use iced::widget::{container, text};
+use iced::{Color, Element, Length};
+
 /// 类型
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum TextType {
@@ -127,6 +131,66 @@ impl Text {
 
     pub fn max_lines(&self) -> Option<u32> {
         self.max_lines
+    }
+
+    /// 渲染 Text 为 iced::Element
+    ///
+    /// # 参数
+    /// - `theme`: HarUI 主题引用
+    pub fn view<'a>(&'a self, theme: &'a Theme) -> Element<'a, ()> {
+        let color = match self.text_type {
+            TextType::Default => Color::from(theme.neutral.text_regular),
+            TextType::Primary => Color::from(theme.primary.base),
+            TextType::Success => Color::from(theme.success.base),
+            TextType::Warning => Color::from(theme.warning.base),
+            TextType::Danger => Color::from(theme.danger.base),
+            TextType::Info => Color::from(theme.info.base),
+        };
+        let font_size = match self.size {
+            TextSize::Large => 18.0,
+            TextSize::Default => 14.0,
+            TextSize::Small => 12.0,
+        };
+
+        let label = match self.tag {
+            TextTag::H1 => "H1: ",
+            TextTag::H2 => "H2: ",
+            TextTag::H3 => "H3: ",
+            _ => "",
+        };
+
+        let display_text = if label.is_empty() {
+            self.content.clone()
+        } else {
+            format!("{}{}", label, self.content)
+        };
+
+        let make_text = || text(display_text.clone()).color(color).size(font_size);
+
+        let wrapper: iced::widget::Container<'_, ()> = if self.truncated {
+            container(
+                iced::widget::Row::new()
+                    .push(make_text())
+                    .push(text("…").color(Color::from(theme.neutral.text_placeholder))),
+            )
+            .width(Length::Shrink)
+        } else {
+            container(make_text()).width(Length::Shrink)
+        };
+
+        if self.copyable {
+            let copyable_row = iced::widget::Row::new()
+                .push(wrapper)
+                .push(iced::widget::Space::with_width(Length::Fixed(4.0)))
+                .push(
+                    text("📋")
+                        .color(Color::from(theme.neutral.text_secondary))
+                        .size(12.0),
+                )
+                .align_y(iced::Alignment::Center);
+            return copyable_row.into();
+        }
+        wrapper.into()
     }
 }
 

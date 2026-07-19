@@ -5,6 +5,8 @@
 //! - centered: 是否居中显示
 //! - padding: 内边距
 
+use iced::Element;
+
 /// 容器宽度策略
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum ContainerWidth {
@@ -63,4 +65,13 @@ impl Default for Container {
     fn default() -> Self {
         Self::new()
     }
+}
+
+/// 构建容器 Element — 把 content 装入 iced Container
+///
+/// 简化版签名，等价于 `iced::widget::container(content).into()`。
+pub fn container<'a, Message: Clone + 'a>(
+    content: Element<'a, Message>,
+) -> Element<'a, Message> {
+    iced::widget::container(content).into()
 }

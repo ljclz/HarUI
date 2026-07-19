@@ -2,6 +2,9 @@
 //!
 //! 支持：accordion 手风琴、active_keys、disabled item、Toggle/Open/Close/OpenAll/CloseAll。
 
+use har_ui_core::theme::Theme;
+use iced::widget::{button, container, text};
+use iced::{Color, Element, Length, Padding};
 use std::collections::HashSet;
 
 /// Collapse 消息
@@ -175,6 +178,108 @@ impl Collapse {
                 self.active_keys.clear();
             }
         }
+    }
+
+    /// 渲染 Collapse 为 iced::Element
+    ///
+    /// # 参数
+    /// - `theme`: HarUI 主题引用
+    /// - `on_toggle`: 点击某项标题时发出消息，参数为该项 name
+    pub fn view<'a, Message: Clone + 'a>(
+        &'a self,
+        theme: &'a Theme,
+        on_toggle: impl Fn(String) -> Message + 'a,
+    ) -> Element<'a, Message> {
+        if self.items.is_empty() {
+            return container(text("")).into();
+        }
+
+        let text_primary = Color::from(theme.neutral.text_primary);
+        let text_regular = Color::from(theme.neutral.text_regular);
+        let text_disabled = Color::from(theme.neutral.text_disabled);
+        let border_lighter = Color::from(theme.neutral.border_lighter);
+        let primary = Color::from(theme.primary.base);
+
+        let mut children: Vec<Element<'a, Message>> = Vec::new();
+
+        for item in &self.items {
+            let is_active = self.active_keys.contains(&item.name);
+            let is_disabled = item.disabled;
+
+            // 展开指示器：▶ 折叠 / ▼ 展开
+            let indicator_str = if is_active { "▼" } else { "▶" };
+            let indicator_color = if is_disabled {
+                text_disabled
+            } else if is_active {
+                primary
+            } else {
+                text_regular
+            };
+            let title_color = if is_disabled { text_disabled } else { text_primary };
+
+            let header_content = iced::widget::Row::new()
+                .push(text(indicator_str).color(indicator_color).size(14.0))
+                .push(iced::widget::Space::with_width(Length::Fixed(8.0)))
+                .push(text(item.title.clone()).color(title_color).size(14.0))
+                .align_y(iced::Alignment::Center);
+
+            let mut header_btn = button(header_content)
+                .padding(Padding::from([12u16, 16u16]))
+                .style(move |_t, _status| iced::widget::button::Style {
+                    background: None,
+                    text_color: title_color,
+                    border: iced::Border::default(),
+                    shadow: iced::Shadow::default(),
+                });
+            if !is_disabled {
+                header_btn = header_btn.on_press(on_toggle(item.name.clone()));
+            }
+
+            let mut item_children: Vec<Element<'a, Message>> = Vec::new();
+            // header + 顶部边框
+            let header_wrap = container(header_btn)
+                .width(Length::Fill)
+                .style(move |_t| iced::widget::container::Style {
+                    text_color: None,
+                    background: None,
+                    border: iced::Border {
+                        color: border_lighter,
+                        width: 1.0,
+                        radius: iced::border::radius(0.0),
+                    },
+                    shadow: iced::Shadow::default(),
+                });
+            item_children.push(header_wrap.into());
+
+            // 展开内容（占位）
+            if is_active {
+                let content = container(
+                    text("[content]")
+                        .color(Color::from(theme.neutral.text_placeholder))
+                        .size(13.0),
+                )
+                .width(Length::Fill)
+                .padding(Padding::from([12u16, 40u16]))
+                .style(move |_t| iced::widget::container::Style {
+                    text_color: None,
+                    background: None,
+                    border: iced::Border {
+                        color: border_lighter,
+                        width: 1.0,
+                        radius: iced::border::radius(0.0),
+                    },
+                    shadow: iced::Shadow::default(),
+                });
+                item_children.push(content.into());
+            }
+
+            let item_col = iced::widget::Column::with_children(item_children).spacing(0);
+            children.push(item_col.into());
+        }
+
+        iced::widget::Column::with_children(children)
+            .spacing(0)
+            .into()
     }
 }
 

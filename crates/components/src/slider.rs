@@ -3,6 +3,10 @@
 //! 支持：min/max/step、value、disabled、vertical、show_input、show_stops、
 //! range、Increase/Decrease、step 吸附、范围钳制与顺序交换。
 
+use har_ui_core::theme::Theme;
+use iced::widget::{button, container, text};
+use iced::{Color, Element, Length, Padding};
+
 /// Slider 消息
 #[derive(Debug, Clone, PartialEq)]
 pub enum SliderMessage {
@@ -175,6 +179,108 @@ impl Slider {
                 self.value = self.snap(self.value - self.step);
             }
         }
+    }
+
+    /// 渲染 Slider 为 iced::Element
+    ///
+    /// # 参数
+    /// - `theme`: HarUI 主题引用
+    /// - `on_change`: 值变化回调；参数为新值（f64）
+    pub fn view<'a, Message: Clone + 'a>(
+        &'a self,
+        theme: &'a Theme,
+        on_change: impl Fn(f64) -> Message + 'a,
+    ) -> Element<'a, Message> {
+        let text_primary = Color::from(theme.neutral.text_primary);
+        let text_regular = Color::from(theme.neutral.text_regular);
+        let text_disabled = Color::from(theme.neutral.text_disabled);
+        let border_lighter = Color::from(theme.neutral.border_lighter);
+        let border_base = Color::from(theme.neutral.border_base);
+        let primary = Color::from(theme.primary.base);
+        let bg_overlay = Color::from(theme.neutral.bg_overlay);
+
+        let span = self.max - self.min;
+        let ratio = if span.abs() < f64::EPSILON {
+            0.0
+        } else {
+            (self.value - self.min) / span
+        };
+        let ratio_clamped = ratio.clamp(0.0, 1.0);
+        let portion_left = (ratio_clamped * 100.0).round() as u16;
+        let portion_right = 100u16.saturating_sub(portion_left);
+
+        let left_track = container(text(""))
+            .width(Length::FillPortion(portion_left))
+            .height(Length::Fixed(4.0))
+            .style(move |_t| iced::widget::container::Style {
+                text_color: None,
+                background: Some(iced::Background::Color(primary)),
+                border: iced::Border::default(),
+                shadow: iced::Shadow::default(),
+            });
+
+        let mut handle_btn = button(text(""))
+            .width(Length::Fixed(16.0))
+            .height(Length::Fixed(16.0))
+            .style(move |_t, _status| iced::widget::button::Style {
+                background: Some(iced::Background::Color(primary)),
+                text_color: primary,
+                border: iced::Border {
+                    color: border_base,
+                    width: 2.0,
+                    radius: iced::border::radius(8.0),
+                },
+                shadow: iced::Shadow::default(),
+            });
+        if !self.disabled {
+            handle_btn = handle_btn.on_press(on_change(self.value));
+        }
+
+        let right_track = container(text(""))
+            .width(Length::FillPortion(portion_right))
+            .height(Length::Fixed(4.0))
+            .style(move |_t| iced::widget::container::Style {
+                text_color: None,
+                background: Some(iced::Background::Color(border_lighter)),
+                border: iced::Border::default(),
+                shadow: iced::Shadow::default(),
+            });
+
+        let track_row = iced::widget::Row::new()
+            .push(left_track)
+            .push(handle_btn)
+            .push(right_track)
+            .align_y(iced::Alignment::Center)
+            .spacing(0);
+
+        let track_elem: Element<'a, Message> = if self.show_input {
+            let value_text = format!("{}", self.value);
+            let value_label = text(value_text).color(text_regular).size(14.0);
+            iced::widget::Row::new()
+                .push(track_row)
+                .push(iced::widget::Space::with_width(Length::Fixed(12.0)))
+                .push(value_label)
+                .align_y(iced::Alignment::Center)
+                .into()
+        } else {
+            track_row.into()
+        };
+
+        let is_disabled = self.disabled;
+        container(track_elem)
+            .width(Length::Fill)
+            .padding(Padding::from([8u16, 12u16]))
+            .style(move |_t| iced::widget::container::Style {
+                text_color: Some(if is_disabled { text_disabled } else { text_primary }),
+                background: Some(iced::Background::Color(bg_overlay)),
+                border: iced::Border {
+                    color: if is_disabled { border_base } else { border_lighter },
+                    width: 1.0,
+                    radius: iced::border::radius(4.0),
+                },
+                shadow: iced::Shadow::default(),
+            })
+            .into()
     }
 }
 

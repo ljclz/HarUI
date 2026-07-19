@@ -2,6 +2,10 @@
 //!
 //! 支持：挂起、取单、删除、清空、按时间倒序排列。
 
+use har_ui_core::theme::Theme;
+use iced::widget::{button, container, text};
+use iced::{Color, Element, Length, Padding};
+
 /// 挂单项
 #[derive(Debug, Clone, PartialEq)]
 pub struct HangOrderItem {
@@ -92,6 +96,153 @@ impl HangOrder {
                 None
             }
         }
+    }
+
+    /// 渲染 HangOrder 为 iced::Element
+    ///
+    /// # 参数
+    /// - `theme`: HarUI 主题引用
+    /// - `on_resume`: 点击恢复按钮时发出消息，参数为订单号
+    /// - `on_delete`: 点击删除按钮时发出消息，参数为订单号
+    pub fn view<'a, Message: Clone + 'a>(
+        &'a self,
+        theme: &'a Theme,
+        on_resume: impl Fn(String) -> Message + 'a,
+        on_delete: impl Fn(String) -> Message + 'a,
+    ) -> Element<'a, Message> {
+        let text_placeholder = Color::from(theme.neutral.text_placeholder);
+        let border_lighter = Color::from(theme.neutral.border_lighter);
+
+        if self.items.is_empty() {
+            return container(
+                text("暂无挂单".to_string())
+                    .color(text_placeholder)
+                    .size(14.0),
+            )
+            .width(Length::Fill)
+            .padding(Padding::from([20u16, 12u16]))
+            .style(move |_t| iced::widget::container::Style {
+                text_color: None,
+                background: None,
+                border: iced::Border {
+                    color: border_lighter,
+                    width: 1.0,
+                    radius: iced::border::radius(4.0),
+                },
+                shadow: iced::Shadow::default(),
+            })
+            .into();
+        }
+
+        let mut children: Vec<Element<'a, Message>> = Vec::new();
+        for item in &self.items {
+            children.push(Self::render_item(
+                item, theme, &on_resume, &on_delete,
+            ));
+        }
+
+        let col = iced::widget::Column::with_children(children).spacing(4);
+        container(col)
+            .width(Length::Fill)
+            .padding(Padding::from(4u16))
+            .style(move |_t| iced::widget::container::Style {
+                text_color: None,
+                background: None,
+                border: iced::Border {
+                    color: border_lighter,
+                    width: 1.0,
+                    radius: iced::border::radius(4.0),
+                },
+                shadow: iced::Shadow::default(),
+            })
+            .into()
+    }
+
+    fn render_item<'a, Message: Clone + 'a>(
+        item: &'a HangOrderItem,
+        theme: &'a Theme,
+        on_resume: &dyn Fn(String) -> Message,
+        on_delete: &dyn Fn(String) -> Message,
+    ) -> Element<'a, Message> {
+        let primary = Color::from(theme.primary.base);
+        let danger = Color::from(theme.danger.base);
+        let text_primary = Color::from(theme.neutral.text_primary);
+        let text_secondary = Color::from(theme.neutral.text_secondary);
+        let border_lighter = Color::from(theme.neutral.border_lighter);
+
+        let header = iced::widget::Row::new()
+            .push(text(format!("#{}", item.id)).color(primary).size(14.0))
+            .push(iced::widget::Space::with_width(Length::Fill))
+            .push(text(format!("{} 件", item.item_count)).color(text_secondary).size(12.0))
+            .align_y(iced::Alignment::Center);
+
+        let body = iced::widget::Row::new()
+            .push(text("客户".to_string()).color(text_secondary).size(12.0))
+            .push(iced::widget::Space::with_width(Length::Fixed(4.0)))
+            .push(text(item.customer_name.clone()).color(text_primary).size(13.0))
+            .push(iced::widget::Space::with_width(Length::Fixed(12.0)))
+            .push(text("金额".to_string()).color(text_secondary).size(12.0))
+            .push(iced::widget::Space::with_width(Length::Fixed(4.0)))
+            .push(text(format!("¥ {:.2}", item.total)).color(primary).size(13.0))
+            .align_y(iced::Alignment::Center);
+
+        let resume_msg = on_resume(item.id.clone());
+        let delete_msg = on_delete(item.id.clone());
+        let actions = iced::widget::Row::new()
+            .push(
+                button(text("恢复".to_string()).color(primary).size(12.0))
+                    .padding(Padding::from([4u16, 8u16]))
+                    .on_press(resume_msg)
+                    .style(move |_t, _status| iced::widget::button::Style {
+                        background: None,
+                        text_color: primary,
+                        border: iced::Border {
+                            color: primary,
+                            width: 1.0,
+                            radius: iced::border::radius(4.0),
+                        },
+                        shadow: iced::Shadow::default(),
+                    }),
+            )
+            .push(iced::widget::Space::with_width(Length::Fixed(4.0)))
+            .push(
+                button(text("删除".to_string()).color(danger).size(12.0))
+                    .padding(Padding::from([4u16, 8u16]))
+                    .on_press(delete_msg)
+                    .style(move |_t, _status| iced::widget::button::Style {
+                        background: None,
+                        text_color: danger,
+                        border: iced::Border {
+                            color: danger,
+                            width: 1.0,
+                            radius: iced::border::radius(4.0),
+                        },
+                        shadow: iced::Shadow::default(),
+                    }),
+            )
+            .spacing(0);
+
+        let inner = iced::widget::Column::new()
+            .push(header)
+            .push(iced::widget::Space::with_height(Length::Fixed(4.0)))
+            .push(body)
+            .push(iced::widget::Space::with_height(Length::Fixed(4.0)))
+            .push(actions);
+
+        container(inner)
+            .width(Length::Fill)
+            .padding(Padding::from([8u16, 12u16]))
+            .style(move |_t| iced::widget::container::Style {
+                text_color: None,
+                background: None,
+                border: iced::Border {
+                    color: border_lighter,
+                    width: 1.0,
+                    radius: iced::border::radius(4.0),
+                },
+                shadow: iced::Shadow::default(),
+            })
+            .into()
     }
 }
 

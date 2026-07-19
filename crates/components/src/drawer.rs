@@ -2,6 +2,10 @@
 //! 支持：4 种 direction（rtl/ltr/ttb/btt）、状态机（Closed→Opening→Open→Closing→Closed）、
 //! close_on_click_modal/close_on_press_escape、modal、show_close、destroy_on_close。
 
+use har_ui_core::theme::Theme;
+use iced::widget::{button, container, text};
+use iced::{Color, Element, Length, Padding};
+
 /// Drawer 弹出方向
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum DrawerDirection {
@@ -229,6 +233,118 @@ impl Drawer {
 
             _ => {}
         }
+    }
+
+    /// 渲染 Drawer 为 iced::Element
+    ///
+    /// - `visible() == false` 时返回空容器
+    /// - 否则按 direction 定位 + 标题 + 关闭按钮 + 占位内容
+    pub fn view<'a, Message: Clone + 'a>(
+        &'a self,
+        theme: &'a Theme,
+        on_close: impl Fn() -> Message + 'a,
+    ) -> Element<'a, Message> {
+        if !self.visible() {
+            return container(text("")).into();
+        }
+
+        let title_color = Color::from(theme.neutral.text_primary);
+        let content_color = Color::from(theme.neutral.text_regular);
+        let bg = Color::from(theme.neutral.bg_overlay);
+        let border_color = Color::from(theme.neutral.border_lighter);
+        let mask = Color { a: 0.5, ..Color::BLACK };
+
+        // 标题栏
+        let mut header_children: Vec<Element<'a, Message>> = Vec::new();
+        if let Some(t) = &self.title {
+            header_children.push(text(t.clone()).color(title_color).size(16.0).into());
+        } else {
+            header_children.push(text("").into());
+        }
+        header_children.push(iced::widget::Space::with_width(Length::Fill).into());
+        if self.show_close {
+            let close_btn = button(text("×").color(content_color).size(18.0))
+                .padding(Padding::from([2u16, 8u16]))
+                .on_press(on_close())
+                .style(move |_t, _status| iced::widget::button::Style {
+                    background: None,
+                    text_color: content_color,
+                    border: iced::Border::default(),
+                    shadow: iced::Shadow::default(),
+                });
+            header_children.push(close_btn.into());
+        }
+        let header = iced::widget::Row::with_children(header_children)
+            .align_y(iced::Alignment::Center)
+            .spacing(0);
+
+        // 占位内容
+        let body_text = text("[drawer content]")
+            .color(Color::from(theme.neutral.text_placeholder))
+            .size(14.0);
+        let body = container(body_text)
+            .width(Length::Fill)
+            .padding(Padding::from([16u16, 16u16]));
+
+        let inner = iced::widget::Column::new()
+            .push(header)
+            .push(iced::widget::Space::with_height(Length::Fixed(8.0)))
+            .push(body);
+
+        // 按 direction 计算尺寸
+        let (drawer_width, drawer_height): (Length, Length) = match self.direction {
+            DrawerDirection::Rtl | DrawerDirection::Ltr => {
+                (Length::Fixed(360.0), Length::Fill)
+            }
+            DrawerDirection::Ttb | DrawerDirection::Btt => {
+                (Length::Fill, Length::Fixed(280.0))
+            }
+        };
+
+        let drawer = container(inner)
+            .width(drawer_width)
+            .height(drawer_height)
+            .style(move |_t| iced::widget::container::Style {
+                text_color: Some(title_color),
+                background: Some(iced::Background::Color(bg)),
+                border: iced::Border {
+                    color: border_color,
+                    width: 1.0,
+                    radius: iced::border::radius(0.0),
+                },
+                shadow: iced::Shadow::default(),
+            });
+
+        // 按 direction 决定整体容器的对齐方式
+        let positioned = match self.direction {
+            DrawerDirection::Rtl => container(drawer)
+                .width(Length::Fill)
+                .height(Length::Fill)
+                .align_x(iced::alignment::Horizontal::Right),
+            DrawerDirection::Ltr => container(drawer)
+                .width(Length::Fill)
+                .height(Length::Fill)
+                .align_x(iced::alignment::Horizontal::Left),
+            DrawerDirection::Ttb => container(drawer)
+                .width(Length::Fill)
+                .height(Length::Fill)
+                .align_y(iced::alignment::Vertical::Top),
+            DrawerDirection::Btt => container(drawer)
+                .width(Length::Fill)
+                .height(Length::Fill)
+                .align_y(iced::alignment::Vertical::Bottom),
+        };
+
+        container(positioned)
+            .width(Length::Fill)
+            .height(Length::Fill)
+            .style(move |_t| iced::widget::container::Style {
+                text_color: None,
+                background: Some(iced::Background::Color(mask)),
+                border: iced::Border::default(),
+                shadow: iced::Shadow::default(),
+            })
+            .into()
     }
 }
 

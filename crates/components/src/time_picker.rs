@@ -2,6 +2,10 @@
 //!
 //! 支持：基础选择、is_range 范围、format、disabled、clearable、placeholder、方向键增减。
 
+use har_ui_core::theme::Theme;
+use iced::widget::{button, container, text};
+use iced::{Color, Element, Length, Padding};
+
 /// 时间值
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct TimeValue {
@@ -184,6 +188,103 @@ impl TimePicker {
         if let Some(t) = self.value {
             self.value = Some(f(t));
         }
+    }
+
+    /// 渲染 TimePicker 为 iced::Element
+    ///
+    /// # 参数
+    /// - `theme`: HarUI 主题引用
+    /// - `on_pick`: 用户选择某个时间时发出消息，参数为 "HH:MM:SS" 格式字符串
+    pub fn view<'a, Message: Clone + 'a>(
+        &'a self,
+        theme: &'a Theme,
+        on_pick: impl Fn(String) -> Message + 'a,
+    ) -> Element<'a, Message> {
+        let primary = Color::from(theme.primary.base);
+        let text_primary = Color::from(theme.neutral.text_primary);
+        let text_secondary = Color::from(theme.neutral.text_secondary);
+        let text_placeholder = Color::from(theme.neutral.text_placeholder);
+        let border_lighter = Color::from(theme.neutral.border_lighter);
+
+        let display_str = if self.is_range {
+            let start = self
+                .start_value
+                .map(|t| format!("{:02}:{:02}:{:02}", t.hour, t.minute, t.second))
+                .unwrap_or_else(|| "--:--:--".to_string());
+            let end = self
+                .end_value
+                .map(|t| format!("{:02}:{:02}:{:02}", t.hour, t.minute, t.second))
+                .unwrap_or_else(|| "--:--:--".to_string());
+            format!("{} ~ {}", start, end)
+        } else {
+            let formatted = self.formatted_value();
+            if formatted.is_empty() {
+                self.placeholder.clone()
+            } else {
+                formatted
+            }
+        };
+
+        let display_color = if self.value.is_none() && !self.is_range {
+            text_placeholder
+        } else if self.is_range && self.start_value.is_none() {
+            text_placeholder
+        } else {
+            text_primary
+        };
+
+        let display_text = text(display_str).color(display_color).size(14);
+        let display_area = container(display_text)
+            .width(Length::Fill)
+            .padding(Padding::from([8u16, 12u16]))
+            .style(move |_t| iced::widget::container::Style {
+                text_color: None,
+                background: None,
+                border: iced::Border {
+                    color: if self.disabled {
+                        border_lighter
+                    } else {
+                        primary
+                    },
+                    width: 1.0,
+                    radius: iced::border::radius(4.0),
+                },
+                shadow: iced::Shadow::default(),
+            });
+
+        let mut col_children: Vec<Element<'a, Message>> = vec![display_area.into()];
+
+        if self.visible && !self.disabled {
+            let presets: Vec<&str> = vec!["08:00:00", "12:00:00", "18:00:00", "23:59:59"];
+            let mut row_children: Vec<Element<'a, Message>> = Vec::new();
+            for preset in presets {
+                let label = preset.to_string();
+                let msg = on_pick(label.clone());
+                let btn = button(text(label).color(text_secondary).size(12.0))
+                    .padding(Padding::from([4u16, 8u16]))
+                    .on_press(msg)
+                    .style(move |_t, _status| iced::widget::button::Style {
+                        background: None,
+                        text_color: text_secondary,
+                        border: iced::Border {
+                            color: border_lighter,
+                            width: 1.0,
+                            radius: iced::border::radius(4.0),
+                        },
+                        shadow: iced::Shadow::default(),
+                    });
+                row_children.push(btn.into());
+            }
+            let presets_row = iced::widget::Row::with_children(row_children).spacing(4);
+            let presets_wrap = container(presets_row)
+                .width(Length::Fill)
+                .padding(Padding::from([4u16, 0u16]));
+            col_children.push(presets_wrap.into());
+        }
+
+        iced::widget::Column::with_children(col_children)
+            .spacing(4)
+            .into()
     }
 }
 

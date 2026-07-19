@@ -1,6 +1,10 @@
 //! Notification 通知组件 — 参考 Element Plus `ElNotification`。
 //! 支持：4 种 type、4 种 position、duration 自动关闭（tick 模拟）、offset、show_close、NotificationList 多通知堆叠。
 
+use har_ui_core::theme::Theme;
+use iced::widget::{container, text};
+use iced::{Color, Element, Length, Padding};
+
 /// Notification 类型
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum NotificationType {
@@ -173,6 +177,62 @@ impl Notification {
                 self.closed = true;
             }
         }
+    }
+
+    /// 渲染 Notification 为 iced::Element
+    ///
+    /// - `closed == true` 时返回空容器
+    /// - 否则按 msg_type 上色，渲染标题 + 内容 + 可选关闭按钮
+    pub fn view<'a>(&'a self, theme: &'a Theme) -> Element<'a, ()> {
+        if self.closed {
+            return container(text("")).into();
+        }
+
+        let (icon, accent) = match self.msg_type {
+            NotificationType::Success => ("✓", Color::from(theme.success.base)),
+            NotificationType::Warning => ("⚠", Color::from(theme.warning.base)),
+            NotificationType::Info => ("ℹ", Color::from(theme.info.base)),
+            NotificationType::Error => ("✕", Color::from(theme.danger.base)),
+        };
+        let title_color = Color::from(theme.neutral.text_primary);
+        let content_color = Color::from(theme.neutral.text_regular);
+        let bg = Color::from(theme.neutral.bg_overlay);
+        let border_color = Color::from(theme.neutral.border_lighter);
+
+        let title_text = text(self.title.clone()).color(title_color).size(16.0);
+        let content_text = text(self.message.clone()).color(content_color).size(14.0);
+
+        let mut header_children: Vec<Element<'a, ()>> = Vec::new();
+        header_children.push(text(icon).color(accent).size(18.0).into());
+        header_children.push(iced::widget::Space::with_width(Length::Fixed(8.0)).into());
+        header_children.push(title_text.into());
+        header_children.push(iced::widget::Space::with_width(Length::Fill).into());
+        if self.show_close {
+            header_children.push(text("×").color(content_color).size(16.0).into());
+        }
+        let header = iced::widget::Row::with_children(header_children)
+            .align_y(iced::Alignment::Center)
+            .spacing(0);
+
+        let col = iced::widget::Column::new()
+            .push(header)
+            .push(iced::widget::Space::with_height(Length::Fixed(6.0)))
+            .push(content_text);
+
+        container(col)
+            .width(Length::Fixed(320.0))
+            .padding(Padding::from([14u16, 16u16]))
+            .style(move |_t| iced::widget::container::Style {
+                text_color: None,
+                background: Some(iced::Background::Color(bg)),
+                border: iced::Border {
+                    color: border_color,
+                    width: 1.0,
+                    radius: iced::border::radius(4.0),
+                },
+                shadow: iced::Shadow::default(),
+            })
+            .into()
     }
 }
 

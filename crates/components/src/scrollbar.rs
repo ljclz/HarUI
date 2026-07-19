@@ -3,6 +3,10 @@
 //! 支持：height/max_height、native、always_visible、滚动位置（scroll_x/scroll_y）、
 //! 最大滚动范围钳制、增量滚动、重置。
 
+use har_ui_core::theme::Theme;
+use iced::widget::{container, scrollable};
+use iced::{Color, Element, Length};
+
 /// Scrollbar 消息
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ScrollbarMessage {
@@ -139,6 +143,46 @@ impl Scrollbar {
         if self.max_scroll_y > 0 && self.scroll_y > self.max_scroll_y {
             self.scroll_y = self.max_scroll_y;
         }
+    }
+
+    /// 渲染 Scrollbar 为 iced::Element
+    ///
+    /// 用 `iced::widget::scrollable` 包裹 content，
+    /// 按 height/max_height 配置容器尺寸。
+    ///
+    /// # 参数
+    /// - `theme`: HarUI 主题引用
+    /// - `content`: 被包裹的内容
+    pub fn view<'a, Message: Clone + 'a>(
+        &'a self,
+        theme: &'a Theme,
+        content: Element<'a, Message>,
+    ) -> Element<'a, Message> {
+        let border_color = Color::from(theme.neutral.border_lighter);
+
+        let scroller = scrollable(content);
+        let with_height = match self.height {
+            Some(h) => scroller.height(Length::Fixed(h as f32)),
+            None => scroller,
+        };
+        let with_max_height = match self.max_height {
+            Some(h) => with_height.height(Length::Fixed(h as f32)),
+            None => with_height,
+        };
+
+        container(with_max_height)
+            .width(Length::Fill)
+            .style(move |_t| iced::widget::container::Style {
+                text_color: None,
+                background: None,
+                border: iced::Border {
+                    color: border_color,
+                    width: 1.0,
+                    radius: iced::border::radius(4.0),
+                },
+                shadow: iced::Shadow::default(),
+            })
+            .into()
     }
 }
 

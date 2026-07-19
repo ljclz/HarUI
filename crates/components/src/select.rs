@@ -3,6 +3,11 @@
 //! 参考 Element Plus `<el-select>`。
 //! 支持：单选/多选、禁用选项、可搜索(filterable)、clearable、1000 选项虚拟列表。
 
+use har_ui_core::theme::style_sheets::{self, ButtonKind};
+use har_ui_core::theme::Theme;
+use iced::widget::{button, container, scrollable, text, text_input};
+use iced::{Color, Element, Length, Padding};
+
 /// 选项
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct SelectOption {
@@ -163,6 +168,15 @@ impl Select {
             .map(|o| o.label.clone())
     }
 
+    /// 多选时显示的 label 列表
+    pub fn display_labels(&self) -> Vec<String> {
+        self.values
+            .iter()
+            .filter_map(|v| self.options.iter().find(|o| &o.value == v))
+            .map(|o| o.label.clone())
+            .collect()
+    }
+
     /// 按查询文本过滤选项
     pub fn filter(&self, q: &str) -> Vec<&SelectOption> {
         if q.is_empty() {
@@ -218,6 +232,198 @@ impl Select {
                 self.query = Some(q);
             }
         }
+    }
+
+    /// 渲染 Select 为 iced::Element
+    ///
+    /// # 参数
+    /// - `theme`: HarUI 主题引用
+    /// - `on_choose`: 交互回调。参数为选项 value 表示选中；
+    ///   约定字符串：`"__trigger__"` 触发器点击、`"__clear__"` 清除、
+    ///   `"__query:<text>"` 搜索框输入。
+    ///
+    /// # 行为
+    /// - Closed：仅渲染触发器（显示当前值或 placeholder）
+    /// - Open：渲染触发器 + 下拉面板（filterable 时含搜索框 + 选项列表）
+    /// - disabled：触发器无 on_press
+    /// - clearable + 有值：触发器右侧显示 × 按钮
+    /// - 多选：触发器显示已选 label 拼接；选项前加 ✓
+    pub fn view<'a, Message: Clone + 'a>(
+        &'a self,
+        theme: &'a Theme,
+        on_choose: impl Fn(String) -> Message + 'a,
+    ) -> Element<'a, Message> {
+        let text_color = Color::from(theme.neutral.text_regular);
+        let placeholder_color = Color::from(theme.neutral.text_placeholder);
+        let border_color = Color::from(theme.neutral.border_base);
+        let primary_color = Color::from(theme.primary.base);
+        let disabled_color = Color::from(theme.neutral.text_disabled);
+        let bg_overlay = Color::from(theme.neutral.bg_overlay);
+
+        // 触发器显示文本
+        let trigger_text = if self.multiple {
+            let labels = self.display_labels();
+            if labels.is_empty() {
+                "请选择".to_string()
+            } else {
+                labels.join(", ")
+            }
+        } else {
+            self.display_label().unwrap_or_else(|| "请选择".to_string())
+        };
+        let is_empty = if self.multiple {
+            self.values.is_empty()
+        } else {
+            self.value.is_none()
+        };
+        let trigger_text_color = if is_empty {
+            placeholder_color
+        } else if self.disabled {
+            disabled_color
+        } else {
+            text_color
+        };
+
+        // 触发器按钮（Row 包裹 文本 + Fill + 箭头）
+        let arrow = if self.state == SelectState::Open { "▲" } else { "▼" };
+        let trigger_content = iced::widget::Row::new()
+            .push(text(trigger_text).color(trigger_text_color))
+            .push(iced::widget::Space::with_width(Length::Fill))
+            .push(text(arrow).color(text_color));
+
+        let mut trigger_btn = button(trigger_content)
+            .padding(Padding::from([8u16, 12u16]))
+            .width(Length::Fill)
+            .style(move |_t, status| {
+                style_sheets::button_style(theme, ButtonKind::Default, false, status)
+            });
+
+        if !self.disabled {
+            trigger_btn = trigger_btn.on_press(on_choose("__trigger__".to_string()));
+        }
+
+        // clearable + 有值：右侧追加 × 按钮
+        let trigger_elem: Element<'a, Message> =
+            if self.clearable && !is_empty && !self.disabled {
+                let clear_btn = button(text("×").color(text_color))
+                    .padding(Padding::from([2u16, 6u16]))
+                    .on_press(on_choose("__clear__".to_string()))
+                    .style(move |_t, status| {
+                        style_sheets::button_style(theme, ButtonKind::Text, false, status)
+                    });
+                iced::widget::Row::new()
+                    .push(trigger_btn)
+                    .push(clear_btn)
+                    .spacing(4)
+                    .align_y(iced::Alignment::Center)
+                    .into()
+            } else {
+                trigger_btn.into()
+            };
+
+        // Closed：仅触发器
+        if self.state != SelectState::Open {
+            return container(trigger_elem).into();
+        }
+
+        // Open：下拉面板
+        let mut dropdown_children: Vec<Element<'a, Message>> = Vec::new();
+
+        // 选项按钮（先构建，避免 on_choose 被移动后无法调用）
+        let q = self.query.clone().unwrap_or_default();
+        let filtered: Vec<&SelectOption> = self.filter(&q);
+
+        if filtered.is_empty() {
+            dropdown_children.push(
+                container(text("无匹配项").color(placeholder_color))
+                    .padding(Padding::from(12u16))
+                    .width(Length::Fill)
+                    .into(),
+            );
+        } else {
+            let mut options_children: Vec<Element<'a, Message>> =
+                Vec::with_capacity(filtered.len());
+            for opt in &filtered {
+                let is_selected = if self.multiple {
+                    self.values.iter().any(|v| v == &opt.value)
+                } else {
+                    self.value.as_ref() == Some(&opt.value)
+                };
+                let opt_color = if opt.disabled {
+                    disabled_color
+                } else if is_selected {
+                    primary_color
+                } else {
+                    text_color
+                };
+                let opt_label = if is_selected {
+                    format!("✓ {}", opt.label)
+                } else {
+                    opt.label.clone()
+                };
+
+                let mut opt_btn = button(text(opt_label).color(opt_color))
+                    .padding(Padding::from([6u16, 12u16]))
+                    .width(Length::Fill)
+                    .style(move |_t, status| {
+                        let mut s =
+                            style_sheets::button_style(theme, ButtonKind::Text, false, status);
+                        if is_selected {
+                            s.background = Some(iced::Background::Color(Color {
+                                a: 0.05,
+                                ..primary_color
+                            }));
+                        }
+                        s
+                    });
+
+                if !opt.disabled {
+                    opt_btn = opt_btn.on_press(on_choose(opt.value.clone()));
+                }
+                options_children.push(opt_btn.into());
+            }
+
+            let options_col = iced::widget::Column::with_children(options_children).spacing(0);
+            let scroll = scrollable(options_col).height(Length::Fixed(300.0));
+            dropdown_children.push(scroll.into());
+        }
+
+        // filterable：搜索框（最后构建，on_choose 被 move 进闭包）
+        if self.filterable {
+            let query_text = self.query.clone().unwrap_or_default();
+            let search_input = text_input("搜索...", &query_text)
+                .on_input(move |t| on_choose(format!("__query:{}", t)))
+                .style(move |_t, status| style_sheets::input_style(theme, status));
+            dropdown_children.insert(0, search_input.into());
+        }
+
+        let dropdown = container(
+            iced::widget::Column::with_children(dropdown_children).spacing(0),
+        )
+        .width(Length::Fill)
+        .max_height(400.0)
+        .style(move |_t| iced::widget::container::Style {
+            text_color: Some(text_color),
+            background: Some(iced::Background::Color(bg_overlay)),
+            border: iced::Border {
+                color: border_color,
+                width: 1.0,
+                radius: iced::border::radius(4.0),
+            },
+            shadow: iced::Shadow {
+                color: Color { a: 0.2, ..Color::BLACK },
+                offset: iced::Vector::new(0.0, 2.0),
+                blur_radius: 8.0,
+            },
+        });
+
+        container(
+            iced::widget::Column::new()
+                .push(trigger_elem)
+                .push(dropdown)
+                .spacing(4),
+        )
+        .into()
     }
 }
 

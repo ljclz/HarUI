@@ -4,6 +4,20 @@ members = [
     "crates/core",
     "crates/components",
     "examples/empty-window",
+    "examples/button_demo",
+    "examples/input_demo",
+    "examples/table_demo",
+    "examples/dialog_demo",
+    "examples/form_demo",
+    "examples/select_demo",
+    "examples/pagination_demo",
+    "examples/card_demo",
+    "examples/tabs_demo",
+    "examples/date_picker_demo",
+    "examples/cascader_demo",
+    "examples/upload_demo",
+    "examples/showcase",
+    "examples/screenshot_test",
 ]
 
 [workspace.package]
@@ -27,7 +41,6 @@ criterion = "0.5"
 opt-level = 3
 lto = true
 codegen-units = 1
-panic = "abort"
 
 [profile.dev]
 opt-level = 1

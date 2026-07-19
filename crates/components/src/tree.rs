@@ -5,6 +5,10 @@
 use std::collections::HashSet;
 use std::collections::HashMap;
 
+use har_ui_core::theme::Theme;
+use iced::widget::{button, container, text};
+use iced::{Color, Element, Length, Padding};
+
 /// 树节点
 #[derive(Debug, Clone)]
 pub struct TreeNode {
@@ -312,6 +316,130 @@ impl Tree {
             collect_visible(root, self, &filter, &mut out);
         }
         out
+    }
+
+    /// 渲染 Tree 为 iced::Element
+    ///
+    /// - roots 为空时返回空容器
+    /// - 否则递归渲染所有 roots，按 expanded 状态展开子节点
+    /// - on_toggle 参数为节点 id（用于切换展开/折叠）
+    /// - on_select 参数为节点 id（用于选中节点）
+    pub fn view<'a, Message: Clone + 'a>(
+        &'a self,
+        theme: &'a Theme,
+        on_toggle: impl Fn(String) -> Message + 'a + Clone,
+        on_select: impl Fn(String) -> Message + 'a + Clone,
+    ) -> Element<'a, Message> {
+        if self.roots.is_empty() {
+            return container(text("")).into();
+        }
+
+        let children: Vec<Element<'a, Message>> = self
+            .roots
+            .iter()
+            .map(|n| Self::render_node(n, self, theme, &on_toggle, &on_select, 0))
+            .collect();
+
+        iced::widget::Column::with_children(children)
+            .spacing(2)
+            .into()
+    }
+
+    /// 递归渲染单个 TreeNode
+    fn render_node<'a, Message: Clone + 'a>(
+        node: &'a TreeNode,
+        tree: &'a Tree,
+        theme: &'a Theme,
+        on_toggle: &(impl Fn(String) -> Message + 'a + Clone),
+        on_select: &(impl Fn(String) -> Message + 'a + Clone),
+        depth: u32,
+    ) -> Element<'a, Message> {
+        let text_regular = Color::from(theme.neutral.text_regular);
+        let text_disabled = Color::from(theme.neutral.text_disabled);
+        let primary = Color::from(theme.primary.base);
+
+        let is_expanded = tree.is_expanded(&node.id);
+        let is_disabled = node.disabled;
+        let label_color = if is_disabled {
+            text_disabled
+        } else {
+            text_regular
+        };
+
+        // 展开/折叠指示器
+        let indicator_str = if node.is_leaf() {
+            if node.lazy {
+                "…"
+            } else {
+                "•"
+            }
+        } else if is_expanded {
+            "▼"
+        } else {
+            "▶"
+        };
+
+        let mut row_children: Vec<Element<'a, Message>> = Vec::new();
+        if depth > 0 {
+            row_children.push(
+                iced::widget::Space::with_width(Length::Fixed(depth as f32 * 16.0)).into(),
+            );
+        }
+
+        // 指示器按钮（点击切换展开/折叠）
+        let indicator_text = text(indicator_str).color(primary).size(12.0);
+        let mut indicator_btn = button(indicator_text)
+            .padding(Padding::from([2u16, 4u16]))
+            .style(move |_t, _status| iced::widget::button::Style {
+                background: None,
+                text_color: primary,
+                border: iced::Border::default(),
+                shadow: iced::Shadow::default(),
+            });
+        if !node.is_leaf() && !is_disabled {
+            indicator_btn = indicator_btn.on_press((on_toggle)(node.id.clone()));
+        }
+        row_children.push(indicator_btn.into());
+
+        // 标签按钮（点击选中）
+        let label_text = text(node.label.clone()).color(label_color).size(14.0);
+        let mut label_btn = button(label_text)
+            .padding(Padding::from([4u16, 8u16]))
+            .style(move |_t, _status| iced::widget::button::Style {
+                background: None,
+                text_color: label_color,
+                border: iced::Border::default(),
+                shadow: iced::Shadow::default(),
+            });
+        if !is_disabled {
+            label_btn = label_btn.on_press((on_select)(node.id.clone()));
+        }
+        row_children.push(label_btn.into());
+
+        let row = iced::widget::Row::with_children(row_children)
+            .align_y(iced::Alignment::Center)
+            .spacing(0);
+
+        let mut col_children: Vec<Element<'a, Message>> = Vec::new();
+        col_children.push(row.into());
+
+        // 展开时渲染子节点
+        if is_expanded && !node.is_leaf() {
+            for child in &node.children {
+                col_children.push(Self::render_node(
+                    child,
+                    tree,
+                    theme,
+                    on_toggle,
+                    on_select,
+                    depth + 1,
+                ));
+            }
+        }
+
+        iced::widget::Column::with_children(col_children)
+            .spacing(0)
+            .into()
     }
 }
 

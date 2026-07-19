@@ -1,0 +1,11 @@
+[package]
+name = "dialog_demo"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "HarUI Dialog demo"
+
+[dependencies]
+iced = { workspace = true }
+har-ui-core = { path = "../../crates/core" }
+har-ui-components = { path = "../../crates/components" }

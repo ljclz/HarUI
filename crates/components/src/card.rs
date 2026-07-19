@@ -3,6 +3,11 @@
 //! 参考 Element Plus `<el-card>`。
 //! 支持：header/footer 插槽、shadow(hover/always/never)、图片、hover 状态。
 
+use har_ui_core::theme::style_sheets;
+use har_ui_core::theme::Theme;
+use iced::widget::{container, text};
+use iced::{Color, Element, Length, Padding};
+
 /// 阴影模式
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum CardShadow {
@@ -106,6 +111,93 @@ impl Card {
             CardMessage::Unhovered => self.hovered = false,
             CardMessage::UpdateBody(s) => self.body = s,
         }
+    }
+
+    /// 渲染 Card 为 iced::Element
+    ///
+    /// # 参数
+    /// - `theme`: HarUI 主题引用
+    pub fn view<'a>(&'a self, theme: &'a Theme) -> Element<'a, ()> {
+        let text_primary = Color::from(theme.neutral.text_primary);
+        let text_regular = Color::from(theme.neutral.text_regular);
+        let border_lighter = Color::from(theme.neutral.border_lighter);
+
+        let mut col_children: Vec<Element<'a, ()>> = Vec::new();
+
+        // header
+        if let Some(h) = &self.header {
+            let header_text = text(h.clone()).color(text_primary).size(16);
+            let header = container(header_text)
+                .width(Length::Fill)
+                .padding(Padding::from([12u16, 16u16]))
+                .style(move |_t| iced::widget::container::Style {
+                    text_color: Some(text_primary),
+                    background: None,
+                    border: iced::Border {
+                        color: border_lighter,
+                        width: 0.0,
+                        radius: iced::border::radius(0.0),
+                    },
+                    shadow: iced::Shadow::default(),
+                });
+            // header 下加分割线
+            let divider = container(text(""))
+                .width(Length::Fill)
+                .height(Length::Fixed(1.0))
+                .style(move |_t| iced::widget::container::Style {
+                    text_color: None,
+                    background: Some(iced::Background::Color(border_lighter)),
+                    border: iced::Border::default(),
+                    shadow: iced::Shadow::default(),
+                });
+            col_children.push(header.into());
+            col_children.push(divider.into());
+        }
+
+        // body
+        let body_text = text(self.body.clone()).color(text_regular).size(14);
+        let body = container(body_text)
+            .width(Length::Fill)
+            .padding(Padding::from(16u16));
+        col_children.push(body.into());
+
+        // footer
+        if let Some(f) = &self.footer {
+            let divider = container(text(""))
+                .width(Length::Fill)
+                .height(Length::Fixed(1.0))
+                .style(move |_t| iced::widget::container::Style {
+                    text_color: None,
+                    background: Some(iced::Background::Color(border_lighter)),
+                    border: iced::Border::default(),
+                    shadow: iced::Shadow::default(),
+                });
+            let footer_text = text(f.clone()).color(text_regular).size(14);
+            let footer = container(footer_text)
+                .width(Length::Fill)
+                .padding(Padding::from([12u16, 16u16]));
+            col_children.push(divider.into());
+            col_children.push(footer.into());
+        }
+
+        let col = iced::widget::Column::with_children(col_children).spacing(0);
+
+        // 卡片容器：圆角 + 阴影（按 shadow 模式）
+        let should_show = self.should_show_shadow();
+        container(col)
+            .width(Length::Fill)
+            .style(move |_t| {
+                let base = style_sheets::container_card_style(theme);
+                if should_show {
+                    base
+                } else {
+                    iced::widget::container::Style {
+                        shadow: iced::Shadow::default(),
+                        ..base
+                    }
+                }
+            })
+            .into()
     }
 }
 

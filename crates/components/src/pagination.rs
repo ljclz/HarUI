@@ -1,6 +1,11 @@
 //! Pagination 分页组件 — 参考 Element Plus `<el-pagination>`。
 //! 支持：total/page-size 控制、page-sizes 切换、页码按钮折叠（含省略号）、上一页/下一页边界。
 
+use har_ui_core::theme::style_sheets::{self, ButtonKind};
+use har_ui_core::theme::Theme;
+use iced::widget::{button, container, text};
+use iced::{Color, Element, Padding};
+
 /// Pagination 消息
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum PaginationMessage {
@@ -117,6 +122,92 @@ impl Pagination {
                 }
             }
         }
+    }
+
+    /// 渲染 Pagination 为 iced::Element
+    ///
+    /// # 参数
+    /// - `theme`: HarUI 主题引用
+    /// - `on_jump`: 跳转页码时发出消息，参数为目标页码（i64，负数表示 prev/next 也可用 -1/-2）
+    ///   约定：`-1` = Prev, `-2` = Next
+    pub fn view<'a, Message: Clone + 'a>(
+        &'a self,
+        theme: &'a Theme,
+        on_jump: impl Fn(i64) -> Message + 'a,
+    ) -> Element<'a, Message> {
+        let text_color = Color::from(theme.neutral.text_regular);
+        let primary = Color::from(theme.primary.base);
+        let text_disabled = Color::from(theme.neutral.text_disabled);
+        let cur = self.current_page;
+        let total = self.total_pages();
+        let buttons = self.page_buttons();
+
+        let mut children: Vec<Element<'a, Message>> = Vec::new();
+
+        // 上一页按钮
+        let prev_disabled = cur <= 1;
+        let mut prev_btn = button(text("〈").color(if prev_disabled { text_disabled } else { text_color }))
+            .padding(Padding::from([6u16, 10u16]))
+            .style(move |_t, status| {
+                style_sheets::button_style(theme, ButtonKind::Default, false, status)
+            });
+        if !prev_disabled {
+            prev_btn = prev_btn.on_press(on_jump(-1));
+        }
+        children.push(prev_btn.into());
+
+        // 页码按钮
+        for btn_page in &buttons {
+            if *btn_page == 0 {
+                // 省略号
+                children.push(
+                    container(text("...").color(text_disabled))
+                        .padding(Padding::from([6u16, 8u16]))
+                        .into(),
+                );
+            } else {
+                let is_current = *btn_page == cur;
+                let page_text = btn_page.to_string();
+                let page_color = if is_current { Color::WHITE } else { text_color };
+                let page_i64 = *btn_page as i64;
+                let mut page_btn = button(text(page_text).color(page_color))
+                    .padding(Padding::from([6u16, 10u16]))
+                    .style(move |_t, status| {
+                        if is_current {
+                            // 当前页：实心 primary
+                            iced::widget::button::Style {
+                                background: Some(iced::Background::Color(primary)),
+                                text_color: Color::WHITE,
+                                border: iced::Border::default(),
+                                shadow: iced::Shadow::default(),
+                            }
+                        } else {
+                            style_sheets::button_style(theme, ButtonKind::Default, false, status)
+                        }
+                    });
+                if !is_current {
+                    page_btn = page_btn.on_press(on_jump(page_i64));
+                }
+                children.push(page_btn.into());
+            }
+        }
+
+        // 下一页按钮
+        let next_disabled = cur >= total;
+        let mut next_btn = button(text("〉").color(if next_disabled { text_disabled } else { text_color }))
+            .padding(Padding::from([6u16, 10u16]))
+            .style(move |_t, status| {
+                style_sheets::button_style(theme, ButtonKind::Default, false, status)
+            });
+        if !next_disabled {
+            next_btn = next_btn.on_press(on_jump(-2));
+        }
+        children.push(next_btn.into());
+
+        iced::widget::Row::with_children(children)
+            .spacing(4)
+            .align_y(iced::Alignment::Center)
+            .into()
     }
 }
 

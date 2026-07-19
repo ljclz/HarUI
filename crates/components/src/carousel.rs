@@ -2,6 +2,10 @@
 //!
 //! 支持：自动播放、间隔、循环、方向、指示器、箭头、hover 暂停、tick 时间推进。
 
+use har_ui_core::theme::Theme;
+use iced::widget::{button, container, text};
+use iced::{Color, Element, Length, Padding};
+
 /// 方向
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum CarouselDirection {
@@ -180,6 +184,109 @@ impl Carousel {
             self.elapsed -= self.interval;
             self.advance();
         }
+    }
+
+    /// 渲染 Carousel 为 iced::Element
+    ///
+    /// # 参数
+    /// - `theme`: HarUI 主题引用
+    /// - `on_prev`: 点击上一张按钮时发出消息
+    /// - `on_next`: 点击下一张按钮时发出消息
+    pub fn view<'a, Message: Clone + 'a>(
+        &'a self,
+        theme: &'a Theme,
+        on_prev: impl Fn() -> Message + 'a,
+        on_next: impl Fn() -> Message + 'a,
+    ) -> Element<'a, Message> {
+        let primary = Color::from(theme.primary.base);
+        let text_primary = Color::from(theme.neutral.text_primary);
+        let text_secondary = Color::from(theme.neutral.text_secondary);
+        let border_lighter = Color::from(theme.neutral.border_lighter);
+
+        let slide_str = self
+            .slides
+            .get(self.current_index)
+            .cloned()
+            .unwrap_or_else(|| "[no slides]".to_string());
+        let content_area = container(text(slide_str).color(text_primary).size(16))
+            .width(Length::Fill)
+            .height(Length::Fixed(160.0))
+            .padding(Padding::from(16u16));
+
+        let mut row_children: Vec<Element<'a, Message>> = Vec::new();
+        if self.show_arrow {
+            let prev_btn = button(text("‹").color(text_secondary).size(24.0))
+                .padding(Padding::from([8u16, 12u16]))
+                .on_press(on_prev())
+                .style(move |_t, _status| iced::widget::button::Style {
+                    background: None,
+                    text_color: text_secondary,
+                    border: iced::Border::default(),
+                    shadow: iced::Shadow::default(),
+                });
+            row_children.push(prev_btn.into());
+        }
+        row_children.push(content_area.into());
+        if self.show_arrow {
+            let next_btn = button(text("›").color(text_secondary).size(24.0))
+                .padding(Padding::from([8u16, 12u16]))
+                .on_press(on_next())
+                .style(move |_t, _status| iced::widget::button::Style {
+                    background: None,
+                    text_color: text_secondary,
+                    border: iced::Border::default(),
+                    shadow: iced::Shadow::default(),
+                });
+            row_children.push(next_btn.into());
+        }
+        let main_row = iced::widget::Row::with_children(row_children)
+            .spacing(0)
+            .align_y(iced::Alignment::Center);
+
+        let mut col_children: Vec<Element<'a, Message>> = vec![main_row.into()];
+
+        if self.show_indicator && !self.slides.is_empty() {
+            let mut dots: Vec<Element<'a, Message>> = Vec::new();
+            for (i, _) in self.slides.iter().enumerate() {
+                let active = i == self.current_index;
+                let dot_color = if active { primary } else { text_secondary };
+                let width = if active { 16.0 } else { 8.0 };
+                let dot = container(text(""))
+                    .width(Length::Fixed(width))
+                    .height(Length::Fixed(8.0))
+                    .style(move |_t| iced::widget::container::Style {
+                        text_color: None,
+                        background: Some(iced::Background::Color(dot_color)),
+                        border: iced::Border {
+                            color: dot_color,
+                            width: 0.0,
+                            radius: iced::border::radius(4.0),
+                        },
+                        shadow: iced::Shadow::default(),
+                    });
+                dots.push(dot.into());
+            }
+            let dots_row = iced::widget::Row::with_children(dots).spacing(6);
+            let dots_wrap = container(dots_row)
+                .width(Length::Fill)
+                .padding(Padding::from([4u16, 0u16]));
+            col_children.push(dots_wrap.into());
+        }
+
+        let col = iced::widget::Column::with_children(col_children).spacing(0);
+        container(col)
+            .width(Length::Fill)
+            .style(move |_t| iced::widget::container::Style {
+                text_color: None,
+                background: None,
+                border: iced::Border {
+                    color: border_lighter,
+                    width: 1.0,
+                    radius: iced::border::radius(4.0),
+                },
+                shadow: iced::Shadow::default(),
+            })
+            .into()
     }
 }
 

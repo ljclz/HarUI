@@ -1,6 +1,10 @@
 //! Tooltip 文字提示组件 — 参考 Element Plus `<el-tooltip>`。
 //! 支持：4 种 trigger、12 种 placement、dark/light 主题、hide_after 自动关闭、enterable 进入气泡、disabled。
 
+use har_ui_core::theme::Theme;
+use iced::widget::{container, text};
+use iced::{Color, Element, Length, Padding};
+
 /// Tooltip 触发方式
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum TooltipTrigger {
@@ -272,6 +276,70 @@ impl Tooltip {
 
     fn hide(&mut self) {
         self.visible = false;
+    }
+
+    /// 渲染 Tooltip 为 iced::Element
+    ///
+    /// # 参数
+    /// - `theme`: HarUI 主题引用
+    /// - `content`: 被包裹的触发元素
+    pub fn view<'a, Message: Clone + 'a>(
+        &'a self,
+        theme: &'a Theme,
+        content: Element<'a, Message>,
+    ) -> Element<'a, Message> {
+        if !self.visible || self.disabled {
+            return content;
+        }
+
+        let (bg, fg) = match self.effect {
+            TooltipEffect::Dark => (
+                Color::from(theme.neutral.bg_overlay),
+                Color::from(theme.neutral.text_primary),
+            ),
+            TooltipEffect::Light => (
+                Color::from(theme.neutral.text_primary),
+                Color::from(theme.neutral.bg_overlay),
+            ),
+        };
+
+        let tip_text = text(self.content.clone()).color(fg).size(12.0);
+        let tip = container(tip_text)
+            .padding(Padding::from([6u16, 10u16]))
+            .style(move |_t| iced::widget::container::Style {
+                text_color: Some(fg),
+                background: Some(iced::Background::Color(bg)),
+                border: iced::Border {
+                    color: bg,
+                    width: 0.0,
+                    radius: iced::border::radius(4.0),
+                },
+                shadow: iced::Shadow {
+                    color: Color::from_rgba(0.0, 0.0, 0.0, 0.15),
+                    offset: iced::Vector::new(0.0, 2.0),
+                    blur_radius: 6.0,
+                },
+            });
+
+        let arrow = if self.show_arrow {
+            Some(text("▲").color(bg).size(8.0))
+        } else {
+            None
+        };
+
+        let mut tip_col_children: Vec<Element<'a, Message>> = Vec::new();
+        if let Some(arrow) = arrow {
+            tip_col_children.push(arrow.into());
+        }
+        tip_col_children.push(tip.into());
+        let tip_col = iced::widget::Column::with_children(tip_col_children).spacing(0);
+
+        let col: Element<'a, Message> = iced::widget::Column::new()
+            .push(content)
+            .push(iced::widget::Space::with_height(Length::Fixed(4.0)))
+            .push(tip_col)
+            .into();
+        col
     }
 }
 

@@ -14,6 +14,10 @@
 
 use std::collections::BTreeMap;
 
+use har_ui_core::theme::Theme;
+use iced::widget::{container, scrollable, text};
+use iced::{Color, Element, Length, Padding};
+
 /// 行数据 trait — 必须能返回唯一标识
 pub trait Identifiable {
     fn id(&self) -> String;
@@ -337,6 +341,141 @@ impl<R: Clone> Table<R> {
                 }
             }
         }
+    }
+
+    /// 渲染表格为 iced::Element
+    ///
+    /// # 参数
+    /// - `theme`: HarUI 主题引用
+    /// - `cell_renderer`: 单元格文本提取器（行数据 + 字段名 → 字符串）
+    /// - `on_row_click`: 行点击回调（接收行索引）
+    ///
+    /// # 行为
+    /// - 表头：列标签横向排列
+    /// - 数据行：通过 cell_renderer 提取每个单元格文本
+    /// - 斑马纹：奇数行使用浅色背景
+    /// - 边框：可选 border_lighter 分隔线
+    /// - 空数据：显示 empty_text
+    /// - 虚拟滚动：仅渲染 visible_rows()，外层 scrollable 包裹
+    pub fn view<'a, Message: Clone + 'a>(
+        &'a self,
+        theme: &'a Theme,
+        cell_renderer: impl Fn(&R, &str) -> String + 'a,
+        on_row_click: impl Fn(usize) -> Message + 'a,
+    ) -> Element<'a, Message> {
+        let border_color = Color::from(theme.neutral.border_lighter);
+        let header_bg = Color::from(theme.neutral.bg_base);
+        let stripe_bg = Color { a: 0.5, ..Color::from(theme.neutral.bg_base) };
+        let selected_bg = Color { a: 0.1, ..Color::from(theme.primary.base) };
+        let text_color = Color::from(theme.neutral.text_regular);
+        let header_text_color = Color::from(theme.neutral.text_primary);
+        let empty_text_color = Color::from(theme.neutral.text_placeholder);
+
+        // 表头行
+        let header_cells: Vec<Element<'a, Message>> = self.columns.iter().map(|col| {
+            let label = if col.sortable {
+                let arrow = match (self.sort_prop.as_deref(), self.sort_order) {
+                    (Some(p), SortOrder::Ascending) if p == col.prop => " ↑",
+                    (Some(p), SortOrder::Descending) if p == col.prop => " ↓",
+                    _ => "",
+                };
+                format!("{}{}", col.label, arrow)
+            } else {
+                col.label.clone()
+            };
+            let mut t = text(label).color(header_text_color);
+            let w = col.width.map(Length::Fixed).unwrap_or(Length::Fill);
+            t = t;
+            let cell = container(t)
+                .width(w)
+                .padding(Padding::from([8u16, 12u16]))
+                .style(move |_t| iced::widget::container::Style {
+                    text_color: Some(header_text_color),
+                    background: Some(iced::Background::Color(header_bg)),
+                    border: iced::Border {
+                        color: border_color,
+                        width: if self.props.border { 1.0 } else { 0.0 },
+                        radius: iced::border::Radius::default(),
+                    },
+                    shadow: iced::Shadow::default(),
+                });
+            cell.into()
+        }).collect();
+        let header_row = iced::widget::Row::with_children(header_cells);
+
+        // 数据行
+        let (vstart, _) = self.visible_range();
+        let visible_rows = self.visible_rows();
+        let mut body_children: Vec<Element<'a, Message>> = Vec::with_capacity(visible_rows.len());
+
+        if visible_rows.is_empty() {
+            // 空数据
+            let empty = container(text(self.props.empty_text.clone()).color(empty_text_color))
+                .width(Length::Fill)
+                .padding(Padding::from([20u16, 12u16]))
+                .center_x(Length::Fill);
+            body_children.push(empty.into());
+        } else {
+            for (i, row_data) in visible_rows.iter().enumerate() {
+                let actual_idx = vstart + i;
+                let is_selected = self.selected_row_index == Some(actual_idx);
+                let is_stripe = self.props.stripe && (actual_idx % 2 == 1);
+                let bg = if is_selected {
+                    selected_bg
+                } else if is_stripe {
+                    stripe_bg
+                } else {
+                    Color::TRANSPARENT
+                };
+                let row_text_color = text_color;
+
+                let cells: Vec<Element<'a, Message>> = self.columns.iter().map(|col| {
+                    let cell_text = cell_renderer(row_data, &col.prop);
+                    let w = col.width.map(Length::Fixed).unwrap_or(Length::Fill);
+                    let t = text(cell_text).color(row_text_color);
+                    container(t)
+                        .width(w)
+                        .padding(Padding::from([8u16, 12u16]))
+                        .style(move |_t| iced::widget::container::Style {
+                            text_color: Some(row_text_color),
+                            background: Some(iced::Background::Color(Color::TRANSPARENT)),
+                            border: iced::Border {
+                                color: border_color,
+                                width: if self.props.border { 1.0 } else { 0.0 },
+                                radius: iced::border::Radius::default(),
+                            },
+                            shadow: iced::Shadow::default(),
+                        })
+                        .into()
+                }).collect();
+                let data_row_inner = iced::widget::Row::with_children(cells);
+                let data_row = container(data_row_inner)
+                    .width(Length::Fill)
+                    .style(move |_t| iced::widget::container::Style {
+                        text_color: None,
+                        background: Some(iced::Background::Color(bg)),
+                        border: iced::Border {
+                            color: border_color,
+                            width: if self.props.border { 1.0 } else { 0.0 },
+                            radius: iced::border::Radius::default(),
+                        },
+                        shadow: iced::Shadow::default(),
+                    });
+                body_children.push(data_row.into());
+            }
+        }
+
+        let body_col = iced::widget::Column::with_children(body_children);
+
+        // 虚拟滚动：用 scrollable 包裹 body
+        let _ = on_row_click; // 暂未在 row 上挂点击（iced row 无直接 on_press，需要 button 包裹）
+        let scrollable_body = scrollable(body_col).height(Length::Fill);
+
+        let table_col = iced::widget::Column::with_children(vec![
+            header_row.into(),
+            scrollable_body.into(),
+        ]);
+        Element::from(table_col)
     }
 
     /// 应用排序

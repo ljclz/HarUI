@@ -5,3 +5,7 @@
 pub mod row;
 pub mod col;
 pub mod container;
+
+pub use col::col;
+pub use row::row;
+pub use container::container;

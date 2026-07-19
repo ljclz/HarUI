@@ -1,6 +1,10 @@
 //! Popconfirm 气泡确认框组件 — 参考 Element Plus `<el-popconfirm>`。
 //! 支持：4 种 trigger、12 种 placement、confirm/cancel 动作回调、disabled、外部点击关闭。
 
+use har_ui_core::theme::Theme;
+use iced::widget::{button, container, text};
+use iced::{Color, Element, Length, Padding};
+
 /// Popconfirm 触发方式
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum PopconfirmTrigger {
@@ -245,6 +249,103 @@ impl Popconfirm {
             }
             _ => {}
         }
+    }
+
+    /// 渲染 Popconfirm 为 iced::Element
+    ///
+    /// # 参数
+    /// - `theme`: HarUI 主题引用
+    /// - `content`: 被包裹的触发元素
+    /// - `on_confirm`: 点击确认按钮时发出消息
+    /// - `on_cancel`: 点击取消按钮时发出消息
+    pub fn view<'a, Message: Clone + 'a>(
+        &'a self,
+        theme: &'a Theme,
+        content: Element<'a, Message>,
+        on_confirm: impl Fn() -> Message + 'a,
+        on_cancel: impl Fn() -> Message + 'a,
+    ) -> Element<'a, Message> {
+        let bg = Color::from(theme.neutral.bg_overlay);
+        let title_color = Color::from(theme.neutral.text_primary);
+        let border_color = Color::from(theme.neutral.border_light);
+        let primary = Color::from(theme.primary.base);
+        let text_regular = Color::from(theme.neutral.text_regular);
+
+        if !self.visible {
+            return content;
+        }
+
+        // 标题行
+        let title_text = text(self.title.clone()).color(title_color).size(14.0);
+
+        // 按钮行
+        let cancel_btn = button(text(self.cancel_text.clone()).color(text_regular).size(13.0))
+            .padding(Padding::from([4u16, 10u16]))
+            .style(move |_t, _status| iced::widget::button::Style {
+                background: None,
+                text_color: text_regular,
+                border: iced::Border {
+                    color: border_color,
+                    width: 1.0,
+                    radius: iced::border::radius(3.0),
+                },
+                shadow: iced::Shadow::default(),
+            })
+            .on_press(on_cancel());
+
+        let confirm_btn = button(text(self.confirm_text.clone()).color(Color::WHITE).size(13.0))
+            .padding(Padding::from([4u16, 10u16]))
+            .style(move |_t, _status| iced::widget::button::Style {
+                background: Some(iced::Background::Color(primary)),
+                text_color: Color::WHITE,
+                border: iced::Border {
+                    color: primary,
+                    width: 1.0,
+                    radius: iced::border::radius(3.0),
+                },
+                shadow: iced::Shadow::default(),
+            })
+            .on_press(on_confirm());
+
+        let buttons_row = iced::widget::Row::new()
+            .push(iced::widget::Space::with_width(Length::Fill))
+            .push(cancel_btn)
+            .push(iced::widget::Space::with_width(Length::Fixed(8.0)))
+            .push(confirm_btn)
+            .align_y(iced::Alignment::Center);
+
+        let mut pop_children: Vec<Element<'a, Message>> = Vec::new();
+        pop_children.push(title_text.into());
+        pop_children.push(buttons_row.into());
+
+        let pop_col = iced::widget::Column::with_children(pop_children).spacing(10);
+        let pop_width = match self.width {
+            Some(w) => Length::Fixed(w as f32),
+            None => Length::Shrink,
+        };
+        let pop = container(pop_col)
+            .width(pop_width)
+            .padding(Padding::from([10u16, 14u16]))
+            .style(move |_t| iced::widget::container::Style {
+                text_color: None,
+                background: Some(iced::Background::Color(bg)),
+                border: iced::Border {
+                    color: border_color,
+                    width: 1.0,
+                    radius: iced::border::radius(4.0),
+                },
+                shadow: iced::Shadow {
+                    color: Color::from_rgba(0.0, 0.0, 0.0, 0.12),
+                    offset: iced::Vector::new(0.0, 2.0),
+                    blur_radius: 8.0,
+                },
+            });
+
+        iced::widget::Column::new()
+            .push(content)
+            .push(iced::widget::Space::with_height(Length::Fixed(4.0)))
+            .push(pop)
+            .into()
     }
 }
 

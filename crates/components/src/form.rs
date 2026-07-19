@@ -4,6 +4,10 @@
 //! 支持：label-position/label-width、rules 验证（required/min/max/自定义 validator）、
 //! inline 模式、表单重置、单字段验证、整体验证。
 
+use har_ui_core::theme::Theme;
+use iced::widget::{container, text};
+use iced::{Color, Element, Length, Padding};
+
 /// 验证触发时机
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum ValidateTrigger {
@@ -318,6 +322,104 @@ impl Form {
             }
             FormMessage::Reset => self.reset(),
             FormMessage::SetValue(f, v) => self.set_value(f, v),
+        }
+    }
+
+    /// 渲染表单为 iced::Element
+    ///
+    /// # 参数
+    /// - `theme`: HarUI 主题引用
+    /// - `field_renderer`: 字段渲染闭包（接收 FormItem 引用，返回该字段的 input Element）
+    ///
+    /// # 行为
+    /// - 每个 FormItem 渲染为一行：label + field + error（如有）
+    /// - label_position：left/right/top
+    /// - label_width：固定 label 宽度
+    /// - inline：所有字段横排
+    /// - 错误信息用 danger 色
+    pub fn view<'a, Message: Clone + 'a>(
+        &'a self,
+        theme: &'a Theme,
+        field_renderer: impl Fn(&FormItem) -> Element<'a, Message> + 'a,
+    ) -> Element<'a, Message> {
+        let label_color = Color::from(theme.neutral.text_primary);
+        let error_color = Color::from(theme.danger.base);
+        let label_width = self.label_width.map(|w| Length::Fixed(w as f32)).unwrap_or(Length::Fixed(80.0));
+
+        let mut item_elements: Vec<Element<'a, Message>> = Vec::with_capacity(self.items.len());
+
+        for item in &self.items {
+            // label（必填项前加 *）
+            let label_text = if item.required() {
+                format!("* {}", item.label())
+            } else {
+                item.label().to_string()
+            };
+            let label_widget = text(label_text).color(label_color);
+
+            // 字段 input
+            let field_widget = field_renderer(item);
+
+            // 错误信息
+            let error_msg = self.errors.iter().find(|e| e.field == item.field());
+            let error_widget = if let Some(e) = error_msg {
+                Some(text(e.message.clone()).color(error_color).size(12))
+            } else {
+                None
+            };
+
+            // 按标签位置布局
+            let item_element: Element<'a, Message> = match self.label_position.as_str() {
+                "top" => {
+                    let mut col = iced::widget::Column::new()
+                        .push(label_widget)
+                        .push(field_widget)
+                        .spacing(4);
+                    if let Some(err) = error_widget {
+                        col = col.push(err);
+                    }
+                    container(col).padding(Padding::from([8u16, 12u16])).into()
+                }
+                "left" => {
+                    let mut right_col = iced::widget::Column::new()
+                        .push(field_widget)
+                        .spacing(2);
+                    if let Some(err) = error_widget {
+                        right_col = right_col.push(err);
+                    }
+                    let row = iced::widget::Row::new()
+                        .push(container(label_widget).width(label_width).align_y(iced::alignment::Vertical::Top).padding(Padding::from([8u16, 0u16])))
+                        .push(right_col);
+                    container(row).padding(Padding::from([8u16, 12u16])).into()
+                }
+                _ => {
+                    // right（默认）
+                    let mut right_col = iced::widget::Column::new()
+                        .push(field_widget)
+                        .spacing(2);
+                    if let Some(err) = error_widget {
+                        right_col = right_col.push(err);
+                    }
+                    let row = iced::widget::Row::new()
+                        .push(container(label_widget).width(label_width).align_y(iced::alignment::Vertical::Top).padding(Padding::from([8u16, 0u16])))
+                        .push(right_col);
+                    container(row).padding(Padding::from([8u16, 12u16])).into()
+                }
+            };
+            item_elements.push(item_element);
+        }
+
+        if self.inline {
+            // 横排
+            iced::widget::Row::with_children(item_elements)
+                .spacing(16)
+                .align_y(iced::Alignment::Center)
+                .into()
+        } else {
+            // 竖排
+            iced::widget::Column::with_children(item_elements)
+                .spacing(0)
+                .into()
         }
     }
 }

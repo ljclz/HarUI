@@ -6,6 +6,8 @@
 //! - push/pull: 0-24，CSS relative 左右偏移
 //! - xs/sm/md/lg/xl/xxl: 响应式断点配置
 
+use iced::Element;
+
 /// 列跨度（0-24）
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct ColSpan(u8);
@@ -205,4 +207,13 @@ impl Default for Col {
     fn default() -> Self {
         Self::new()
     }
+}
+
+/// 构建垂直布局 Element — 把 children 装入 iced Column
+///
+/// 简化版签名，等价于 `iced::widget::Column::with_children(children).into()`。
+pub fn col<'a, Message: Clone + 'a>(
+    children: Vec<Element<'a, Message>>,
+) -> Element<'a, Message> {
+    iced::widget::Column::with_children(children).into()
 }

@@ -2,6 +2,10 @@
 //!
 //! 支持：百分比钳制、3 种 type（line/circle/dashboard）、status（default/success/exception）、stroke_width、color、show_text。
 
+use har_ui_core::theme::Theme;
+use iced::widget::{container, text};
+use iced::{Color, Element, Length};
+
 /// 类型
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum ProgressType {
@@ -144,6 +148,108 @@ impl Progress {
             }
         }
     }
+
+    /// 按 status 推导主色
+    fn status_color(&self, theme: &Theme) -> Color {
+        if let Some(c) = self.color.as_deref().and_then(parse_hex) {
+            return c;
+        }
+        match self.status {
+            ProgressStatus::Success => Color::from(theme.success.base),
+            ProgressStatus::Exception => Color::from(theme.danger.base),
+            ProgressStatus::Warning => Color::from(theme.warning.base),
+            ProgressStatus::Default => Color::from(theme.primary.base),
+        }
+    }
+
+    /// 渲染 Progress 为 iced::Element
+    pub fn view<'a>(&'a self, theme: &'a Theme) -> Element<'a, ()> {
+        let main_color = self.status_color(theme);
+        let track_color = Color::from(theme.neutral.border_light);
+        let text_color = Color::from(theme.neutral.text_regular);
+        let pct = self.percentage.clamp(0, 100) as f32 / 100.0;
+
+        match self.picker_type {
+            ProgressType::Line => {
+                // 横条进度条：外层 track + 内层 fill + 可选文本
+                let track_height = self.stroke_width.max(2) as f32;
+                let fill_width = Length::FillPortion((pct * 100.0) as u16);
+
+                let fill = container(text(""))
+                    .width(fill_width)
+                    .height(Length::Fixed(track_height))
+                    .style(move |_t| iced::widget::container::Style {
+                        text_color: None,
+                        background: Some(iced::Background::Color(main_color)),
+                        border: iced::Border::default(),
+                        shadow: iced::Shadow::default(),
+                    });
+
+                let track = container(fill)
+                    .width(Length::Fill)
+                    .height(Length::Fixed(track_height))
+                    .style(move |_t| iced::widget::container::Style {
+                        text_color: None,
+                        background: Some(iced::Background::Color(track_color)),
+                        border: iced::Border {
+                            color: Color::TRANSPARENT,
+                            width: 0.0,
+                            radius: iced::border::radius(track_height / 2.0),
+                        },
+                        shadow: iced::Shadow::default(),
+                    });
+
+                if self.show_text {
+                    let label = text(self.formatted_text()).color(text_color).size(14);
+                    iced::widget::Row::new()
+                        .push(track)
+                        .push(iced::widget::Space::with_width(Length::Fixed(8.0)))
+                        .push(label)
+                        .align_y(iced::Alignment::Center)
+                        .into()
+                } else {
+                    track.into()
+                }
+            }
+            ProgressType::Circle | ProgressType::Dashboard => {
+                // 圆形进度：用 Unicode 字符 + 百分比文本占位（iced 0.13 无 canvas 简易）
+                // 实际圆形需 canvas widget，这里用文本表示百分比
+                let circle_label = if self.show_text {
+                    text(self.formatted_text()).color(main_color).size(20)
+                } else {
+                    text("").size(20)
+                };
+                container(circle_label)
+                    .width(Length::Fixed(80.0))
+                    .height(Length::Fixed(80.0))
+                    .align_x(iced::alignment::Horizontal::Center)
+                    .align_y(iced::alignment::Vertical::Center)
+                    .style(move |_t| iced::widget::container::Style {
+                        text_color: Some(main_color),
+                        background: Some(iced::Background::Color(Color::TRANSPARENT)),
+                        border: iced::Border {
+                            color: main_color,
+                            width: self.stroke_width as f32,
+                            radius: iced::border::radius(40.0),
+                        },
+                        shadow: iced::Shadow::default(),
+                    })
+                    .into()
+            }
+        }
+    }
+}
+
+/// 解析 hex 颜色
+fn parse_hex(hex: &str) -> Option<Color> {
+    let hex = hex.trim_start_matches('#');
+    if hex.len() == 6 {
+        let r = u8::from_str_radix(&hex[0..2], 16).ok()?;
+        let g = u8::from_str_radix(&hex[2..4], 16).ok()?;
+        let b = u8::from_str_radix(&hex[4..6], 16).ok()?;
+        return Some(Color::from_rgb8(r, g, b));
+    }
+    None
 }
 
 #[cfg(test)]

@@ -2,6 +2,10 @@
 //!
 //! 支持：options 树、select 路径推导、emit_path、check_strictly、disabled、面板切换。
 
+use har_ui_core::theme::Theme;
+use iced::widget::{button, container, scrollable, text};
+use iced::{Color, Element, Length, Padding};
+
 /// 展开触发方式
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum ExpandTrigger {
@@ -176,6 +180,181 @@ impl Cascader {
                 self.panel_visible = !self.panel_visible;
             }
         }
+    }
+
+    /// 渲染 Cascader 为 iced::Element
+    ///
+    /// # 参数
+    /// - `theme`: HarUI 主题引用
+    /// - `on_select`: 选择节点回调；参数为路径（Vec<String>）。
+    ///   约定：`vec!["__toggle__"]` 切换面板可见性；其他为实际路径
+    pub fn view<'a, Message: Clone + 'a>(
+        &'a self,
+        theme: &'a Theme,
+        on_select: impl Fn(Vec<String>) -> Message + 'a,
+    ) -> Element<'a, Message> {
+        let text_primary = Color::from(theme.neutral.text_primary);
+        let text_regular = Color::from(theme.neutral.text_regular);
+        let text_placeholder = Color::from(theme.neutral.text_placeholder);
+        let text_disabled = Color::from(theme.neutral.text_disabled);
+        let border_lighter = Color::from(theme.neutral.border_lighter);
+        let primary = Color::from(theme.primary.base);
+        let bg_overlay = Color::from(theme.neutral.bg_overlay);
+
+        // 显示路径文本
+        let path_text = if self.selected_path.is_empty() {
+            "请选择".to_string()
+        } else {
+            let mut labels = Vec::new();
+            let mut current: &[CascaderNode] = &self.options;
+            for value in &self.selected_path {
+                if let Some(node) = current.iter().find(|n| &n.value == value) {
+                    labels.push(node.label.clone());
+                    current = &node.children;
+                } else {
+                    break;
+                }
+            }
+            labels.join(" / ")
+        };
+        let display_color = if self.selected_path.is_empty() {
+            text_placeholder
+        } else {
+            text_regular
+        };
+
+        let arrow = if self.panel_visible { "▲" } else { "▼" };
+        let trigger_content = iced::widget::Row::new()
+            .push(text(path_text).color(display_color))
+            .push(iced::widget::Space::with_width(Length::Fill))
+            .push(text(arrow).color(text_regular));
+
+        let trigger_btn = button(trigger_content)
+            .padding(Padding::from([8u16, 12u16]))
+            .width(Length::Fill)
+            .style(move |_t, _status| iced::widget::button::Style {
+                background: Some(iced::Background::Color(bg_overlay)),
+                text_color: text_regular,
+                border: iced::Border {
+                    color: border_lighter,
+                    width: 1.0,
+                    radius: iced::border::radius(4.0),
+                },
+                shadow: iced::Shadow::default(),
+            })
+            .on_press(on_select(vec!["__toggle__".to_string()]));
+
+        if !self.panel_visible {
+            return container(trigger_btn).into();
+        }
+
+        // 预计算每一层要显示的节点列表
+        let mut levels: Vec<&[CascaderNode]> = Vec::new();
+        let mut current: &[CascaderNode] = &self.options;
+        levels.push(current);
+        for value in &self.selected_path {
+            if let Some(node) = current.iter().find(|n| &n.value == value) {
+                if node.children.is_empty() {
+                    break;
+                }
+                current = &node.children;
+                levels.push(current);
+            } else {
+                break;
+            }
+        }
+
+        let mut columns: Vec<Element<'a, Message>> = Vec::new();
+        for (depth, level_nodes) in levels.iter().enumerate() {
+            let mut path_prefix: Vec<String> = Vec::new();
+            for i in 0..depth {
+                if let Some(v) = self.selected_path.get(i) {
+                    path_prefix.push(v.clone());
+                }
+            }
+
+            let col_children: Vec<Element<'a, Message>> = level_nodes
+                .iter()
+                .map(|node| {
+                    let is_selected = self
+                        .selected_path
+                        .get(depth)
+                        .map_or(false, |v| v == &node.value);
+                    let is_disabled = node.disabled;
+                    let node_color = if is_disabled {
+                        text_disabled
+                    } else if is_selected {
+                        primary
+                    } else {
+                        text_regular
+                    };
+                    let label = if is_selected {
+                        format!("{} ✓", node.label)
+                    } else {
+                        node.label.clone()
+                    };
+                    let mut path_for_node = path_prefix.clone();
+                    path_for_node.push(node.value.clone());
+
+                    let mut btn = button(text(label).color(node_color).size(14.0))
+                        .padding(Padding::from([6u16, 12u16]))
+                        .width(Length::Fill)
+                        .style(move |_t, _status| iced::widget::button::Style {
+                            background: if is_selected {
+                                Some(iced::Background::Color(Color { a: 0.05, ..primary }))
+                            } else {
+                                None
+                            },
+                            text_color: node_color,
+                            border: iced::Border::default(),
+                            shadow: iced::Shadow::default(),
+                        });
+                    if !is_disabled {
+                        btn = btn.on_press(on_select(path_for_node));
+                    }
+                    btn.into()
+                })
+                .collect();
+
+            let col = container(
+                scrollable(iced::widget::Column::with_children(col_children).spacing(0))
+                    .height(Length::Fixed(300.0)),
+            )
+            .width(Length::Fixed(160.0))
+            .style(move |_t| iced::widget::container::Style {
+                text_color: Some(text_primary),
+                background: Some(iced::Background::Color(bg_overlay)),
+                border: iced::Border {
+                    color: border_lighter,
+                    width: 1.0,
+                    radius: iced::border::radius(0.0),
+                },
+                shadow: iced::Shadow::default(),
+            });
+            columns.push(col.into());
+        }
+
+        let panel_row = iced::widget::Row::with_children(columns).spacing(0);
+        let panel = container(panel_row)
+            .width(Length::Fill)
+            .style(move |_t| iced::widget::container::Style {
+                text_color: Some(text_primary),
+                background: Some(iced::Background::Color(bg_overlay)),
+                border: iced::Border {
+                    color: border_lighter,
+                    width: 1.0,
+                    radius: iced::border::radius(4.0),
+                },
+                shadow: iced::Shadow::default(),
+            });
+
+        container(
+            iced::widget::Column::new()
+                .push(trigger_btn)
+                .push(panel)
+                .spacing(4),
+        )
+        .into()
     }
 }
 

@@ -3,6 +3,11 @@
 //! 参考 Element Plus `<el-input-number>` 组件。
 //! 支持 min/max/step/precision 以及 +/- 按钮和直接输入。
 
+use har_ui_core::theme::style_sheets::{self, ButtonKind};
+use har_ui_core::theme::Theme;
+use iced::widget::{button, text, text_input};
+use iced::{Element, Length, Padding};
+
 /// 控件位置
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum ControlsPosition {
@@ -105,6 +110,100 @@ impl InputNumber {
 
     pub fn controls_position(&self) -> ControlsPosition {
         self.controls_position
+    }
+
+    /// 格式化当前值为字符串
+    ///
+    /// - 无 precision：整数显示（去除多余 .0）
+    /// - 有 precision：固定小数位
+    pub fn format_value(&self) -> String {
+        if let Some(p) = self.precision {
+            format!("{:.*}", p as usize, self.value)
+        } else if self.value.fract() == 0.0 {
+            format!("{}", self.value as i64)
+        } else {
+            format!("{}", self.value)
+        }
+    }
+
+    /// 是否允许 +（未达 max 且未禁用）
+    pub fn can_increment(&self) -> bool {
+        if self.disabled {
+            return false;
+        }
+        self.max.map_or(true, |max| self.value < max)
+    }
+
+    /// 是否允许 -（未达 min 且未禁用）
+    pub fn can_decrement(&self) -> bool {
+        if self.disabled {
+            return false;
+        }
+        self.min.map_or(true, |min| self.value > min)
+    }
+
+    /// 渲染为 iced::Element
+    ///
+    /// # 参数
+    /// - `theme`: HarUI 主题引用
+    /// - `on_input`: 文本输入回调（接收新字符串）
+    /// - `on_increment`: + 按钮按下时发出的消息
+    /// - `on_decrement`: - 按钮按下时发出的消息
+    pub fn view<'a, Message: Clone + 'a>(
+        &'a self,
+        theme: &'a Theme,
+        on_input: impl Fn(String) -> Message + 'a,
+        on_increment: Message,
+        on_decrement: Message,
+    ) -> Element<'a, Message> {
+        let value_str = self.format_value();
+
+        let mut ti = text_input("", value_str.as_str()).width(Length::Fill);
+        if !self.disabled {
+            ti = ti.on_input(on_input);
+        }
+        ti = ti.style(move |_t, status| style_sheets::input_style(theme, status));
+
+        // 通用按钮样式
+        let make_btn = |label: &'static str, enabled: bool, msg: Message| -> Element<'a, Message> {
+            let mut b = button(text(label))
+                .padding(Padding::from([4u16, 8u16]))
+                .style(move |_t, status| {
+                    let mut s = style_sheets::button_style(theme, ButtonKind::Default, false, status);
+                    if !enabled {
+                        // 禁用按钮：淡化
+                        s.background = Some(iced::Background::Color(iced::Color {
+                            a: 0.3,
+                            ..iced::Color::from(theme.neutral.bg_base)
+                        }));
+                    }
+                    s
+                });
+            if enabled {
+                b = b.on_press(msg);
+            }
+            b.into()
+        };
+
+        let inc_btn = make_btn("+", self.can_increment(), on_increment);
+        let dec_btn = make_btn("-", self.can_decrement(), on_decrement);
+
+        let children: Vec<Element<'a, Message>> = match self.controls_position {
+            ControlsPosition::Default => {
+                vec![dec_btn, ti.into(), inc_btn]
+            }
+            ControlsPosition::Right => {
+                // 右侧：上下箭头竖排
+                let arrows = iced::widget::Column::with_children(vec![inc_btn, dec_btn])
+                    .spacing(0);
+                vec![ti.into(), Element::from(arrows)]
+            }
+        };
+
+        let row = iced::widget::Row::with_children(children)
+            .align_y(iced::Alignment::Center)
+            .spacing(2);
+        Element::from(row)
     }
 
     /// 处理消息

@@ -4,6 +4,10 @@
 //! 支持：default/card/border-card 三种 type，top/bottom/left/right 四种位置，
 //! closable/addable/lazy，切换/关闭/新增。
 
+use har_ui_core::theme::Theme;
+use iced::widget::{button, container, text};
+use iced::{Color, Element, Length, Padding};
+
 /// Tabs 类型
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum TabsType {
@@ -220,6 +224,116 @@ impl Tabs {
                 }
             }
         }
+    }
+
+    /// 渲染 Tabs 为 iced::Element
+    ///
+    /// # 参数
+    /// - `theme`: HarUI 主题引用
+    /// - `on_select`: 点击某个 tab 时发出消息，参数为该 tab 的 id
+    pub fn view<'a, Message: Clone + 'a>(
+        &'a self,
+        theme: &'a Theme,
+        on_select: impl Fn(String) -> Message + 'a,
+    ) -> Element<'a, Message> {
+        if self.items.is_empty() {
+            return container(text("")).width(Length::Fill).into();
+        }
+
+        let text_primary = Color::from(theme.neutral.text_primary);
+        let text_regular = Color::from(theme.neutral.text_regular);
+        let text_disabled = Color::from(theme.neutral.text_disabled);
+        let border_light = Color::from(theme.neutral.border_light);
+        let primary = Color::from(theme.primary.base);
+
+        let is_card = matches!(self.tabs_type, TabsType::Card | TabsType::BorderCard);
+
+        let mut children: Vec<Element<'a, Message>> = Vec::new();
+        for item in &self.items {
+            let is_active = self.active.as_deref() == Some(item.id.as_str());
+            let is_disabled = item.disabled;
+
+            let label_color = if is_disabled {
+                text_disabled
+            } else if is_active {
+                if is_card { Color::WHITE } else { primary }
+            } else {
+                text_regular
+            };
+
+            let mut label_row = iced::widget::Row::new()
+                .push(text(item.label.clone()).color(label_color).size(14.0))
+                .align_y(iced::Alignment::Center);
+            if item.closable && !is_disabled {
+                label_row = label_row.push(
+                    iced::widget::Space::with_width(Length::Fixed(6.0)),
+                ).push(
+                    text("×").color(text_regular).size(14.0),
+                );
+            }
+
+            let active_bg = if is_active && is_card {
+                Some(iced::Background::Color(primary))
+            } else {
+                None
+            };
+
+            let mut btn = button(label_row)
+                .padding(Padding::from([8u16, 16u16]))
+                .style(move |_t, _status| iced::widget::button::Style {
+                    background: active_bg,
+                    text_color: label_color,
+                    border: iced::Border {
+                        color: border_light,
+                        width: 0.0,
+                        radius: iced::border::radius(4.0),
+                    },
+                    shadow: iced::Shadow::default(),
+                });
+            if !is_disabled {
+                btn = btn.on_press(on_select(item.id.clone()));
+            }
+            children.push(btn.into());
+        }
+
+        let header_row = iced::widget::Row::with_children(children)
+            .spacing(4)
+            .align_y(iced::Alignment::Center);
+
+        let header_wrap = container(header_row)
+            .width(Length::Fill)
+            .padding(Padding::from(0u16))
+            .style(move |_t| iced::widget::container::Style {
+                text_color: None,
+                background: None,
+                border: iced::Border {
+                    color: border_light,
+                    width: 0.0,
+                    radius: iced::border::radius(0.0),
+                },
+                shadow: iced::Shadow::default(),
+            });
+
+        let mut outer: Vec<Element<'a, Message>> = Vec::new();
+        outer.push(header_wrap.into());
+
+        // 当前 active tab 的内容占位
+        if let Some(active_id) = self.active.as_ref() {
+            if let Some(item) = self.items.iter().find(|i| &i.id == active_id) {
+                let body = container(
+                    text(format!("[{} content]", item.label))
+                        .color(text_primary)
+                        .size(13.0),
+                )
+                .width(Length::Fill)
+                .padding(Padding::from(12u16));
+                outer.push(body.into());
+            }
+        }
+
+        iced::widget::Column::with_children(outer)
+            .spacing(0)
+            .into()
     }
 }
 

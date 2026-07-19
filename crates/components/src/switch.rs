@@ -1,6 +1,10 @@
 //! Switch 开关组件 — 参考 Element Plus `<el-switch>`。
 //! 支持：开/关切换、disabled、loading、active-color/inactive-color、文本描述、自定义 active/inactive 值。
 
+use har_ui_core::theme::Theme;
+use iced::widget::{button, text};
+use iced::{Color, Element, Length, Padding};
+
 /// Switch 值类型，支持 bool/i32/文本三种自定义值。
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum SwitchValue {
@@ -227,6 +231,87 @@ impl Switch {
                 }
             }
         }
+    }
+
+    // ---------- 视觉辅助 ----------
+
+    /// 解析 hex 颜色字符串为 Color，失败回退到 fallback
+    fn parse_color(hex: &str, fallback: Color) -> Color {
+        let hex = hex.trim_start_matches('#');
+        if hex.len() == 6 {
+            let r = u8::from_str_radix(&hex[0..2], 16).ok();
+            let g = u8::from_str_radix(&hex[2..4], 16).ok();
+            let b = u8::from_str_radix(&hex[4..6], 16).ok();
+            if let (Some(r), Some(g), Some(b)) = (r, g, b) {
+                return Color::from_rgb8(r, g, b);
+            }
+        }
+        fallback
+    }
+
+    /// 渲染 Switch 为 iced::Element
+    ///
+    /// # 参数
+    /// - `theme`: HarUI 主题引用
+    /// - `on_toggle`: 点击切换时发出的消息
+    pub fn view<'a, Message: Clone + 'a>(
+        &'a self,
+        theme: &'a Theme,
+        on_toggle: Message,
+    ) -> Element<'a, Message> {
+        let is_on = self.is_on();
+        let primary = Color::from(theme.primary.base);
+        let border_base = Color::from(theme.neutral.border_base);
+        let text_regular = Color::from(theme.neutral.text_regular);
+        let text_disabled = Color::from(theme.neutral.text_disabled);
+
+        let active_color = Self::parse_color(&self.active_color, primary);
+        let inactive_color = Self::parse_color(&self.inactive_color, border_base);
+        let track_color = if is_on { active_color } else { inactive_color };
+        let text_color = if self.disabled { text_disabled } else { text_regular };
+
+        // 滑块：ON 状态在右侧（●----），OFF 在左侧（----●）
+        // 用 Unicode 字符可视化：开=[●  ] 关=[  ●]
+        let slider_visual = if is_on { "[ ● ]" } else { "[   ]" };
+        let slider_text = text(slider_visual).color(track_color).size(16);
+
+        // 文本描述（左侧 inactive_text / 右侧 active_text）
+        let mut row = iced::widget::Row::new().align_y(iced::Alignment::Center);
+
+        // 左侧文本（仅 inactive 状态显示 inactive_text，或者左侧始终显示 inactive_text）
+        if let Some(t) = &self.inactive_text {
+            row = row.push(text(t.clone()).color(text_color).size(14));
+            row = row.push(iced::widget::Space::with_width(Length::Fixed(6.0)));
+        }
+
+        row = row.push(slider_text);
+
+        // 右侧文本
+        if let Some(t) = &self.active_text {
+            row = row.push(iced::widget::Space::with_width(Length::Fixed(6.0)));
+            row = row.push(text(t.clone()).color(text_color).size(14));
+        }
+
+        // loading 时显示加载指示
+        if self.loading {
+            row = row.push(iced::widget::Space::with_width(Length::Fixed(6.0)));
+            row = row.push(text("⟳").color(text_color).size(14));
+        }
+
+        let mut btn = button(row)
+            .padding(Padding::from([6u16, 10u16]))
+            .style(move |_t, _status| iced::widget::button::Style {
+                background: None,
+                text_color,
+                border: iced::Border::default(),
+                shadow: iced::Shadow::default(),
+            });
+
+        if self.can_toggle() {
+            btn = btn.on_press(on_toggle);
+        }
+
+        btn.into()
     }
 }
 

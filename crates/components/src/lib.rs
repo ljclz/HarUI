@@ -62,3 +62,4 @@ pub mod slider;
 pub mod rate;
 pub mod color_picker;
 pub mod backtop;
+pub mod statistic;

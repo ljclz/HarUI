@@ -1,6 +1,10 @@
 //! MessageBox 消息框组件 — 参考 Element Plus `ElMessageBox`。
 //! 支持：alert/confirm/prompt 三种模式、4 种类型、按钮配置、close_on_click_modal、center、prompt 输入。
 
+use har_ui_core::theme::Theme;
+use iced::widget::{button, container, text};
+use iced::{Color, Element, Length, Padding};
+
 /// MessageBox 类型
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum MessageBoxType {
@@ -257,6 +261,159 @@ impl MessageBox {
                 }
             }
         }
+    }
+
+    /// 渲染 MessageBox 为 iced::Element
+    ///
+    /// - `visible == false` 时返回空容器
+    /// - 否则渲染遮罩 + 标题 + 内容 + 按钮组（按 show_confirm/show_close/show_cancel）
+    /// - on_action 参数为按钮 key：`"confirm"` / `"cancel"` / `"close"`
+    pub fn view<'a, Message: Clone + 'a>(
+        &'a self,
+        theme: &'a Theme,
+        on_action: impl Fn(String) -> Message + 'a,
+    ) -> Element<'a, Message> {
+        if !self.visible {
+            return container(text("")).into();
+        }
+
+        let title_color = Color::from(theme.neutral.text_primary);
+        let content_color = Color::from(theme.neutral.text_regular);
+        let bg = Color::from(theme.neutral.bg_overlay);
+        let border_color = Color::from(theme.neutral.border_lighter);
+        let primary = Color::from(theme.primary.base);
+        let mask = Color { a: 0.5, ..Color::BLACK };
+
+        // 标题栏
+        let title_text = text(self.title.clone()).color(title_color).size(16.0);
+        let mut header_row_children: Vec<Element<'a, Message>> = Vec::new();
+        header_row_children.push(title_text.into());
+        header_row_children.push(iced::widget::Space::with_width(Length::Fill).into());
+        if self.show_close {
+            let close_msg = on_action("close".to_string());
+            let close_btn = button(text("×").color(content_color).size(16.0))
+                .padding(Padding::from([2u16, 8u16]))
+                .on_press(close_msg)
+                .style(move |_t, _status| iced::widget::button::Style {
+                    background: None,
+                    text_color: content_color,
+                    border: iced::Border::default(),
+                    shadow: iced::Shadow::default(),
+                });
+            header_row_children.push(close_btn.into());
+        }
+        let header = iced::widget::Row::with_children(header_row_children)
+            .align_y(iced::Alignment::Center)
+            .spacing(0);
+
+        // 内容
+        let content_text = text(self.message.clone()).color(content_color).size(14.0);
+
+        let mut body_children: Vec<Element<'a, Message>> = Vec::new();
+        body_children.push(content_text.into());
+        if self.is_prompt {
+            // prompt 输入框（只读展示当前输入值）
+            let input_box = container(text(self.input_value.clone()).color(content_color).size(14.0))
+                .width(Length::Fill)
+                .padding(Padding::from([8u16, 12u16]))
+                .style(move |_t| iced::widget::container::Style {
+                    text_color: None,
+                    background: Some(iced::Background::Color(Color::from(theme.neutral.bg_base))),
+                    border: iced::Border {
+                        color: border_color,
+                        width: 1.0,
+                        radius: iced::border::radius(4.0),
+                    },
+                    shadow: iced::Shadow::default(),
+                });
+            body_children.push(iced::widget::Space::with_height(Length::Fixed(8.0)).into());
+            body_children.push(input_box.into());
+        }
+        let body = iced::widget::Column::with_children(body_children).spacing(0);
+
+        // 按钮组
+        let mut btn_row_children: Vec<Element<'a, Message>> = Vec::new();
+        btn_row_children.push(iced::widget::Space::with_width(Length::Fill).into());
+        if self.show_cancel {
+            let cancel_msg = on_action("cancel".to_string());
+            let cancel_btn = button(text(self.cancel_text.clone()).color(content_color).size(14.0))
+                .padding(Padding::from([8u16, 16u16]))
+                .on_press(cancel_msg)
+                .style(move |_t, _status| iced::widget::button::Style {
+                    background: Some(iced::Background::Color(Color::from(theme.neutral.bg_base))),
+                    text_color: content_color,
+                    border: iced::Border {
+                        color: border_color,
+                        width: 1.0,
+                        radius: iced::border::radius(4.0),
+                    },
+                    shadow: iced::Shadow::default(),
+                });
+            btn_row_children.push(cancel_btn.into());
+            btn_row_children.push(iced::widget::Space::with_width(Length::Fixed(8.0)).into());
+        }
+        if self.show_confirm {
+            let confirm_msg = on_action("confirm".to_string());
+            let confirm_btn = button(text(self.confirm_text.clone()).color(Color::WHITE).size(14.0))
+                .padding(Padding::from([8u16, 16u16]))
+                .on_press(confirm_msg)
+                .style(move |_t, _status| iced::widget::button::Style {
+                    background: Some(iced::Background::Color(primary)),
+                    text_color: Color::WHITE,
+                    border: iced::Border {
+                        color: primary,
+                        width: 1.0,
+                        radius: iced::border::radius(4.0),
+                    },
+                    shadow: iced::Shadow::default(),
+                });
+            btn_row_children.push(confirm_btn.into());
+        }
+        let btn_row = iced::widget::Row::with_children(btn_row_children)
+            .align_y(iced::Alignment::Center)
+            .spacing(0);
+
+        // 对话框主体
+        let dialog_inner = iced::widget::Column::new()
+            .push(header)
+            .push(iced::widget::Space::with_height(Length::Fixed(12.0)))
+            .push(body)
+            .push(iced::widget::Space::with_height(Length::Fixed(16.0)))
+            .push(btn_row);
+        let dialog_box = container(dialog_inner)
+            .max_width(420.0)
+            .padding(Padding::from(16u16))
+            .style(move |_t| iced::widget::container::Style {
+                text_color: Some(title_color),
+                background: Some(iced::Background::Color(bg)),
+                border: iced::Border {
+                    color: border_color,
+                    width: 1.0,
+                    radius: iced::border::radius(4.0),
+                },
+                shadow: iced::Shadow {
+                    color: Color { a: 0.3, ..Color::BLACK },
+                    offset: iced::Vector::new(0.0, 4.0),
+                    blur_radius: 16.0,
+                },
+            });
+
+        let centered = container(dialog_box)
+            .width(Length::Fill)
+            .height(Length::Fill)
+            .center_x(Length::Fill)
+            .center_y(Length::Fill);
+
+        container(centered)
+            .width(Length::Fill)
+            .height(Length::Fill)
+            .style(move |_t| iced::widget::container::Style {
+                text_color: None,
+                background: Some(iced::Background::Color(mask)),
+                border: iced::Border::default(),
+                shadow: iced::Shadow::default(),
+            })
+            .into()
     }
 }
 

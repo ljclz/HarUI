@@ -1,6 +1,10 @@
 //! Popover 气泡组件 — 参考 Element Plus `<el-popover>`。
 //! 支持：4 种 trigger（click/hover/focus/manual）、12 种 placement、title/content/width/show-arrow/disabled、外部点击关闭。
 
+use har_ui_core::theme::Theme;
+use iced::widget::{button, container, text};
+use iced::{Color, Element, Length, Padding};
+
 /// Popover 触发方式
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum PopoverTrigger {
@@ -236,6 +240,79 @@ impl Popover {
             }
             _ => {}
         }
+    }
+
+    /// 渲染 Popover 为 iced::Element
+    ///
+    /// # 参数
+    /// - `theme`: HarUI 主题引用
+    /// - `content`: 被包裹的触发元素
+    /// - `on_trigger`: 点击触发元素时发出消息
+    pub fn view<'a, Message: Clone + 'a>(
+        &'a self,
+        theme: &'a Theme,
+        content: Element<'a, Message>,
+        on_trigger: impl Fn() -> Message + 'a,
+    ) -> Element<'a, Message> {
+        let bg = Color::from(theme.neutral.bg_overlay);
+        let title_color = Color::from(theme.neutral.text_primary);
+        let content_color = Color::from(theme.neutral.text_regular);
+        let border_color = Color::from(theme.neutral.border_light);
+
+        let trigger_btn = button(content)
+            .padding(Padding::from([2u16, 4u16]))
+            .style(move |_t, _status| iced::widget::button::Style {
+                background: None,
+                text_color: title_color,
+                border: iced::Border::default(),
+                shadow: iced::Shadow::default(),
+            })
+            .on_press(on_trigger());
+
+        if !self.visible {
+            return trigger_btn.into();
+        }
+
+        // 构造气泡内容
+        let mut pop_children: Vec<Element<'a, Message>> = Vec::new();
+        if let Some(t) = &self.title {
+            pop_children.push(text(t.clone()).color(title_color).size(15.0).into());
+        }
+        if let Some(c) = &self.content {
+            pop_children.push(text(c.clone()).color(content_color).size(13.0).into());
+        }
+        if self.show_arrow {
+            pop_children.push(text("▲").color(bg).size(8.0).into());
+        }
+
+        let pop_col = iced::widget::Column::with_children(pop_children).spacing(4);
+        let pop_width = match self.width {
+            Some(w) => Length::Fixed(w as f32),
+            None => Length::Shrink,
+        };
+        let pop = container(pop_col)
+            .width(pop_width)
+            .padding(Padding::from([10u16, 14u16]))
+            .style(move |_t| iced::widget::container::Style {
+                text_color: None,
+                background: Some(iced::Background::Color(bg)),
+                border: iced::Border {
+                    color: border_color,
+                    width: 1.0,
+                    radius: iced::border::radius(4.0),
+                },
+                shadow: iced::Shadow {
+                    color: Color::from_rgba(0.0, 0.0, 0.0, 0.12),
+                    offset: iced::Vector::new(0.0, 2.0),
+                    blur_radius: 8.0,
+                },
+            });
+
+        iced::widget::Column::new()
+            .push(trigger_btn)
+            .push(iced::widget::Space::with_height(Length::Fixed(4.0)))
+            .push(pop)
+            .into()
     }
 }
 

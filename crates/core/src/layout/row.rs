@@ -5,6 +5,8 @@
 //! - justify: 主轴对齐方式
 //! - align: 交叉轴对齐方式
 
+use iced::Element;
+
 /// 主轴对齐方式
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum RowJustify {
@@ -75,4 +77,13 @@ impl Default for Row {
     fn default() -> Self {
         Self::new()
     }
+}
+
+/// 构建水平布局 Element — 把 children 装入 iced Row
+///
+/// 简化版签名，等价于 `iced::widget::Row::with_children(children).into()`。
+pub fn row<'a, Message: Clone + 'a>(
+    children: Vec<Element<'a, Message>>,
+) -> Element<'a, Message> {
+    iced::widget::Row::with_children(children).into()
 }

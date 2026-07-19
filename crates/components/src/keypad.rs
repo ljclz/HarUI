@@ -4,6 +4,10 @@
 //! 支持：0-9 / 00 / . / 退格 / 清除 / OK 确认，三种模式（price/number/quantity），
 //! max/min 边界检查，触摸优化（按钮热区 ≥ 44x44px）。
 
+use har_ui_core::theme::Theme;
+use iced::widget::{button, container, text};
+use iced::{Color, Element, Length, Padding};
+
 /// 键盘模式
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum KeypadMode {
@@ -253,6 +257,108 @@ impl Keypad {
             }
         }
         self.state = KeypadState::Confirmed;
+    }
+
+    /// 渲染 Keypad 为 iced::Element
+    ///
+    /// # 参数
+    /// - `theme`: HarUI 主题引用
+    /// - `on_key`: 用户按键时发出消息，参数为按键标签（如 "7"、"00"、"."、"Del"、"OK"）
+    pub fn view<'a, Message: Clone + 'a>(
+        &'a self,
+        theme: &'a Theme,
+        on_key: impl Fn(String) -> Message + 'a,
+    ) -> Element<'a, Message> {
+        let primary = Color::from(theme.primary.base);
+        let danger = Color::from(theme.danger.base);
+        let success = Color::from(theme.success.base);
+        let text_primary = Color::from(theme.neutral.text_primary);
+        let text_secondary = Color::from(theme.neutral.text_secondary);
+        let border_lighter = Color::from(theme.neutral.border_lighter);
+
+        let make_key_btn = move |label: &str, color: Color| -> Element<'a, Message> {
+            let msg = on_key(label.to_string());
+            button(text(label.to_string()).color(color).size(18.0))
+                .width(Length::Fill)
+                .padding(Padding::from([12u16, 0u16]))
+                .on_press(msg)
+                .style(move |_t, _status| iced::widget::button::Style {
+                    background: None,
+                    text_color: color,
+                    border: iced::Border {
+                        color: border_lighter,
+                        width: 1.0,
+                        radius: iced::border::radius(4.0),
+                    },
+                    shadow: iced::Shadow::default(),
+                })
+                .into()
+        };
+
+        let row1 = iced::widget::Row::new()
+            .push(make_key_btn("7", text_primary))
+            .push(make_key_btn("8", text_primary))
+            .push(make_key_btn("9", text_primary))
+            .spacing(4);
+
+        let row2 = iced::widget::Row::new()
+            .push(make_key_btn("4", text_primary))
+            .push(make_key_btn("5", text_primary))
+            .push(make_key_btn("6", text_primary))
+            .spacing(4);
+
+        let row3 = iced::widget::Row::new()
+            .push(make_key_btn("1", text_primary))
+            .push(make_key_btn("2", text_primary))
+            .push(make_key_btn("3", text_primary))
+            .spacing(4);
+
+        let allow_dot = self.mode.max_decimals().is_some();
+        let mut row4 = iced::widget::Row::new()
+            .push(make_key_btn("0", text_primary))
+            .push(make_key_btn("00", text_primary));
+        if allow_dot {
+            row4 = row4.push(make_key_btn(".", text_primary));
+        } else {
+            let placeholder: Element<'a, Message> = container(text("")).width(Length::Fill).into();
+            row4 = row4.push(placeholder);
+        }
+        row4 = row4.spacing(4);
+
+        let row5 = iced::widget::Row::new()
+            .push(make_key_btn("Del", danger))
+            .push(make_key_btn("Clr", text_secondary))
+            .push(make_key_btn("OK", success))
+            .spacing(4);
+
+        let mut col_children: Vec<Element<'a, Message>> = Vec::new();
+        if !self.value.is_empty() {
+            col_children.push(
+                container(text(self.value.clone()).color(primary).size(20.0))
+                    .width(Length::Fill)
+                    .padding(Padding::from([8u16, 4u16]))
+                    .style(move |_t| iced::widget::container::Style {
+                        text_color: None,
+                        background: None,
+                        border: iced::Border {
+                            color: border_lighter,
+                            width: 1.0,
+                            radius: iced::border::radius(4.0),
+                        },
+                        shadow: iced::Shadow::default(),
+                    })
+                    .into(),
+            );
+        }
+        col_children.push(row1.into());
+        col_children.push(row2.into());
+        col_children.push(row3.into());
+        col_children.push(row4.into());
+        col_children.push(row5.into());
+
+        iced::widget::Column::with_children(col_children)
+            .spacing(4)
+            .into()
     }
 }
 

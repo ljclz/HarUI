@@ -2,6 +2,10 @@
 //!
 //! 支持：分隔符、to 跳转、点击事件、icon、replace 末项、清除点击态。
 
+use har_ui_core::theme::Theme;
+use iced::widget::{button, container, text};
+use iced::{Color, Element, Length, Padding};
+
 /// 单个面包屑项
 #[derive(Debug, Clone)]
 pub struct BreadcrumbItem {
@@ -126,6 +130,104 @@ impl Breadcrumb {
                 self.navigate_target = None;
             }
         }
+    }
+
+    /// 渲染 Breadcrumb 为 iced::Element
+    ///
+    /// # 参数
+    /// - `theme`: HarUI 主题引用
+    /// - `on_click`: 点击某项时发出消息，参数为该项的 to（若无 to 则传 text）
+    pub fn view<'a, Message: Clone + 'a>(
+        &'a self,
+        theme: &'a Theme,
+        on_click: impl Fn(String) -> Message + 'a,
+    ) -> Element<'a, Message> {
+        if self.items.is_empty() {
+            return container(text("")).width(Length::Fill).into();
+        }
+
+        let text_primary = Color::from(theme.neutral.text_primary);
+        let text_regular = Color::from(theme.neutral.text_regular);
+        let text_secondary = Color::from(theme.neutral.text_secondary);
+        let primary = Color::from(theme.primary.base);
+        let separator_color = Color::from(theme.neutral.text_placeholder);
+
+        let last_idx = self.items.len().saturating_sub(1);
+        let mut children: Vec<Element<'a, Message>> = Vec::new();
+
+        for (idx, item) in self.items.iter().enumerate() {
+            let is_last = idx == last_idx;
+            let has_to = item.to().is_some();
+
+            // icon 前缀
+            if let Some(icon) = item.icon() {
+                children.push(
+                    text(icon.to_string())
+                        .color(text_secondary)
+                        .size(14.0)
+                        .into(),
+                );
+                children.push(
+                    iced::widget::Space::with_width(Length::Fixed(4.0)).into(),
+                );
+            }
+
+            let label_color = if is_last {
+                text_primary
+            } else if has_to {
+                primary
+            } else {
+                text_regular
+            };
+
+            let label_text = text(item.text().to_string()).color(label_color).size(14.0);
+
+            if has_to && !is_last {
+                if let Some(to) = item.to() {
+                    let btn = button(label_text)
+                        .padding(Padding::from(0u16))
+                        .style(move |_t, _status| iced::widget::button::Style {
+                            background: None,
+                            text_color: label_color,
+                            border: iced::Border::default(),
+                            shadow: iced::Shadow::default(),
+                        })
+                        .on_press(on_click(to.to_string()));
+                    children.push(btn.into());
+                }
+            } else {
+                let label_wrap = container(label_text)
+                    .padding(Padding::from(0u16))
+                    .style(move |_t| iced::widget::container::Style {
+                        text_color: Some(label_color),
+                        background: None,
+                        border: iced::Border::default(),
+                        shadow: iced::Shadow::default(),
+                    });
+                children.push(label_wrap.into());
+            }
+
+            // 分隔符（非最后一项）
+            if !is_last {
+                children.push(
+                    iced::widget::Space::with_width(Length::Fixed(6.0)).into(),
+                );
+                children.push(
+                    text(self.separator.clone())
+                        .color(separator_color)
+                        .size(14.0)
+                        .into(),
+                );
+                children.push(
+                    iced::widget::Space::with_width(Length::Fixed(6.0)).into(),
+                );
+            }
+        }
+
+        iced::widget::Row::with_children(children)
+            .spacing(0)
+            .align_y(iced::Alignment::Center)
+            .into()
     }
 }
 

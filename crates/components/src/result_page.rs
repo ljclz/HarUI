@@ -2,6 +2,10 @@
 //!
 //! 支持：4 种 type（success/warning/info/error）、自定义 icon/title/subtitle、extra slot。
 
+use har_ui_core::theme::Theme;
+use iced::widget::{container, text};
+use iced::{Color, Element, Length, Padding};
+
 /// 结果类型
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum ResultType {
@@ -82,6 +86,60 @@ impl ResultPage {
 
     pub fn has_extra(&self) -> bool {
         self.has_extra
+    }
+
+    /// 按 result_type 返回 (emoji, 颜色)
+    fn type_visual(t: ResultType, theme: &Theme) -> (&'static str, Color) {
+        match t {
+            ResultType::Success => ("✅", Color::from(theme.success.base)),
+            ResultType::Warning => ("⚠️", Color::from(theme.warning.base)),
+            ResultType::Info => ("ℹ️", Color::from(theme.info.base)),
+            ResultType::Error => ("❌", Color::from(theme.danger.base)),
+        }
+    }
+
+    /// 渲染 ResultPage 为 iced::Element
+    pub fn view<'a>(&'a self, theme: &'a Theme) -> Element<'a, ()> {
+        let (default_emoji, _accent) = Self::type_visual(self.result_type, theme);
+
+        // icon: 自定义 URL 优先（iced 0.13 无内置 image，使用占位 emoji）
+        let icon_str = if self.icon_url.is_some() { "🖼" } else { default_emoji };
+        let icon_text = text(icon_str).size(64.0);
+
+        let title_text = text(self.title.clone())
+            .color(Color::from(theme.neutral.text_primary))
+            .size(22.0);
+
+        let mut col = iced::widget::Column::new()
+            .push(icon_text)
+            .push(iced::widget::Space::with_height(Length::Fixed(12.0)))
+            .push(title_text)
+            .spacing(0)
+            .align_x(iced::alignment::Horizontal::Center);
+
+        if let Some(sub) = &self.sub_title {
+            col = col.push(iced::widget::Space::with_height(Length::Fixed(8.0)));
+            col = col.push(
+                text(sub.clone())
+                    .color(Color::from(theme.neutral.text_secondary))
+                    .size(14.0),
+            );
+        }
+
+        if self.has_extra {
+            col = col.push(iced::widget::Space::with_height(Length::Fixed(16.0)));
+            col = col.push(
+                text("[extra slot]")
+                    .color(Color::from(theme.neutral.text_placeholder))
+                    .size(12.0),
+            );
+        }
+
+        container(col)
+            .width(Length::Fill)
+            .padding(Padding::from([32u16, 24u16]))
+            .align_x(iced::alignment::Horizontal::Center)
+            .into()
     }
 }
 

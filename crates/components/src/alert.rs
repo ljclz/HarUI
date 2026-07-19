@@ -2,6 +2,10 @@
 //!
 //! 支持：4 种 type、title/description、closable、center、show-icon、effect（light/dark）、可见性切换。
 
+use har_ui_core::theme::Theme;
+use iced::widget::{button, container, text};
+use iced::{Color, Element, Length, Padding};
+
 /// 类型
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum AlertType {
@@ -138,6 +142,95 @@ impl Alert {
                 self.visible = true;
             }
         }
+    }
+
+    /// 渲染 Alert 为 iced::Element
+    ///
+    /// # 参数
+    /// - `theme`: HarUI 主题引用
+    /// - `on_close`: 点击关闭按钮时发出消息
+    pub fn view<'a, Message: Clone + 'a>(
+        &'a self,
+        theme: &'a Theme,
+        on_close: impl Fn() -> Message + 'a,
+    ) -> Element<'a, Message> {
+        if !self.visible {
+            return container(text("")).into();
+        }
+
+        let (icon_str, accent) = match self.alert_type {
+            AlertType::Success => ("✓", Color::from(theme.success.base)),
+            AlertType::Warning => ("⚠", Color::from(theme.warning.base)),
+            AlertType::Error => ("✕", Color::from(theme.danger.base)),
+            AlertType::Info => ("ℹ", Color::from(theme.info.base)),
+        };
+
+        let title_color = Color::from(theme.neutral.text_primary);
+        let desc_color = Color::from(theme.neutral.text_regular);
+        let bg = if theme.is_dark {
+            Color::from(theme.neutral.bg_overlay)
+        } else {
+            // 浅色：accent 10% 与白色 90% 混合
+            iced::Color::from_rgba(
+                accent.r * 0.1 + 1.0 * 0.9,
+                accent.g * 0.1 + 1.0 * 0.9,
+                accent.b * 0.1 + 1.0 * 0.9,
+                1.0,
+            )
+        };
+
+        let mut row_children: Vec<Element<'a, Message>> = Vec::new();
+        if self.show_icon {
+            row_children.push(text(icon_str.to_string()).color(accent).size(16.0).into());
+            row_children.push(iced::widget::Space::with_width(Length::Fixed(8.0)).into());
+        }
+
+        let mut text_col_children: Vec<Element<'a, Message>> = Vec::new();
+        text_col_children.push(text(self.title.clone()).color(title_color).size(15.0).into());
+        if let Some(d) = &self.description {
+            text_col_children.push(
+                text(d.clone()).color(desc_color).size(13.0).into(),
+            );
+        }
+        let text_col = iced::widget::Column::with_children(text_col_children)
+            .spacing(4)
+            .width(Length::Fill);
+        row_children.push(text_col.into());
+
+        if self.closable {
+            let close_btn = button(text("✕").color(desc_color).size(13.0))
+                .padding(Padding::from([2u16, 6u16]))
+                .style(move |_t, _status| iced::widget::button::Style {
+                    background: None,
+                    text_color: desc_color,
+                    border: iced::Border::default(),
+                    shadow: iced::Shadow::default(),
+                })
+                .on_press(on_close());
+            row_children.push(close_btn.into());
+        }
+
+        let mut row = iced::widget::Row::with_children(row_children)
+            .spacing(0)
+            .align_y(iced::Alignment::Center);
+        if self.center {
+            row = row.align_y(iced::Alignment::Center);
+        }
+
+        container(row)
+            .width(Length::Fill)
+            .padding(Padding::from([10u16, 16u16]))
+            .style(move |_t| iced::widget::container::Style {
+                text_color: None,
+                background: Some(iced::Background::Color(bg)),
+                border: iced::Border {
+                    color: accent,
+                    width: 1.0,
+                    radius: iced::border::radius(4.0),
+                },
+                shadow: iced::Shadow::default(),
+            })
+            .into()
     }
 }
 

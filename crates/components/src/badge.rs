@@ -3,6 +3,10 @@
 //! 参考 Element Plus `<el-badge>`。
 //! 支持：数字/小红点/文本、max 溢出（显示 max+）、is-dot、4 种位置、zero 自动隐藏。
 
+use har_ui_core::theme::Theme;
+use iced::widget::{container, text};
+use iced::{Color, Element, Length};
+
 /// Badge 值类型
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum BadgeValue {
@@ -119,6 +123,69 @@ impl Badge {
                 self.hidden_override = Some(h);
             }
         }
+    }
+
+    /// 渲染 Badge 为 iced::Element（仅渲染徽标本身，不包含子元素）
+    ///
+    /// # 参数
+    /// - `theme`: HarUI 主题引用
+    pub fn view<'a>(&'a self, theme: &'a Theme) -> Element<'a, ()> {
+        // hidden 状态：返回空 container
+        if self.hidden() {
+            return container(text("")).into();
+        }
+
+        let danger = Color::from(theme.danger.base);
+        let text_color = Color::WHITE;
+
+        if self.is_dot {
+            // 小红点
+            return container(text(""))
+                .width(Length::Fixed(8.0))
+                .height(Length::Fixed(8.0))
+                .style(move |_t| iced::widget::container::Style {
+                    text_color: None,
+                    background: Some(iced::Background::Color(danger)),
+                    border: iced::Border {
+                        color: Color::WHITE,
+                        width: 1.0,
+                        radius: iced::border::radius(4.0),
+                    },
+                    shadow: iced::Shadow::default(),
+                })
+                .into();
+        }
+
+        // 数字/文本
+        let display = self.display_text();
+        let is_text = matches!(self.value, BadgeValue::Text(_));
+        let width = if is_text {
+            Length::Shrink
+        } else {
+            Length::Fixed(match display.len() {
+                1 => 18.0,
+                2 => 22.0,
+                _ => 28.0,
+            })
+        };
+
+        let badge_text = text(display).color(text_color).size(12);
+        container(badge_text)
+            .width(width)
+            .height(Length::Fixed(18.0))
+            .align_x(iced::alignment::Horizontal::Center)
+            .align_y(iced::alignment::Vertical::Center)
+            .style(move |_t| iced::widget::container::Style {
+                text_color: Some(text_color),
+                background: Some(iced::Background::Color(danger)),
+                border: iced::Border {
+                    color: Color::WHITE,
+                    width: 1.0,
+                    radius: iced::border::radius(10.0),
+                },
+                shadow: iced::Shadow::default(),
+            })
+            .into()
     }
 }
 

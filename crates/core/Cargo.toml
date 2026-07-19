@@ -7,6 +7,3 @@ description = "HarUI core: theme system, icons, layout, utils"
 
 [dependencies]
 iced = { workspace = true }
-serde = { workspace = true }
-serde_json = { workspace = true }
-chrono = { workspace = true }

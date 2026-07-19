@@ -2,6 +2,10 @@
 //!
 //! 用于 POS 商品展示，支持多列网格布局、选中态、虚拟滚动切片。
 
+use har_ui_core::theme::Theme;
+use iced::widget::container;
+use iced::{Color, Element, Length, Padding};
+
 /// Grid Item trait — 网格项的唯一标识
 pub trait GridItem {
     fn item_id(&self) -> String;
@@ -121,6 +125,60 @@ impl<T: GridItem> Grid<T> {
         } else {
             &self.items[start..end]
         }
+    }
+
+    /// 渲染 Grid 为 iced::Element
+    ///
+    /// 按 `props.columns` 将 children 切分为多行布局，行内/行间间距由 `props.gap` 决定。
+    ///
+    /// # 参数
+    /// - `theme`: HarUI 主题引用
+    /// - `children`: 待渲染的子元素列表
+    pub fn view<'a, Message: Clone + 'a>(
+        &'a self,
+        theme: &'a Theme,
+        children: Vec<Element<'a, Message>>,
+    ) -> Element<'a, Message> {
+        let border_extra_light = Color::from(theme.neutral.border_extra_light);
+        let cols = self.props.columns.max(1);
+        let gap = self.props.gap.max(0.0) as u16;
+
+        let mut rows: Vec<Element<'a, Message>> = Vec::new();
+        let mut current: Vec<Element<'a, Message>> = Vec::new();
+        let mut count = 0usize;
+        for child in children {
+            current.push(child);
+            count += 1;
+            if count >= cols {
+                let row = iced::widget::Row::with_children(std::mem::take(&mut current))
+                    .spacing(gap)
+                    .align_y(iced::Alignment::Center);
+                rows.push(row.into());
+                count = 0;
+            }
+        }
+        if !current.is_empty() {
+            let row = iced::widget::Row::with_children(current)
+                .spacing(gap)
+                .align_y(iced::Alignment::Center);
+            rows.push(row.into());
+        }
+
+        let col = iced::widget::Column::with_children(rows).spacing(gap);
+        container(col)
+            .width(Length::Fill)
+            .padding(Padding::from(gap))
+            .style(move |_t| iced::widget::container::Style {
+                text_color: None,
+                background: Some(iced::Background::Color(border_extra_light)),
+                border: iced::Border {
+                    color: border_extra_light,
+                    width: 0.0,
+                    radius: iced::border::radius(4.0),
+                },
+                shadow: iced::Shadow::default(),
+            })
+            .into()
     }
 }
 

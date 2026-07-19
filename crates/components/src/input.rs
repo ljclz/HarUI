@@ -3,7 +3,11 @@
 //! 参考 Element Plus `<el-input>` 组件。
 //! 集成 har-ui-core 的 ImeProcessor 处理 IME 组合输入。
 
+use har_ui_core::theme::style_sheets;
+use har_ui_core::theme::Theme;
 use har_ui_core::utils::ime::{ImeEvent, ImeProcessor, InputMode as CoreInputMode, ProcessResult};
+use iced::widget::{text, text_input};
+use iced::Element;
 
 /// 输入框模式（包装 CoreInputMode 以便公开 API）
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
@@ -157,6 +161,87 @@ impl Input {
 
     pub fn composition_text(&self) -> &str {
         self.ime.composition_text()
+    }
+
+    /// 是否为密码模式（secure 显示）
+    pub fn is_secure(&self) -> bool {
+        matches!(self.mode, InputMode::Password)
+    }
+
+    /// 计算完整的 text_input::Style
+    ///
+    /// 委托给 `style_sheets::input_style`，按 status 返回对应样式。
+    pub fn compute_style(
+        &self,
+        theme: &Theme,
+        status: text_input::Status,
+    ) -> text_input::Style {
+        style_sheets::input_style(theme, status)
+    }
+
+    /// 渲染输入框为 iced::Element
+    ///
+    /// # 参数
+    /// - `theme`: HarUI 主题引用
+    /// - `on_input`: 文本变化时发出的消息构造器（接收新字符串）
+    ///
+    /// # 行为
+    /// - Password 模式：`secure(true)` 隐藏字符
+    /// - `disabled` 时不附加 on_input，iced 自动设置 Status::Disabled
+    /// - 有 prefix/suffix 时用 row 包裹 text_input
+    /// - style 闭包按 status 动态计算样式
+    ///
+    /// # R.3.3 IME 支持
+    /// iced 0.13.x 的 `text_input` widget 在 winit 层**已内置 IME 支持**：
+    /// - 平台输入法（中文 / 日文 / 韩文等）的 Preedit / Commit 由 winit 直接交付给
+    ///   `text_input` widget 内部处理，无需应用层订阅 IME 事件流
+    /// - 应用层 [`har_ui_core::utils::ime::subscription`] 仅作为事件桥接占位，
+    ///   当前 iced 0.13.x 不暴露 `window::Event::Ime`，无法在应用层捕获完整 IME 事件
+    /// - 本组件通过 [`ImeProcessor`] 维护 `Composing` 状态，组合期间显示
+    ///   `composition_text` 而非 `value`，组合结束（`CompositionEnd`）后才提交文本
+    /// - 真机中文输入测试参见 `crates/core/src/utils/ime.rs` 顶部文档
+    pub fn view<'a, Message: Clone + 'a>(
+        &'a self,
+        theme: &'a Theme,
+        on_input: impl Fn(String) -> Message + 'a,
+    ) -> Element<'a, Message> {
+        // 组合中显示 composition_text，否则显示 value
+        let display_value = if self.state == InputState::Composing {
+            self.ime.composition_text()
+        } else {
+            &self.value
+        };
+
+        let mut ti = text_input(&self.placeholder, display_value)
+            .secure(self.is_secure());
+
+        if !self.disabled {
+            ti = ti.on_input(on_input);
+        }
+
+        ti = ti.style(move |_t, status| style_sheets::input_style(theme, status));
+
+        // prefix/suffix 用 row 包裹
+        let has_prefix = self.prefix.is_some();
+        let has_suffix = self.suffix.is_some();
+        if !has_prefix && !has_suffix {
+            return ti.into();
+        }
+
+        let mut children: Vec<Element<'a, Message>> = Vec::with_capacity(3);
+        if let Some(p) = &self.prefix {
+            children.push(text(p).into());
+        }
+        children.push(ti.into());
+        if let Some(s) = &self.suffix {
+            children.push(text(s).into());
+        }
+
+        // row 接受可变参数，用 row! 宏更简洁；这里用数组方式避免宏的复杂泛型
+        let r = iced::widget::Row::with_children(children)
+            .align_y(iced::Alignment::Center)
+            .spacing(4);
+        Element::from(r)
     }
 
     /// 处理消息

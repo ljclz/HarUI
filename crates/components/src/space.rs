@@ -2,6 +2,10 @@
 //!
 //! 支持：方向（horizontal/vertical）、size、wrap、fill、alignment、items 增删。
 
+use har_ui_core::theme::Theme;
+use iced::widget::{container, text};
+use iced::{Element, Length};
+
 /// 排列方向
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum SpaceDirection {
@@ -122,6 +126,49 @@ impl Space {
             SpaceMessage::Clear => {
                 self.items.clear();
             }
+        }
+    }
+
+    /// 渲染 Space 为 iced::Element
+    ///
+    /// - 按 direction 排列传入的 children，spacing = size
+    /// - fill=true 时容器宽度填满
+    pub fn view<'a, Message: Clone + 'a>(
+        &'a self,
+        _theme: &'a Theme,
+        children: Vec<Element<'a, Message>>,
+    ) -> Element<'a, Message> {
+        if children.is_empty() {
+            return container(text("")).into();
+        }
+
+        let spacing = self.size as u16;
+        let align = match self.alignment {
+            SpaceAlignment::Start => iced::Alignment::Start,
+            SpaceAlignment::Center => iced::Alignment::Center,
+            SpaceAlignment::End => iced::Alignment::End,
+            SpaceAlignment::Baseline => iced::Alignment::Start,
+        };
+
+        let element: Element<'a, Message> = match self.direction {
+            SpaceDirection::Horizontal => iced::widget::Row::with_children(children)
+                .spacing(spacing)
+                .align_y(align)
+                .into(),
+            SpaceDirection::Vertical => iced::widget::Column::with_children(children)
+                .spacing(spacing)
+                .align_x(align)
+                .into(),
+        };
+
+        let _ = self.wrap;
+
+        if self.fill {
+            container(element)
+                .width(Length::Fill)
+                .into()
+        } else {
+            element
         }
     }
 }

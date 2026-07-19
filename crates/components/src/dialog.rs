@@ -11,6 +11,11 @@
 //!    └──AnimationFinished──◄── Closing ◄───────────┘
 //! ```
 
+use har_ui_core::theme::style_sheets::{self, ButtonKind};
+use har_ui_core::theme::Theme;
+use iced::widget::{button, container, text};
+use iced::{Color, Element, Length, Padding};
+
 /// Dialog 状态
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum DialogState {
@@ -133,6 +138,93 @@ impl Dialog {
 
     pub fn position(&self) -> Option<(f32, f32)> {
         self.position
+    }
+
+    /// 渲染对话框为 iced::Element
+    ///
+    /// # 参数
+    /// - `theme`: HarUI 主题引用
+    /// - `on_close`: 关闭按钮/遮罩点击时发出的消息
+    ///
+    /// # 行为
+    /// - Closed：返回空 container（占位）
+    /// - Opening/Open/Closing：渲染遮罩 + 对话框（标题 + 内容 + 关闭按钮）
+    /// - fullscreen：对话框填满视窗
+    /// - draggable：position 决定对话框偏移
+    pub fn view<'a, Message: Clone + 'a>(
+        &'a self,
+        theme: &'a Theme,
+        on_close: Message,
+    ) -> Element<'a, Message> {
+        if !self.is_visible() {
+            // 关闭时返回空 container
+            return container(text("")).into();
+        }
+
+        // 标题栏
+        let title_text = text(self.title.clone())
+            .color(Color::from(theme.neutral.text_primary))
+            .size(16);
+        let close_btn = button(text("×").color(Color::from(theme.neutral.text_regular)))
+            .padding(Padding::from([2u16, 8u16]))
+            .on_press(on_close.clone())
+            .style(move |_t, status| {
+                style_sheets::button_style(theme, ButtonKind::Text, false, status)
+            });
+        let header = iced::widget::Row::new()
+            .push(title_text)
+            .push(iced::widget::Space::with_width(Length::Fill))
+            .push(close_btn)
+            .align_y(iced::Alignment::Center)
+            .padding(Padding::from([12u16, 16u16]));
+
+        // 内容区
+        let body = container(text(self.content.clone()).color(Color::from(theme.neutral.text_regular)))
+            .width(Length::Fill)
+            .padding(Padding::from(16u16));
+
+        // 对话框主体（用 container 包裹以应用样式，因为 Column 无 style 方法）
+        let dialog_inner = iced::widget::Column::new()
+            .push(header)
+            .push(body);
+        let dialog_box = container(dialog_inner)
+            .max_width(if self.props.fullscreen { 100000.0 } else { 500.0 })
+            .style(move |_t| iced::widget::container::Style {
+                text_color: Some(Color::from(theme.neutral.text_primary)),
+                background: Some(iced::Background::Color(Color::from(theme.neutral.bg_overlay))),
+                border: iced::Border {
+                    color: Color::from(theme.neutral.border_lighter),
+                    width: 1.0,
+                    radius: iced::border::radius(4.0),
+                },
+                shadow: iced::Shadow {
+                    color: Color { a: 0.3, ..Color::BLACK },
+                    offset: iced::Vector::new(0.0, 4.0),
+                    blur_radius: 16.0,
+                },
+            });
+
+        // 注：position 偏移在 iced 中需要绝对定位支持，此处简化为中心对齐
+        let _ = self.position;
+        let dialog_container = if self.props.fullscreen {
+            container(dialog_box)
+                .width(Length::Fill)
+                .height(Length::Fill)
+        } else {
+            container(dialog_box)
+                .width(Length::Fill)
+                .height(Length::Fill)
+                .center_x(Length::Fill)
+                .center_y(Length::Fill)
+        };
+
+        // 遮罩层 + 对话框
+        let overlay = container(dialog_container)
+            .width(Length::Fill)
+            .height(Length::Fill)
+            .style(move |_t| style_sheets::container_dialog_mask_style(theme));
+
+        overlay.into()
     }
 
     /// 处理消息

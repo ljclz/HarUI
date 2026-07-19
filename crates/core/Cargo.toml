@@ -1,0 +1,12 @@
+[package]
+name = "har-ui-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "HarUI core: theme system, icons, layout, utils"
+
+[dependencies]
+iced = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+chrono = { workspace = true }

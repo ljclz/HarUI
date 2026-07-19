@@ -1,0 +1,25 @@
+# Rust
+/target/
+**/target/
+Cargo.lock.bak
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Criterion
+target/criterion/
+
+# proptest
+**/.proptest-regressions/
+
+# Build artifacts
+*.pdb
+*.exe

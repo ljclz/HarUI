@@ -1,0 +1,10 @@
+[package]
+name = "empty-window"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "HarUI empty window example — M0 milestone verification"
+
+[dependencies]
+iced = { workspace = true }
+har-ui-core = { path = "../../crates/core" }

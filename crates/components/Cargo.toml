@@ -1,0 +1,19 @@
+[package]
+name = "har-ui-components"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "HarUI components: 60 base + 6 enterprise POS extensions"
+
+[dependencies]
+iced = { workspace = true }
+har-ui-core = { path = "../core" }
+
+[dev-dependencies]
+proptest = { workspace = true }
+criterion = { workspace = true }
+
+[[bench]]
+name = "component_bench"
+harness = false
+path = "benches/component_bench.rs"

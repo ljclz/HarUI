@@ -2,7 +2,7 @@
 //!
 //! 覆盖：4 种 type、title/description、closable、center、show-icon、effect（light/dark）。
 
-use har_ui_components::alert::{Alert, AlertMessage, AlertType, AlertEffect};
+use har_ui_components::alert::{Alert, AlertEffect, AlertMessage, AlertType};
 
 #[test]
 fn test_alert_default() {

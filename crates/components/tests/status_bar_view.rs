@@ -40,9 +40,8 @@ fn test_status_bar_view_with_both_sides_renders() {
 #[test]
 fn test_status_bar_view_with_detail_renders() {
     let theme = Theme::element_light();
-    let s = StatusBar::new().with_left_item(
-        StatusItem::new("网络", StatusLevel::Success).with_detail("100Mbps"),
-    );
+    let s = StatusBar::new()
+        .with_left_item(StatusItem::new("网络", StatusLevel::Success).with_detail("100Mbps"));
     let _element = s.view(&theme);
 }
 

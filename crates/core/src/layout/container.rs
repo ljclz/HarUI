@@ -70,8 +70,6 @@ impl Default for Container {
 /// 构建容器 Element — 把 content 装入 iced Container
 ///
 /// 简化版签名，等价于 `iced::widget::container(content).into()`。
-pub fn container<'a, Message: Clone + 'a>(
-    content: Element<'a, Message>,
-) -> Element<'a, Message> {
+pub fn container<'a, Message: Clone + 'a>(content: Element<'a, Message>) -> Element<'a, Message> {
     iced::widget::container(content).into()
 }

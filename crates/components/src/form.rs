@@ -26,6 +26,9 @@ pub enum FormState {
     Failed,
 }
 
+/// 自定义验证函数类型
+pub type FormValidator = Box<dyn Fn(&str) -> bool + Send + Sync>;
+
 /// 验证规则（不可 Clone，因含函数指针对象）
 pub struct FormRule {
     pub field: String,
@@ -34,7 +37,7 @@ pub struct FormRule {
     pub max: Option<usize>,
     pub message: Option<String>,
     pub trigger: ValidateTrigger,
-    pub validator: Option<Box<dyn Fn(&str) -> bool + Send + Sync>>,
+    pub validator: Option<FormValidator>,
 }
 
 impl std::fmt::Debug for FormRule {
@@ -246,41 +249,50 @@ impl Form {
 
     /// 验证单个字段，返回 Some(error) 或 None
     pub fn validate_field(&mut self, field: &str) -> Option<ValidationError> {
-        let item = match self.items.iter().find(|i| i.field() == field) {
-            Some(i) => i,
-            None => return None,
-        };
+        let item = self.items.iter().find(|i| i.field() == field)?;
         let value = self.values.get(field).cloned().unwrap_or_default();
         for rule in item.rules() {
             if rule.required && value.is_empty() {
                 return Some(ValidationError {
                     field: field.to_string(),
-                    message: rule.message.clone().unwrap_or_else(|| format!("{} is required", field)),
+                    message: rule
+                        .message
+                        .clone()
+                        .unwrap_or_else(|| format!("{} is required", field)),
                 });
             }
-            if let Some(min) = rule.min {
-                if value.len() < min {
-                    return Some(ValidationError {
-                        field: field.to_string(),
-                        message: rule.message.clone().unwrap_or_else(|| format!("{} length must be >= {}", field, min)),
-                    });
-                }
+            if let Some(min) = rule.min
+                && value.len() < min
+            {
+                return Some(ValidationError {
+                    field: field.to_string(),
+                    message: rule
+                        .message
+                        .clone()
+                        .unwrap_or_else(|| format!("{} length must be >= {}", field, min)),
+                });
             }
-            if let Some(max) = rule.max {
-                if value.len() > max {
-                    return Some(ValidationError {
-                        field: field.to_string(),
-                        message: rule.message.clone().unwrap_or_else(|| format!("{} length must be <= {}", field, max)),
-                    });
-                }
+            if let Some(max) = rule.max
+                && value.len() > max
+            {
+                return Some(ValidationError {
+                    field: field.to_string(),
+                    message: rule
+                        .message
+                        .clone()
+                        .unwrap_or_else(|| format!("{} length must be <= {}", field, max)),
+                });
             }
-            if let Some(validator) = &rule.validator {
-                if !validator(&value) {
-                    return Some(ValidationError {
-                        field: field.to_string(),
-                        message: rule.message.clone().unwrap_or_else(|| format!("{} validation failed", field)),
-                    });
-                }
+            if let Some(validator) = &rule.validator
+                && !validator(&value)
+            {
+                return Some(ValidationError {
+                    field: field.to_string(),
+                    message: rule
+                        .message
+                        .clone()
+                        .unwrap_or_else(|| format!("{} validation failed", field)),
+                });
             }
         }
         None
@@ -344,7 +356,10 @@ impl Form {
     ) -> Element<'a, Message> {
         let label_color = Color::from(theme.neutral.text_primary);
         let error_color = Color::from(theme.danger.base);
-        let label_width = self.label_width.map(|w| Length::Fixed(w as f32)).unwrap_or(Length::Fixed(80.0));
+        let label_width = self
+            .label_width
+            .map(|w| Length::Fixed(w as f32))
+            .unwrap_or(Length::Fixed(80.0));
 
         let mut item_elements: Vec<Element<'a, Message>> = Vec::with_capacity(self.items.len());
 
@@ -362,11 +377,8 @@ impl Form {
 
             // 错误信息
             let error_msg = self.errors.iter().find(|e| e.field == item.field());
-            let error_widget = if let Some(e) = error_msg {
-                Some(text(e.message.clone()).color(error_color).size(12))
-            } else {
-                None
-            };
+            let error_widget =
+                error_msg.map(|e| text(e.message.clone()).color(error_color).size(12));
 
             // 按标签位置布局
             let item_element: Element<'a, Message> = match self.label_position.as_str() {
@@ -381,27 +393,33 @@ impl Form {
                     container(col).padding(Padding::from([8u16, 12u16])).into()
                 }
                 "left" => {
-                    let mut right_col = iced::widget::Column::new()
-                        .push(field_widget)
-                        .spacing(2);
+                    let mut right_col = iced::widget::Column::new().push(field_widget).spacing(2);
                     if let Some(err) = error_widget {
                         right_col = right_col.push(err);
                     }
                     let row = iced::widget::Row::new()
-                        .push(container(label_widget).width(label_width).align_y(iced::alignment::Vertical::Top).padding(Padding::from([8u16, 0u16])))
+                        .push(
+                            container(label_widget)
+                                .width(label_width)
+                                .align_y(iced::alignment::Vertical::Top)
+                                .padding(Padding::from([8u16, 0u16])),
+                        )
                         .push(right_col);
                     container(row).padding(Padding::from([8u16, 12u16])).into()
                 }
                 _ => {
                     // right（默认）
-                    let mut right_col = iced::widget::Column::new()
-                        .push(field_widget)
-                        .spacing(2);
+                    let mut right_col = iced::widget::Column::new().push(field_widget).spacing(2);
                     if let Some(err) = error_widget {
                         right_col = right_col.push(err);
                     }
                     let row = iced::widget::Row::new()
-                        .push(container(label_widget).width(label_width).align_y(iced::alignment::Vertical::Top).padding(Padding::from([8u16, 0u16])))
+                        .push(
+                            container(label_widget)
+                                .width(label_width)
+                                .align_y(iced::alignment::Vertical::Top)
+                                .padding(Padding::from([8u16, 0u16])),
+                        )
                         .push(right_col);
                     container(row).padding(Padding::from([8u16, 12u16])).into()
                 }
@@ -445,20 +463,15 @@ mod internal_tests {
 
     #[test]
     fn test_form_item_with_rule_marks_required() {
-        let item = FormItem::new("name", "Name")
-            .with_rule(FormRule::new("name").required(true));
+        let item = FormItem::new("name", "Name").with_rule(FormRule::new("name").required(true));
         assert!(item.required());
     }
 
     #[test]
     fn test_form_validate_collects_all_errors() {
         let mut f = Form::new()
-            .with_item(
-                FormItem::new("a", "A").with_rule(FormRule::new("a").required(true)),
-            )
-            .with_item(
-                FormItem::new("b", "B").with_rule(FormRule::new("b").required(true)),
-            );
+            .with_item(FormItem::new("a", "A").with_rule(FormRule::new("a").required(true)))
+            .with_item(FormItem::new("b", "B").with_rule(FormRule::new("b").required(true)));
         let errors = f.validate().unwrap();
         assert_eq!(errors.len(), 2);
     }

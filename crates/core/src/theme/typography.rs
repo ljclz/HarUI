@@ -5,32 +5,32 @@
 /// 字号档位（10 档）
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum FontSize {
-    Xs,       // 12px
-    Sm,       // 14px (基础字号)
-    Md,       // 16px
-    Lg,       // 18px
-    Xl,       // 20px
-    Xxl,      // 24px
-    Xxxl,     // 28px
-    Xxxxl,    // 32px
-    Xxxxxl,   // 36px
-    Xxxxxxl,  // 40px
+    Xs,      // 12px
+    Sm,      // 14px (基础字号)
+    Md,      // 16px
+    Lg,      // 18px
+    Xl,      // 20px
+    Xxl,     // 24px
+    Xxxl,    // 28px
+    Xxxxl,   // 32px
+    Xxxxxl,  // 36px
+    Xxxxxxl, // 40px
 }
 
 /// 字重
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum FontWeight {
-    Normal,   // 400
-    Medium,   // 500
-    Bold,     // 700
+    Normal, // 400
+    Medium, // 500
+    Bold,   // 700
 }
 
 /// 行高
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum LineHeight {
-    Tight,    // 1.2
-    Normal,   // 1.5
-    Loose,    // 1.8
+    Tight,  // 1.2
+    Normal, // 1.5
+    Loose,  // 1.8
 }
 
 /// 字体系统
@@ -45,11 +45,10 @@ impl Default for Typography {
             // Element Plus 默认字体栈
             // "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB",
             // "Microsoft YaHei", "微软雅黑", Arial, sans-serif
-            font_family: format!(
-                "Helvetica Neue, Helvetica, PingFang SC, \
+            font_family: "Helvetica Neue, Helvetica, PingFang SC, \
                  Hiragino Sans GB, Microsoft YaHei, 微软雅黑, \
                  Arial, sans-serif"
-            ),
+                .to_string(),
         }
     }
 }

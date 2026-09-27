@@ -46,9 +46,7 @@ fn test_skeleton_animated_flag() {
 fn test_skeleton_count_repeats_items() {
     // count=3 把每项重复 3 次
     let template = vec![SkeletonItem::paragraph(), SkeletonItem::title()];
-    let s = Skeleton::new()
-        .with_template(template)
-        .with_count(3);
+    let s = Skeleton::new().with_template(template).with_count(3);
     // 2 项 × 3 次 = 6 项
     assert_eq!(s.items().len(), 6);
 }

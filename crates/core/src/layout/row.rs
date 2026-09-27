@@ -82,8 +82,6 @@ impl Default for Row {
 /// 构建水平布局 Element — 把 children 装入 iced Row
 ///
 /// 简化版签名，等价于 `iced::widget::Row::with_children(children).into()`。
-pub fn row<'a, Message: Clone + 'a>(
-    children: Vec<Element<'a, Message>>,
-) -> Element<'a, Message> {
+pub fn row<'a, Message: Clone + 'a>(children: Vec<Element<'a, Message>>) -> Element<'a, Message> {
     iced::widget::Row::with_children(children).into()
 }

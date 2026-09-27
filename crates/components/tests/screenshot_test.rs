@@ -87,6 +87,8 @@ fn test_progress_all_types_render_in_both_themes() {
     for theme in [Theme::element_light(), Theme::element_dark()] {
         let _ = Progress::new().with_type(ProgressType::Line).view(&theme);
         let _ = Progress::new().with_type(ProgressType::Circle).view(&theme);
-        let _ = Progress::new().with_type(ProgressType::Dashboard).view(&theme);
+        let _ = Progress::new()
+            .with_type(ProgressType::Dashboard)
+            .view(&theme);
     }
 }

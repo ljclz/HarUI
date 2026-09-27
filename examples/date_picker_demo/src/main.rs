@@ -65,7 +65,7 @@ fn view(state: &State) -> Element<'_, Message> {
     };
     let status = text(display).size(14);
 
-    let picker_view = state.picker.view(&state.theme, |s| Message::Pick(s));
+    let picker_view = state.picker.view(&state.theme, Message::Pick);
 
     let content = column![
         text("HarUI — DatePicker Demo").size(24),

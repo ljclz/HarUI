@@ -15,6 +15,7 @@ pub struct State {
 }
 
 #[derive(Debug, Clone)]
+#[allow(clippy::large_enum_variant)]
 pub enum Message {
     ToggleTheme,
     ThemeLoaded(Theme),
@@ -103,6 +104,9 @@ fn main() -> iced::Result {
         .window_size(iced::Size::new(640.0, 480.0))
         .run_with(|| {
             let state = State { theme: None };
-            (state, Task::perform(async { Theme::element_light() }, Message::ThemeLoaded))
+            (
+                state,
+                Task::perform(async { Theme::element_light() }, Message::ThemeLoaded),
+            )
         })
 }

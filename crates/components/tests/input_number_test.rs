@@ -7,9 +7,7 @@
 //! - 直接输入
 //! - controls_position (right两侧 / right 两侧箭头)
 
-use har_ui_components::input_number::{
-    InputNumber, InputNumberMessage, ControlsPosition,
-};
+use har_ui_components::input_number::{ControlsPosition, InputNumber, InputNumberMessage};
 
 #[test]
 fn test_input_number_default_value_is_zero() {
@@ -101,10 +99,7 @@ fn test_input_number_direct_input_clamped() {
 
 #[test]
 fn test_input_number_controls_position_variants() {
-    let positions = [
-        ControlsPosition::Default,
-        ControlsPosition::Right,
-    ];
+    let positions = [ControlsPosition::Default, ControlsPosition::Right];
     assert_eq!(positions.len(), 2);
     assert_ne!(ControlsPosition::Default, ControlsPosition::Right);
 }
@@ -119,14 +114,17 @@ fn test_input_number_disabled_blocks_increment() {
 #[test]
 fn test_input_number_set_value_applies_precision() {
     let mut inp = InputNumber::new().with_precision(2);
-    inp.handle(InputNumberMessage::SetValue(3.14159));
+    inp.handle(InputNumberMessage::SetValue(123.456));
     // 应四舍五入到 2 位小数
-    assert!((inp.value() - 3.14).abs() < 0.001);
+    assert!((inp.value() - 123.46).abs() < 0.001);
 }
 
 #[test]
 fn test_input_number_step_can_be_fractional() {
-    let mut inp = InputNumber::new().with_step(0.5).with_min(0.0).with_max(2.0);
+    let mut inp = InputNumber::new()
+        .with_step(0.5)
+        .with_min(0.0)
+        .with_max(2.0);
     inp.handle(InputNumberMessage::Increment); // 0.5
     assert_eq!(inp.value(), 0.5);
     inp.handle(InputNumberMessage::Increment); // 1.0

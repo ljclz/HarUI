@@ -1,8 +1,6 @@
 //! Checkbox 多选框组件 — 参考 Element Plus `<el-checkbox>` 与 `<el-checkbox-group>`。
 
-use har_ui_components::checkbox::{
-    Checkbox, CheckboxGroup, CheckboxMessage, CheckboxSize,
-};
+use har_ui_components::checkbox::{Checkbox, CheckboxGroup, CheckboxMessage, CheckboxSize};
 
 // ---------- 单个 Checkbox 基础 ----------
 
@@ -130,8 +128,7 @@ fn test_checkbox_group_default_empty() {
 
 #[test]
 fn test_checkbox_group_with_initial_values() {
-    let g = CheckboxGroup::new()
-        .with_value(vec!["apple", "banana"]);
+    let g = CheckboxGroup::new().with_value(vec!["apple", "banana"]);
     assert_eq!(g.value(), &["apple", "banana"]);
 }
 
@@ -222,8 +219,7 @@ fn test_checkbox_group_select_all() {
 
 #[test]
 fn test_checkbox_group_clear_all() {
-    let mut g = CheckboxGroup::new()
-        .with_value(vec!["apple", "banana"]);
+    let mut g = CheckboxGroup::new().with_value(vec!["apple", "banana"]);
     g.handle(CheckboxMessage::ClearAll);
     assert!(g.value().is_empty());
 }
@@ -244,8 +240,7 @@ fn test_checkbox_group_select_all_respects_max() {
 
 #[test]
 fn test_checkbox_group_indeterminate_partial_selected() {
-    let g = CheckboxGroup::new()
-        .with_value(vec!["apple"]);
+    let g = CheckboxGroup::new().with_value(vec!["apple"]);
     // 部分选中应返回 true（用于"全选"checkbox 半选状态）
     assert!(g.is_indeterminate(&["apple", "banana", "cherry"]));
 }
@@ -258,8 +253,7 @@ fn test_checkbox_group_indeterminate_none_selected() {
 
 #[test]
 fn test_checkbox_group_indeterminate_all_selected() {
-    let g = CheckboxGroup::new()
-        .with_value(vec!["apple", "banana"]);
+    let g = CheckboxGroup::new().with_value(vec!["apple", "banana"]);
     // 全部选中应为 false（非半选）
     assert!(!g.is_indeterminate(&["apple", "banana"]));
 }

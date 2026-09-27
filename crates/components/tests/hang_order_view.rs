@@ -121,5 +121,5 @@ fn test_hang_order_view_custom_message_type() {
         Resume(String),
         Delete(String),
     }
-    let _element = h.view(&theme, |s| AppMsg::Resume(s), |s| AppMsg::Delete(s));
+    let _element = h.view(&theme, AppMsg::Resume, AppMsg::Delete);
 }

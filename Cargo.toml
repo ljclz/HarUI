@@ -21,10 +21,10 @@ members = [
 ]
 
 [workspace.package]
-version = "0.1.0"
-edition = "2021"
+version = "1.0.0"
+edition = "2024"
 license = "MIT"
-repository = "https://github.com/harui/har-ui"
+repository = "https://github.com/szzmj1980/HarUI"
 description = "Rust native UI component library, Element Plus equivalent in Rust ecosystem"
 keywords = ["ui", "gui", "iced", "components", "element-plus"]
 categories = ["gui"]
@@ -37,9 +37,27 @@ chrono = { version = "0.4", features = ["serde"] }
 proptest = "1"
 criterion = "0.5"
 
+# ── 发布构建配置 ──────────────────────────────────────────────────────
+#
+# 设计决策（ADR-007）：
+#   release 默认关闭 LTO，避免 workspace 下 15 个 example 二进制同时触发
+#   全量 LTO 导致 LLVM OOM（Windows 常见，内存峰值 >16GB）。
+#   发布 crate 到 crates.io 时使用 release-lto 单独构建，
+#   仅编译 core + components 两个 rlib，内存可控。
+#
+# 内存预算：
+#   release（lto=false, codegen-units=16）：每 example ~1.5GB 峰值
+#   release-lto（lto="fat", codegen-units=1）：每 crate ~3GB 峰值
+#
 [profile.release]
 opt-level = 3
-lto = true
+lto = false
+codegen-units = 16
+
+# 发布 crate 专用：fat LTO + 单代码单元，仅用于 core/components 库构建
+[profile.release-lto]
+inherits = "release"
+lto = "fat"
 codegen-units = 1
 
 [profile.dev]

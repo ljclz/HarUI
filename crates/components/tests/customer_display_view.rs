@@ -41,7 +41,9 @@ fn test_customer_display_view_qr_code_renders() {
 fn test_customer_display_view_message_renders() {
     let theme = Theme::element_light();
     let mut d = CustomerDisplay::new();
-    d.handle(CustomerDisplayMessage::ShowCustomMessage("请扫描商品条码".to_string()));
+    d.handle(CustomerDisplayMessage::ShowCustomMessage(
+        "请扫描商品条码".to_string(),
+    ));
     let _element = d.view(&theme);
 }
 

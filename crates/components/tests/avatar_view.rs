@@ -62,7 +62,9 @@ fn test_avatar_view_pixel_size_renders() {
 #[test]
 fn test_avatar_view_with_fit_renders() {
     let theme = Theme::element_light();
-    let a = Avatar::new().with_image_url("/img.png").with_fit(AvatarFit::Contain);
+    let a = Avatar::new()
+        .with_image_url("/img.png")
+        .with_fit(AvatarFit::Contain);
     let _element = a.view(&theme);
 }
 
@@ -76,7 +78,9 @@ fn test_avatar_view_dark_theme_renders() {
 #[test]
 fn test_avatar_view_with_fallback_renders() {
     let theme = Theme::element_light();
-    let mut a = Avatar::new().with_image_url("/img.png").with_fallback_text("A");
+    let mut a = Avatar::new()
+        .with_image_url("/img.png")
+        .with_fallback_text("A");
     a.handle_load_error();
     let _element = a.view(&theme);
 }

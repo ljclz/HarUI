@@ -64,7 +64,8 @@ fn test_avatar_fit_modes() {
 
 #[test]
 fn test_avatar_fallback_on_error() {
-    let mut a = Avatar::new().with_image_url("/img/missing.png")
+    let mut a = Avatar::new()
+        .with_image_url("/img/missing.png")
         .with_fallback_text("U");
     assert_eq!(a.source(), AvatarSource::Image);
     // 模拟图片加载失败

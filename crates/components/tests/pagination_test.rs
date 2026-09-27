@@ -14,8 +14,7 @@ fn test_pagination_default() {
 
 #[test]
 fn test_pagination_with_page_sizes() {
-    let p = Pagination::new(100, 10)
-        .with_page_sizes(vec![10, 20, 50, 100]);
+    let p = Pagination::new(100, 10).with_page_sizes(vec![10, 20, 50, 100]);
     assert_eq!(p.page_sizes(), &[10, 20, 50, 100]);
 }
 

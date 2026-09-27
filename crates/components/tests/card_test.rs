@@ -27,9 +27,7 @@ fn test_card_with_shadow() {
 
 #[test]
 fn test_card_with_header_footer() {
-    let c = Card::new("body")
-        .with_header("Title")
-        .with_footer("Footer");
+    let c = Card::new("body").with_header("Title").with_footer("Footer");
     assert_eq!(c.header(), Some(&"Title".to_string()));
     assert_eq!(c.footer(), Some(&"Footer".to_string()));
 }

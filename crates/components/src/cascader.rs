@@ -276,10 +276,7 @@ impl Cascader {
             let col_children: Vec<Element<'a, Message>> = level_nodes
                 .iter()
                 .map(|node| {
-                    let is_selected = self
-                        .selected_path
-                        .get(depth)
-                        .map_or(false, |v| v == &node.value);
+                    let is_selected = self.selected_path.get(depth) == Some(&node.value);
                     let is_disabled = node.disabled;
                     let node_color = if is_disabled {
                         text_disabled
@@ -335,9 +332,8 @@ impl Cascader {
         }
 
         let panel_row = iced::widget::Row::with_children(columns).spacing(0);
-        let panel = container(panel_row)
-            .width(Length::Fill)
-            .style(move |_t| iced::widget::container::Style {
+        let panel = container(panel_row).width(Length::Fill).style(move |_t| {
+            iced::widget::container::Style {
                 text_color: Some(text_primary),
                 background: Some(iced::Background::Color(bg_overlay)),
                 border: iced::Border {
@@ -346,7 +342,8 @@ impl Cascader {
                     radius: iced::border::radius(4.0),
                 },
                 shadow: iced::Shadow::default(),
-            });
+            }
+        });
 
         container(
             iced::widget::Column::new()
@@ -364,12 +361,12 @@ fn find_path(nodes: &[CascaderNode], target: &str) -> Option<Vec<String>> {
         if node.value == target {
             return Some(vec![node.value.clone()]);
         }
-        if !node.children.is_empty() {
-            if let Some(mut sub) = find_path(&node.children, target) {
-                let mut path = vec![node.value.clone()];
-                path.append(&mut sub);
-                return Some(path);
-            }
+        if !node.children.is_empty()
+            && let Some(mut sub) = find_path(&node.children, target)
+        {
+            let mut path = vec![node.value.clone()];
+            path.append(&mut sub);
+            return Some(path);
         }
     }
     None
@@ -442,9 +439,11 @@ mod internal_tests {
 
     #[test]
     fn test_path_disabled() {
-        let opts = vec![CascaderNode::new("a", "A")
-            .with_disabled(true)
-            .with_children(vec![CascaderNode::new("a1", "A1")])];
+        let opts = vec![
+            CascaderNode::new("a", "A")
+                .with_disabled(true)
+                .with_children(vec![CascaderNode::new("a1", "A1")]),
+        ];
         assert!(path_disabled(&opts, &["a".to_string(), "a1".to_string()]));
     }
 
@@ -452,6 +451,9 @@ mod internal_tests {
     fn test_target_is_leaf() {
         let opts = opts();
         assert!(!path_target_is_leaf(&opts, &["a".to_string()]));
-        assert!(path_target_is_leaf(&opts, &["a".to_string(), "a1".to_string()]));
+        assert!(path_target_is_leaf(
+            &opts,
+            &["a".to_string(), "a1".to_string()]
+        ));
     }
 }

@@ -96,5 +96,5 @@ fn test_rate_view_with_custom_message_type() {
     enum AppMsg {
         Rate(u32),
     }
-    let _element = r.view(&theme, |v| AppMsg::Rate(v));
+    let _element = r.view(&theme, AppMsg::Rate);
 }

@@ -1,10 +1,10 @@
 //! HarUI Table 示例
 
 use har_ui_components::table::{
-    TableColumn, TableMessage, TableProps, Table, TableRow, VirtualScroll,
+    Table, TableColumn, TableMessage, TableProps, TableRow, VirtualScroll,
 };
 use har_ui_core::Theme;
-use iced::widget::{column, container, text, Row};
+use iced::widget::{Row, column, container, text};
 use iced::{Element, Length, Task};
 
 const ROW_HEIGHT: f32 = 30.0;

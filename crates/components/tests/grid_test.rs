@@ -8,7 +8,7 @@
 //! - 虚拟滚动切片
 //! - 空网格
 
-use har_ui_components::grid::{Grid, GridMessage, GridItem, GridProps};
+use har_ui_components::grid::{Grid, GridItem, GridMessage, GridProps};
 
 #[derive(Debug, Clone, PartialEq)]
 struct TestItem {
@@ -98,9 +98,7 @@ fn test_grid_2000_items_count() {
 #[test]
 fn test_grid_virtual_scroll_slice() {
     let items = make_items(2000);
-    let grid = Grid::new()
-        .with_items(items)
-        .with_props(GridProps::new());
+    let grid = Grid::new().with_items(items).with_props(GridProps::new());
     // 模拟虚拟滚动：每页显示 50 个，从第 100 个开始
     let slice = grid.visible_slice(100, 150);
     assert_eq!(slice.len(), 50);
@@ -131,9 +129,12 @@ fn test_grid_select_nonexistent_id_does_not_change() {
 #[test]
 fn test_grid_builder_chains() {
     let items = make_items(20);
-    let grid = Grid::new()
-        .with_items(items.clone())
-        .with_props(GridProps::new().with_columns(8).with_gap(16.0).with_card_width(150.0));
+    let grid = Grid::new().with_items(items.clone()).with_props(
+        GridProps::new()
+            .with_columns(8)
+            .with_gap(16.0)
+            .with_card_width(150.0),
+    );
     assert_eq!(grid.items().len(), 20);
     assert_eq!(grid.props().columns, 8);
     assert_eq!(grid.props().gap, 16.0);

@@ -123,19 +123,15 @@ impl PageHeader {
         };
         // 取首个字符作为图标（处理多字节字符串）
         let icon_char = icon_str.chars().next().unwrap_or('←');
-        let back_btn = button(
-            text(icon_char.to_string())
-                .color(title_color)
-                .size(18.0),
-        )
-        .padding(Padding::from([4u16, 8u16]))
-        .on_press(on_back())
-        .style(move |_t, _status| iced::widget::button::Style {
-            background: None,
-            text_color: title_color,
-            border: iced::Border::default(),
-            shadow: iced::Shadow::default(),
-        });
+        let back_btn = button(text(icon_char.to_string()).color(title_color).size(18.0))
+            .padding(Padding::from([4u16, 8u16]))
+            .on_press(on_back())
+            .style(move |_t, _status| iced::widget::button::Style {
+                background: None,
+                text_color: title_color,
+                border: iced::Border::default(),
+                shadow: iced::Shadow::default(),
+            });
 
         // 标题 + 副标题
         let title_text = text(self.title.clone()).color(title_color).size(18.0);
@@ -146,26 +142,17 @@ impl PageHeader {
         let mut title_text_col_children: Vec<Element<'a, Message>> = Vec::new();
         title_text_col_children.push(title_text.into());
         if let Some(sub) = &self.subtitle {
-            title_text_col_children.push(
-                text(sub.clone())
-                    .color(subtitle_color)
-                    .size(12.0)
-                    .into(),
-            );
+            title_text_col_children.push(text(sub.clone()).color(subtitle_color).size(12.0).into());
         }
-        let title_text_col = iced::widget::Column::with_children(title_text_col_children).spacing(2);
+        let title_text_col =
+            iced::widget::Column::with_children(title_text_col_children).spacing(2);
         title_children.push(title_text_col.into());
 
         // 顶部行：左 (返回+标题) + 右 (extra)
         let mut top_row_children: Vec<Element<'a, Message>> = title_children;
         top_row_children.push(iced::widget::Space::with_width(Length::Fill).into());
         if self.has_extra {
-            top_row_children.push(
-                text("[extra]")
-                    .color(placeholder_color)
-                    .size(12.0)
-                    .into(),
-            );
+            top_row_children.push(text("[extra]").color(placeholder_color).size(12.0).into());
         }
         let top_row = iced::widget::Row::with_children(top_row_children)
             .align_y(iced::Alignment::Center)

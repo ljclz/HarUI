@@ -20,7 +20,7 @@ fn test_statistic_view_int_renders() {
 #[test]
 fn test_statistic_view_float_renders() {
     let theme = Theme::element_light();
-    let s = Statistic::new(StatisticValue::Float(3.14)).with_precision(2);
+    let s = Statistic::new(StatisticValue::Float(123.45)).with_precision(2);
     let _element = s.view(&theme);
 }
 
@@ -43,8 +43,7 @@ fn test_statistic_view_with_prefix_suffix_renders() {
 #[test]
 fn test_statistic_view_with_grouping_renders() {
     let theme = Theme::element_light();
-    let s = Statistic::new(StatisticValue::Int(1234567))
-        .with_grouping(true);
+    let s = Statistic::new(StatisticValue::Int(1234567)).with_grouping(true);
     let _element = s.view(&theme);
 }
 

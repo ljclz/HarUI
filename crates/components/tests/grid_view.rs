@@ -2,8 +2,8 @@
 
 use har_ui_components::grid::{Grid, GridItem, GridProps};
 use har_ui_core::theme::Theme;
-use iced::widget::text;
 use iced::Element;
+use iced::widget::text;
 
 struct DummyItem {
     id: String,
@@ -35,8 +35,12 @@ fn test_grid_view_default_renders() {
 fn test_grid_view_with_items_renders() {
     let theme = Theme::element_light();
     let items = vec![
-        DummyItem { id: "1".to_string() },
-        DummyItem { id: "2".to_string() },
+        DummyItem {
+            id: "1".to_string(),
+        },
+        DummyItem {
+            id: "2".to_string(),
+        },
     ];
     let g: Grid<DummyItem> = Grid::new().with_items(items);
     let _element = g.view(&theme, make_children());
@@ -81,8 +85,12 @@ fn test_grid_view_empty_children_renders() {
 fn test_grid_view_with_selection_renders() {
     let theme = Theme::element_light();
     let mut g: Grid<DummyItem> = Grid::new().with_items(vec![
-        DummyItem { id: "1".to_string() },
-        DummyItem { id: "2".to_string() },
+        DummyItem {
+            id: "1".to_string(),
+        },
+        DummyItem {
+            id: "2".to_string(),
+        },
     ]);
     use har_ui_components::grid::GridMessage;
     g.handle(GridMessage::Select("1".to_string()));

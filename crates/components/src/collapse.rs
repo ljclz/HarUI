@@ -131,10 +131,7 @@ impl Collapse {
     pub fn handle(&mut self, msg: CollapseMessage) {
         match msg {
             CollapseMessage::Toggle(name) => {
-                let disabled = self
-                    .find_item(&name)
-                    .map(|i| i.disabled)
-                    .unwrap_or(true);
+                let disabled = self.find_item(&name).map(|i| i.disabled).unwrap_or(true);
                 if disabled {
                     return;
                 }
@@ -148,10 +145,7 @@ impl Collapse {
                 }
             }
             CollapseMessage::Open(name) => {
-                let disabled = self
-                    .find_item(&name)
-                    .map(|i| i.disabled)
-                    .unwrap_or(true);
+                let disabled = self.find_item(&name).map(|i| i.disabled).unwrap_or(true);
                 if disabled {
                     return;
                 }
@@ -215,7 +209,11 @@ impl Collapse {
             } else {
                 text_regular
             };
-            let title_color = if is_disabled { text_disabled } else { text_primary };
+            let title_color = if is_disabled {
+                text_disabled
+            } else {
+                text_primary
+            };
 
             let header_content = iced::widget::Row::new()
                 .push(text(indicator_str).color(indicator_color).size(14.0))
@@ -237,9 +235,8 @@ impl Collapse {
 
             let mut item_children: Vec<Element<'a, Message>> = Vec::new();
             // header + 顶部边框
-            let header_wrap = container(header_btn)
-                .width(Length::Fill)
-                .style(move |_t| iced::widget::container::Style {
+            let header_wrap = container(header_btn).width(Length::Fill).style(move |_t| {
+                iced::widget::container::Style {
                     text_color: None,
                     background: None,
                     border: iced::Border {
@@ -248,7 +245,8 @@ impl Collapse {
                         radius: iced::border::radius(0.0),
                     },
                     shadow: iced::Shadow::default(),
-                });
+                }
+            });
             item_children.push(header_wrap.into());
 
             // 展开内容（占位）

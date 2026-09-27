@@ -2,9 +2,7 @@
 //!
 //! 覆盖：标题/列数/边框/方向/项 span/对齐。
 
-use har_ui_components::descriptions::{
-    Descriptions, DescriptionsDirection, DescriptionsItem,
-};
+use har_ui_components::descriptions::{Descriptions, DescriptionsDirection, DescriptionsItem};
 
 #[test]
 fn test_descriptions_empty() {
@@ -57,7 +55,8 @@ fn test_descriptions_item_span() {
 #[test]
 fn test_descriptions_layout_calculates_rows() {
     // column=3，4 个项（其中一项 span=2）：总 span = 1+2+1+1 = 5 → 2 行
-    let d = Descriptions::new().with_column(3)
+    let d = Descriptions::new()
+        .with_column(3)
         .with_item(DescriptionsItem::new("a", "1"))
         .with_item(DescriptionsItem::new("b", "2").with_span(2))
         .with_item(DescriptionsItem::new("c", "3"))

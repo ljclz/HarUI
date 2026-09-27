@@ -10,9 +10,9 @@
 //! ## 不测试的内容
 //! `Subscription` 实际事件流需要 iced runtime 驱动，无法在普通单元测试中运行。
 
-use har_ui_core::utils::keyboard::{subscription, KeyEvent};
-use iced::keyboard::{Key, Modifiers};
+use har_ui_core::utils::keyboard::{KeyEvent, subscription};
 use iced::Subscription;
+use iced::keyboard::{Key, Modifiers};
 
 #[test]
 fn test_key_event_pressed_constructible() {

@@ -128,7 +128,11 @@ impl Empty {
         let icon_text = text(icon_str).size(icon_size);
         let desc_text = text(self.description.clone())
             .color(Color::from(theme.neutral.text_secondary))
-            .size(if self.size == EmptySize::Small { 12.0 } else { 14.0 });
+            .size(if self.size == EmptySize::Small {
+                12.0
+            } else {
+                14.0
+            });
 
         let mut col = iced::widget::Column::new()
             .push(icon_text)

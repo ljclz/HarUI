@@ -2,8 +2,8 @@
 
 use har_ui_components::affix::{Affix, AffixMessage, AffixPosition};
 use har_ui_core::theme::Theme;
-use iced::widget::text;
 use iced::Element;
+use iced::widget::text;
 
 fn make_content<'a>() -> Element<'a, ()> {
     text("Affix content").into()

@@ -159,9 +159,9 @@ impl Rate {
 
         let mut stars: Vec<Element<'a, Message>> = Vec::with_capacity(self.max as usize);
         for i in 1..=self.max {
-            let star_char = if (self.value as f64) >= i as f64 {
+            let star_char = if self.value >= i as f64 {
                 "★"
-            } else if self.allow_half && (self.value as f64) >= (i as f64) - 0.5 {
+            } else if self.allow_half && self.value >= (i as f64) - 0.5 {
                 "⯨"
             } else {
                 "☆"

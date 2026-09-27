@@ -24,16 +24,16 @@ mod element_plus_truth {
 
     /// 已知的 Element Plus 编译后色值（用于验证 mix 公式正确性）
     /// 来源：Element Plus 官方文档示例页面 inspect 的 CSS 变量值
-    pub const PRIMARY_LIGHT_3: (u8, u8, u8) = (121, 187, 255);   // #79bbff
-    pub const PRIMARY_LIGHT_5: (u8, u8, u8) = (160, 207, 255);   // #a0cfff
-    pub const PRIMARY_LIGHT_7: (u8, u8, u8) = (198, 226, 255);   // #c6e2ff
-    pub const PRIMARY_LIGHT_9: (u8, u8, u8) = (236, 245, 255);   // #ecf5ff
-    pub const PRIMARY_DARK_2: (u8, u8, u8) = (51, 126, 204);     // #337ecc
+    pub const PRIMARY_LIGHT_3: (u8, u8, u8) = (121, 187, 255); // #79bbff
+    pub const PRIMARY_LIGHT_5: (u8, u8, u8) = (160, 207, 255); // #a0cfff
+    pub const PRIMARY_LIGHT_7: (u8, u8, u8) = (198, 226, 255); // #c6e2ff
+    pub const PRIMARY_LIGHT_9: (u8, u8, u8) = (236, 245, 255); // #ecf5ff
+    pub const PRIMARY_DARK_2: (u8, u8, u8) = (51, 126, 204); // #337ecc
 
-    pub const SUCCESS_LIGHT_3: (u8, u8, u8) = (149, 212, 117);   // #95d475
-    pub const SUCCESS_LIGHT_5: (u8, u8, u8) = (179, 225, 157);   // #b3e19d
-    pub const SUCCESS_LIGHT_9: (u8, u8, u8) = (240, 249, 235);   // #f0f9eb
-    pub const SUCCESS_DARK_2: (u8, u8, u8) = (82, 155, 46);      // #529b2e
+    pub const SUCCESS_LIGHT_3: (u8, u8, u8) = (149, 212, 117); // #95d475
+    pub const SUCCESS_LIGHT_5: (u8, u8, u8) = (179, 225, 157); // #b3e19d
+    pub const SUCCESS_LIGHT_9: (u8, u8, u8) = (240, 249, 235); // #f0f9eb
+    pub const SUCCESS_DARK_2: (u8, u8, u8) = (82, 155, 46); // #529b2e
 }
 
 #[test]
@@ -111,10 +111,22 @@ fn test_primary_color_palette() {
     let palette = ColorPalette::primary();
 
     assert_eq!(palette.base.to_rgb(), element_plus_truth::PRIMARY);
-    assert_eq!(palette.light(3).to_rgb(), element_plus_truth::PRIMARY_LIGHT_3);
-    assert_eq!(palette.light(5).to_rgb(), element_plus_truth::PRIMARY_LIGHT_5);
-    assert_eq!(palette.light(7).to_rgb(), element_plus_truth::PRIMARY_LIGHT_7);
-    assert_eq!(palette.light(9).to_rgb(), element_plus_truth::PRIMARY_LIGHT_9);
+    assert_eq!(
+        palette.light(3).to_rgb(),
+        element_plus_truth::PRIMARY_LIGHT_3
+    );
+    assert_eq!(
+        palette.light(5).to_rgb(),
+        element_plus_truth::PRIMARY_LIGHT_5
+    );
+    assert_eq!(
+        palette.light(7).to_rgb(),
+        element_plus_truth::PRIMARY_LIGHT_7
+    );
+    assert_eq!(
+        palette.light(9).to_rgb(),
+        element_plus_truth::PRIMARY_LIGHT_9
+    );
     assert_eq!(palette.dark(2).to_rgb(), element_plus_truth::PRIMARY_DARK_2);
 }
 
@@ -123,9 +135,18 @@ fn test_success_color_palette() {
     let palette = ColorPalette::success();
 
     assert_eq!(palette.base.to_rgb(), element_plus_truth::SUCCESS);
-    assert_eq!(palette.light(3).to_rgb(), element_plus_truth::SUCCESS_LIGHT_3);
-    assert_eq!(palette.light(5).to_rgb(), element_plus_truth::SUCCESS_LIGHT_5);
-    assert_eq!(palette.light(9).to_rgb(), element_plus_truth::SUCCESS_LIGHT_9);
+    assert_eq!(
+        palette.light(3).to_rgb(),
+        element_plus_truth::SUCCESS_LIGHT_3
+    );
+    assert_eq!(
+        palette.light(5).to_rgb(),
+        element_plus_truth::SUCCESS_LIGHT_5
+    );
+    assert_eq!(
+        palette.light(9).to_rgb(),
+        element_plus_truth::SUCCESS_LIGHT_9
+    );
     assert_eq!(palette.dark(2).to_rgb(), element_plus_truth::SUCCESS_DARK_2);
 }
 
@@ -170,11 +191,10 @@ fn test_info_color_palette() {
 fn test_theme_color_to_iced_color() {
     let theme_color = ThemeColor::from_rgb(64, 158, 255);
     let iced_color: iced::Color = theme_color.into();
-    assert_eq!(iced_color, iced::Color::from_rgb(
-        64.0 / 255.0,
-        158.0 / 255.0,
-        255.0 / 255.0,
-    ));
+    assert_eq!(
+        iced_color,
+        iced::Color::from_rgb(64.0 / 255.0, 158.0 / 255.0, 255.0 / 255.0,)
+    );
 }
 
 #[test]

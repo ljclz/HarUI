@@ -1,6 +1,6 @@
 //! Menu view() 测试 — TDD RED 阶段
 
-use har_ui_components::menu::{MenuMode, MenuMessage, MenuItem, MenuState};
+use har_ui_components::menu::{MenuItem, MenuMessage, MenuMode, MenuState};
 use har_ui_core::theme::Theme;
 
 #[test]
@@ -34,8 +34,7 @@ fn test_menu_view_with_submenu_renders() {
 fn test_menu_view_submenu_expanded_renders() {
     let theme = Theme::element_light();
     let mut s = MenuState::new();
-    let parent = MenuItem::new("parent", "Parent")
-        .with_child(MenuItem::new("child1", "Child 1"));
+    let parent = MenuItem::new("parent", "Parent").with_child(MenuItem::new("child1", "Child 1"));
     s.register_item(parent);
     s.handle(MenuMessage::ToggleSubmenu("parent".to_string()));
     let _element = s.view(&theme, |_| ());
@@ -80,12 +79,8 @@ fn test_menu_view_active_item_renders() {
 fn test_menu_view_unique_opened_renders() {
     let theme = Theme::element_light();
     let mut s = MenuState::new().with_unique_opened(true);
-    s.register_item(
-        MenuItem::new("p1", "P1").with_child(MenuItem::new("c1", "C1")),
-    );
-    s.register_item(
-        MenuItem::new("p2", "P2").with_child(MenuItem::new("c2", "C2")),
-    );
+    s.register_item(MenuItem::new("p1", "P1").with_child(MenuItem::new("c1", "C1")));
+    s.register_item(MenuItem::new("p2", "P2").with_child(MenuItem::new("c2", "C2")));
     s.handle(MenuMessage::ToggleSubmenu("p1".to_string()));
     s.handle(MenuMessage::ToggleSubmenu("p2".to_string()));
     let _element = s.view(&theme, |_| ());

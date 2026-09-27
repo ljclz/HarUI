@@ -198,12 +198,11 @@ impl Tabs {
                         if !self.items.is_empty() {
                             let new_pos = pos.min(self.items.len() - 1);
                             self.active = Some(self.items[new_pos].id.clone());
-                            if let Some(active_id) = self.active.as_ref() {
-                                if self.lazy
-                                    && !self.visited.iter().any(|v| v == active_id)
-                                {
-                                    self.visited.push(active_id.clone());
-                                }
+                            if let Some(active_id) = self.active.as_ref()
+                                && self.lazy
+                                && !self.visited.iter().any(|v| v == active_id)
+                            {
+                                self.visited.push(active_id.clone());
                             }
                         } else {
                             self.active = None;
@@ -265,11 +264,9 @@ impl Tabs {
                 .push(text(item.label.clone()).color(label_color).size(14.0))
                 .align_y(iced::Alignment::Center);
             if item.closable && !is_disabled {
-                label_row = label_row.push(
-                    iced::widget::Space::with_width(Length::Fixed(6.0)),
-                ).push(
-                    text("×").color(text_regular).size(14.0),
-                );
+                label_row = label_row
+                    .push(iced::widget::Space::with_width(Length::Fixed(6.0)))
+                    .push(text("×").color(text_regular).size(14.0));
             }
 
             let active_bg = if is_active && is_card {
@@ -318,22 +315,20 @@ impl Tabs {
         outer.push(header_wrap.into());
 
         // 当前 active tab 的内容占位
-        if let Some(active_id) = self.active.as_ref() {
-            if let Some(item) = self.items.iter().find(|i| &i.id == active_id) {
-                let body = container(
-                    text(format!("[{} content]", item.label))
-                        .color(text_primary)
-                        .size(13.0),
-                )
-                .width(Length::Fill)
-                .padding(Padding::from(12u16));
-                outer.push(body.into());
-            }
+        if let Some(active_id) = self.active.as_ref()
+            && let Some(item) = self.items.iter().find(|i| &i.id == active_id)
+        {
+            let body = container(
+                text(format!("[{} content]", item.label))
+                    .color(text_primary)
+                    .size(13.0),
+            )
+            .width(Length::Fill)
+            .padding(Padding::from(12u16));
+            outer.push(body.into());
         }
 
-        iced::widget::Column::with_children(outer)
-            .spacing(0)
-            .into()
+        iced::widget::Column::with_children(outer).spacing(0).into()
     }
 }
 

@@ -18,16 +18,16 @@
 /// Z-index 层级系统
 #[derive(Debug, Clone, Copy)]
 pub struct ZIndex {
-    pub normal: i32,          // 1
-    pub dropdown: i32,        // 1000
-    pub sticky: i32,          // 1100
-    pub fixed: i32,           // 1200
-    pub modal_mask: i32,      // 2000
-    pub modal: i32,           // 2001
-    pub popover: i32,         // 3000
-    pub tooltip: i32,         // 3100
-    pub notification: i32,    // 4000
-    pub message_box: i32,     // 4001
+    pub normal: i32,       // 1
+    pub dropdown: i32,     // 1000
+    pub sticky: i32,       // 1100
+    pub fixed: i32,        // 1200
+    pub modal_mask: i32,   // 2000
+    pub modal: i32,        // 2001
+    pub popover: i32,      // 3000
+    pub tooltip: i32,      // 3100
+    pub notification: i32, // 4000
+    pub message_box: i32,  // 4001
 }
 
 impl Default for ZIndex {

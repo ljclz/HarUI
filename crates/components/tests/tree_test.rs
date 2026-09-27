@@ -2,7 +2,7 @@
 //!
 //! 覆盖：基础树/展开折叠/复选框/父子联动/半选/过滤/懒加载/可见节点/1000 节点性能。
 
-use har_ui_components::tree::{Tree, TreeNode, TreeMessage};
+use har_ui_components::tree::{Tree, TreeMessage, TreeNode};
 use std::time::Instant;
 
 // ---------- 工具：构造测试用树 ----------
@@ -15,12 +15,15 @@ use std::time::Instant;
 /// └── b
 ///     └── b1
 fn sample_tree() -> Vec<TreeNode> {
-    vec![TreeNode::new("root", "Root")
-        .with_child(TreeNode::new("a", "A")
-            .with_child(TreeNode::new("a1", "A1"))
-            .with_child(TreeNode::new("a2", "A2")))
-        .with_child(TreeNode::new("b", "B")
-            .with_child(TreeNode::new("b1", "B1")))]
+    vec![
+        TreeNode::new("root", "Root")
+            .with_child(
+                TreeNode::new("a", "A")
+                    .with_child(TreeNode::new("a1", "A1"))
+                    .with_child(TreeNode::new("a2", "A2")),
+            )
+            .with_child(TreeNode::new("b", "B").with_child(TreeNode::new("b1", "B1"))),
+    ]
 }
 
 // ---------- 基础构造 ----------
@@ -69,7 +72,9 @@ fn test_tree_toggle_expand() {
 
 #[test]
 fn test_tree_default_expand_all() {
-    let t = Tree::new().with_data(sample_tree()).with_default_expand_all(true);
+    let t = Tree::new()
+        .with_data(sample_tree())
+        .with_default_expand_all(true);
     // 全部展开：root + a + a1 + a2 + b + b1 = 6
     assert_eq!(t.visible_nodes().len(), 6);
 }
@@ -110,10 +115,10 @@ fn test_tree_checkbox_partial_check_parent() {
     // 勾选 a1（叶子）
     t.handle(TreeMessage::ToggleCheck("a1".to_string()));
     assert!(t.is_checked("a1"));
-    assert!(!t.is_checked("a"));          // a 未全选
-    assert!(t.is_indeterminate("a"));     // a 半选
+    assert!(!t.is_checked("a")); // a 未全选
+    assert!(t.is_indeterminate("a")); // a 半选
     assert!(!t.is_checked("root"));
-    assert!(t.is_indeterminate("root"));  // root 半选
+    assert!(t.is_indeterminate("root")); // root 半选
 
     // 再勾选 a2 → a 全选，root 仍半选（b 未选）
     t.handle(TreeMessage::ToggleCheck("a2".to_string()));
@@ -124,9 +129,11 @@ fn test_tree_checkbox_partial_check_parent() {
 
 #[test]
 fn test_tree_checkbox_disabled_not_checkable() {
-    let data = vec![TreeNode::new("root", "Root")
-        .with_disabled(true)
-        .with_child(TreeNode::new("a", "A"))];
+    let data = vec![
+        TreeNode::new("root", "Root")
+            .with_disabled(true)
+            .with_child(TreeNode::new("a", "A")),
+    ];
     let mut t = Tree::new().with_data(data).with_show_checkbox(true);
 
     // 勾选 disabled 节点 → 无效
@@ -139,7 +146,9 @@ fn test_tree_checkbox_disabled_not_checkable() {
 
 #[test]
 fn test_tree_filter_matching() {
-    let mut t = Tree::new().with_data(sample_tree()).with_default_expand_all(true);
+    let mut t = Tree::new()
+        .with_data(sample_tree())
+        .with_default_expand_all(true);
     // 过滤 "a"：保留 a、a1、a2，以及路径上的 root
     t.handle(TreeMessage::Filter("a".to_string()));
 
@@ -148,13 +157,15 @@ fn test_tree_filter_matching() {
     assert!(visible.contains(&"a"));
     assert!(visible.contains(&"a1"));
     assert!(visible.contains(&"a2"));
-    assert!(!visible.contains(&"b"));  // 不匹配
+    assert!(!visible.contains(&"b")); // 不匹配
     assert!(!visible.contains(&"b1"));
 }
 
 #[test]
 fn test_tree_filter_clear() {
-    let mut t = Tree::new().with_data(sample_tree()).with_default_expand_all(true);
+    let mut t = Tree::new()
+        .with_data(sample_tree())
+        .with_default_expand_all(true);
     t.handle(TreeMessage::Filter("a".to_string()));
     assert!(t.is_filtered());
 
@@ -168,19 +179,17 @@ fn test_tree_filter_clear() {
 
 #[test]
 fn test_tree_lazy_load_children() {
-    let mut t = Tree::new().with_data(vec![
-        TreeNode::new_lazy("root", "Root"),
-    ]);
+    let mut t = Tree::new().with_data(vec![TreeNode::new_lazy("root", "Root")]);
 
     // root 是 lazy 节点，无 children
     assert!(t.is_lazy("root"));
     assert_eq!(t.visible_nodes().len(), 1);
 
     // 模拟懒加载：设置子节点
-    t.handle(TreeMessage::LoadChildren("root".to_string(), vec![
-        TreeNode::new("a", "A"),
-        TreeNode::new("b", "B"),
-    ]));
+    t.handle(TreeMessage::LoadChildren(
+        "root".to_string(),
+        vec![TreeNode::new("a", "A"), TreeNode::new("b", "B")],
+    ));
     assert!(!t.is_lazy("root"));
 
     // 展开 root
@@ -212,8 +221,11 @@ fn test_tree_1000_nodes_expand_under_100ms() {
     assert!(t.is_expanded("root"));
     assert_eq!(t.visible_nodes().len(), 1001); // root + 1000 children
     // 性能预算：1000 节点展开 < 100ms
-    assert!(elapsed.as_millis() < 100,
-        "expand 1000 nodes took {:?}, expected < 100ms", elapsed);
+    assert!(
+        elapsed.as_millis() < 100,
+        "expand 1000 nodes took {:?}, expected < 100ms",
+        elapsed
+    );
 }
 
 // ---------- 自定义节点内容 ----------
@@ -221,8 +233,7 @@ fn test_tree_1000_nodes_expand_under_100ms() {
 #[test]
 fn test_tree_custom_node_data() {
     // 通过 with_data 额外携带自定义字段
-    let node = TreeNode::new("root", "Root")
-        .with_extra("icon", "folder");
+    let node = TreeNode::new("root", "Root").with_extra("icon", "folder");
     assert_eq!(node.extra("icon"), Some("folder"));
     assert_eq!(node.extra("missing"), None);
 }

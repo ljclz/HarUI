@@ -1,8 +1,8 @@
 //! Pagination 分页组件 — 参考 Element Plus `<el-pagination>`。
 //! 支持：total/page-size 控制、page-sizes 切换、页码按钮折叠（含省略号）、上一页/下一页边界。
 
-use har_ui_core::theme::style_sheets::{self, ButtonKind};
 use har_ui_core::theme::Theme;
+use har_ui_core::theme::style_sheets::{self, ButtonKind};
 use iced::widget::{button, container, text};
 use iced::{Color, Element, Padding};
 
@@ -60,7 +60,7 @@ impl Pagination {
         if self.page_size == 0 || self.total == 0 {
             return 1;
         }
-        ((self.total + self.page_size as u64 - 1) / self.page_size as u64).max(1)
+        self.total.div_ceil(self.page_size as u64).max(1)
     }
 
     /// 计算页码按钮（0 表示省略号占位）
@@ -82,7 +82,13 @@ impl Pagination {
         } else if cur >= total_pages - 3 {
             // 当前页接近末尾：1 ... N-4 N-3 N-2 N-1 N
             btns.push(0);
-            btns.extend([total_pages - 4, total_pages - 3, total_pages - 2, total_pages - 1, total_pages]);
+            btns.extend([
+                total_pages - 4,
+                total_pages - 3,
+                total_pages - 2,
+                total_pages - 1,
+                total_pages,
+            ]);
         } else {
             // 中间：1 ... cur-1 cur cur+1 ... N
             btns.push(0);
@@ -146,11 +152,15 @@ impl Pagination {
 
         // 上一页按钮
         let prev_disabled = cur <= 1;
-        let mut prev_btn = button(text("〈").color(if prev_disabled { text_disabled } else { text_color }))
-            .padding(Padding::from([6u16, 10u16]))
-            .style(move |_t, status| {
-                style_sheets::button_style(theme, ButtonKind::Default, false, status)
-            });
+        let mut prev_btn = button(text("〈").color(if prev_disabled {
+            text_disabled
+        } else {
+            text_color
+        }))
+        .padding(Padding::from([6u16, 10u16]))
+        .style(move |_t, status| {
+            style_sheets::button_style(theme, ButtonKind::Default, false, status)
+        });
         if !prev_disabled {
             prev_btn = prev_btn.on_press(on_jump(-1));
         }
@@ -194,11 +204,15 @@ impl Pagination {
 
         // 下一页按钮
         let next_disabled = cur >= total;
-        let mut next_btn = button(text("〉").color(if next_disabled { text_disabled } else { text_color }))
-            .padding(Padding::from([6u16, 10u16]))
-            .style(move |_t, status| {
-                style_sheets::button_style(theme, ButtonKind::Default, false, status)
-            });
+        let mut next_btn = button(text("〉").color(if next_disabled {
+            text_disabled
+        } else {
+            text_color
+        }))
+        .padding(Padding::from([6u16, 10u16]))
+        .style(move |_t, status| {
+            style_sheets::button_style(theme, ButtonKind::Default, false, status)
+        });
         if !next_disabled {
             next_btn = next_btn.on_press(on_jump(-2));
         }

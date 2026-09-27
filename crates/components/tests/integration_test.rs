@@ -28,7 +28,9 @@ fn scenario_1_form_button_submit() {
     rule.required = true;
     let mut form = Form::new().with_item(FormItem::new("username", "用户名").with_rule(rule));
     let mut submit_btn = Button::new("提交");
-    let alert = Alert::new().with_type(AlertType::Success).with_title("提交成功");
+    let alert = Alert::new()
+        .with_type(AlertType::Success)
+        .with_title("提交成功");
 
     // 1. 设置字段值
     form.handle(FormMessage::SetValue("username".into(), "张三".into()));
@@ -81,7 +83,10 @@ fn scenario_3_dialog_form_popup() {
     assert!(dialog.is_visible());
 
     // 2. 填写邮箱
-    form.handle(FormMessage::SetValue("email".into(), "test@example.com".into()));
+    form.handle(FormMessage::SetValue(
+        "email".into(),
+        "test@example.com".into(),
+    ));
     assert!(form.validate().expect("form ok").is_empty());
 
     // 3. 关闭 Dialog（Closing → Closed 需动画完成）

@@ -49,7 +49,10 @@ fn test_customer_display_show_qr_code() {
         "weixin://wxpay/bizpayurl?pr=ABC".to_string(),
         "微信支付".to_string(),
     ));
-    assert_eq!(d.qr_code(), Some(&"weixin://wxpay/bizpayurl?pr=ABC".to_string()));
+    assert_eq!(
+        d.qr_code(),
+        Some(&"weixin://wxpay/bizpayurl?pr=ABC".to_string())
+    );
     assert_eq!(d.payment_method(), Some(&"微信支付".to_string()));
     assert_eq!(d.state(), CustomerDisplayState::ShowingQrCode);
 }
@@ -69,7 +72,9 @@ fn test_customer_display_show_qr_code_alipay() {
 #[test]
 fn test_customer_display_show_custom_message() {
     let mut d = CustomerDisplay::new();
-    d.handle(CustomerDisplayMessage::ShowCustomMessage("欢迎光临".to_string()));
+    d.handle(CustomerDisplayMessage::ShowCustomMessage(
+        "欢迎光临".to_string(),
+    ));
     assert_eq!(d.custom_message(), Some(&"欢迎光临".to_string()));
     assert_eq!(d.state(), CustomerDisplayState::ShowingMessage);
 }
@@ -80,8 +85,13 @@ fn test_customer_display_show_custom_message() {
 fn test_customer_display_reset() {
     let mut d = CustomerDisplay::new();
     d.handle(CustomerDisplayMessage::ShowAmount(100.0));
-    d.handle(CustomerDisplayMessage::ShowQrCode("url".to_string(), "WeChat".to_string()));
-    d.handle(CustomerDisplayMessage::ShowCustomMessage("Hello".to_string()));
+    d.handle(CustomerDisplayMessage::ShowQrCode(
+        "url".to_string(),
+        "WeChat".to_string(),
+    ));
+    d.handle(CustomerDisplayMessage::ShowCustomMessage(
+        "Hello".to_string(),
+    ));
     d.handle(CustomerDisplayMessage::Reset);
     assert_eq!(d.amount(), 0.0);
     assert_eq!(d.payment_method(), None);
@@ -103,7 +113,10 @@ fn test_customer_display_show_success() {
 #[test]
 fn test_customer_display_show_success_clears_qr() {
     let mut d = CustomerDisplay::new();
-    d.handle(CustomerDisplayMessage::ShowQrCode("url".to_string(), "WeChat".to_string()));
+    d.handle(CustomerDisplayMessage::ShowQrCode(
+        "url".to_string(),
+        "WeChat".to_string(),
+    ));
     d.handle(CustomerDisplayMessage::ShowSuccess);
     // 支付成功后清除二维码
     assert_eq!(d.qr_code(), None);
@@ -131,7 +144,10 @@ fn test_customer_display_state_transitions() {
     d.handle(CustomerDisplayMessage::ShowAmount(50.0));
     assert_eq!(d.state(), CustomerDisplayState::ShowingAmount);
 
-    d.handle(CustomerDisplayMessage::ShowQrCode("url".to_string(), "WeChat".to_string()));
+    d.handle(CustomerDisplayMessage::ShowQrCode(
+        "url".to_string(),
+        "WeChat".to_string(),
+    ));
     assert_eq!(d.state(), CustomerDisplayState::ShowingQrCode);
 
     d.handle(CustomerDisplayMessage::ShowSuccess);

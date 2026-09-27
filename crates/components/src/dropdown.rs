@@ -163,12 +163,12 @@ impl Dropdown {
                 }
             }
             DropdownMessage::Select(idx) => {
-                if let Some(item) = self.items.get(idx) {
-                    if !item.disabled {
-                        self.last_command = Some(item.command.clone());
-                        if self.hide_on_click {
-                            self.visible = false;
-                        }
+                if let Some(item) = self.items.get(idx)
+                    && !item.disabled
+                {
+                    self.last_command = Some(item.command.clone());
+                    if self.hide_on_click {
+                        self.visible = false;
                     }
                 }
             }
@@ -277,9 +277,7 @@ impl Dropdown {
                     shadow: iced::Shadow::default(),
                 });
 
-            outer_children.push(
-                iced::widget::Space::with_height(Length::Fixed(4.0)).into(),
-            );
+            outer_children.push(iced::widget::Space::with_height(Length::Fixed(4.0)).into());
             outer_children.push(menu_wrap.into());
         }
 

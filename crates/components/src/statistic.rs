@@ -25,11 +25,7 @@ impl StatisticValue {
             },
             StatisticValue::Text(s) => s.clone(),
         };
-        if grouping {
-            apply_grouping(&raw)
-        } else {
-            raw
-        }
+        if grouping { apply_grouping(&raw) } else { raw }
     }
 }
 
@@ -178,31 +174,23 @@ impl Statistic {
     /// 渲染 Statistic 为 iced::Element
     pub fn view<'a>(&'a self, theme: &'a Theme) -> Element<'a, ()> {
         let title_color = Color::from(theme.neutral.text_secondary);
-        let value_color = self.value_color.unwrap_or_else(|| Color::from(theme.neutral.text_primary));
+        let value_color = self
+            .value_color
+            .unwrap_or_else(|| Color::from(theme.neutral.text_primary));
         let affix_color = Color::from(theme.neutral.text_regular);
 
         let mut col_children: Vec<Element<'a, ()>> = Vec::new();
 
         // title
         if let Some(t) = &self.title {
-            col_children.push(
-                text(t.clone())
-                    .color(title_color)
-                    .size(13.0)
-                    .into(),
-            );
+            col_children.push(text(t.clone()).color(title_color).size(13.0).into());
             col_children.push(iced::widget::Space::with_height(Length::Fixed(4.0)).into());
         }
 
         // value row: prefix + value + suffix
         let mut value_row_children: Vec<Element<'a, ()>> = Vec::new();
         if let Some(p) = &self.prefix {
-            value_row_children.push(
-                text(p.clone())
-                    .color(affix_color)
-                    .size(16.0)
-                    .into(),
-            );
+            value_row_children.push(text(p.clone()).color(affix_color).size(16.0).into());
         }
         value_row_children.push(
             text(self.formatted_value())
@@ -211,12 +199,7 @@ impl Statistic {
                 .into(),
         );
         if let Some(s) = &self.suffix {
-            value_row_children.push(
-                text(s.clone())
-                    .color(affix_color)
-                    .size(16.0)
-                    .into(),
-            );
+            value_row_children.push(text(s.clone()).color(affix_color).size(16.0).into());
         }
 
         let value_row = iced::widget::Row::with_children(value_row_children)
@@ -260,8 +243,8 @@ mod internal_tests {
 
     #[test]
     fn test_statistic_float_precision() {
-        let s = Statistic::new(StatisticValue::Float(3.14159265)).with_precision(2);
-        assert_eq!(s.formatted_value(), "3.14");
+        let s = Statistic::new(StatisticValue::Float(1234.5678)).with_precision(2);
+        assert_eq!(s.formatted_value(), "1234.57");
     }
 
     #[test]

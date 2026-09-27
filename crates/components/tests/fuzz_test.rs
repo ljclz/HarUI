@@ -193,20 +193,19 @@ proptest! {
 // ===================== Cascader Fuzz =====================
 
 fn arb_cascader_node() -> impl Strategy<Value = CascaderNode> {
-    let leaf = "[a-z]{1,3}".prop_map(|v| {
-        CascaderNode::new(format!("v_{}", v), format!("L_{}", v))
-    });
+    let leaf = "[a-z]{1,3}".prop_map(|v| CascaderNode::new(format!("v_{}", v), format!("L_{}", v)));
     leaf.prop_recursive(
-        3,      // 深度 3
-        10,     // 总节点数 10
-        3,      // 每层节点数 3
+        3,  // 深度 3
+        10, // 总节点数 10
+        3,  // 每层节点数 3
         |inner| {
             (
                 "[a-z]{1,3}".prop_map(|s| format!("v_{}", s)),
                 prop::collection::vec(inner, 1..3),
-            ).prop_map(|(v, children)| {
-                CascaderNode::new(v, "N".to_string()).with_children(children)
-            })
+            )
+                .prop_map(|(v, children)| {
+                    CascaderNode::new(v, "N".to_string()).with_children(children)
+                })
         },
     )
 }
@@ -285,7 +284,7 @@ proptest! {
                 }
                 CascaderMessage::TogglePanel => {
                     // panel_visible 翻转后只能是 true/false
-                    prop_assert!(c.panel_visible() == true || c.panel_visible() == false);
+                    prop_assert!(c.panel_visible() || !c.panel_visible());
                 }
             }
         }

@@ -10,8 +10,11 @@ iced = { workspace = true }
 har-ui-core = { path = "../core" }
 
 [dev-dependencies]
+iced = { workspace = true }
+har-ui-core = { path = "../core" }
 proptest = { workspace = true }
 criterion = { workspace = true }
+rand = "0.8"
 
 [[bench]]
 name = "component_bench"

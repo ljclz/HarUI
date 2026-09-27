@@ -252,7 +252,10 @@ impl Drawer {
         let content_color = Color::from(theme.neutral.text_regular);
         let bg = Color::from(theme.neutral.bg_overlay);
         let border_color = Color::from(theme.neutral.border_lighter);
-        let mask = Color { a: 0.5, ..Color::BLACK };
+        let mask = Color {
+            a: 0.5,
+            ..Color::BLACK
+        };
 
         // 标题栏
         let mut header_children: Vec<Element<'a, Message>> = Vec::new();
@@ -293,12 +296,8 @@ impl Drawer {
 
         // 按 direction 计算尺寸
         let (drawer_width, drawer_height): (Length, Length) = match self.direction {
-            DrawerDirection::Rtl | DrawerDirection::Ltr => {
-                (Length::Fixed(360.0), Length::Fill)
-            }
-            DrawerDirection::Ttb | DrawerDirection::Btt => {
-                (Length::Fill, Length::Fixed(280.0))
-            }
+            DrawerDirection::Rtl | DrawerDirection::Ltr => (Length::Fixed(360.0), Length::Fill),
+            DrawerDirection::Ttb | DrawerDirection::Btt => (Length::Fill, Length::Fixed(280.0)),
         };
 
         let drawer = container(inner)
@@ -380,6 +379,10 @@ mod internal_tests {
         d.handle(DrawerMessage::Open);
         d.handle(DrawerMessage::AnimationEnd);
         d.handle(DrawerMessage::ClickClose);
-        assert_eq!(d.state, DrawerState::Open, "show_close=false 时 ClickClose 不应关闭");
+        assert_eq!(
+            d.state,
+            DrawerState::Open,
+            "show_close=false 时 ClickClose 不应关闭"
+        );
     }
 }

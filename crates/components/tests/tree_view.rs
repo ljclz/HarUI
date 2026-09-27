@@ -1,6 +1,6 @@
 //! Tree view() 测试 — TDD RED 阶段
 
-use har_ui_components::tree::{Tree, TreeNode, TreeMessage};
+use har_ui_components::tree::{Tree, TreeMessage, TreeNode};
 use har_ui_core::theme::Theme;
 
 fn build_sample_tree() -> Vec<TreeNode> {
@@ -80,14 +80,10 @@ fn test_tree_view_filtered_renders() {
 #[test]
 fn test_tree_view_deep_nested_renders() {
     let theme = Theme::element_light();
-    let deep = TreeNode::new("a", "A")
-        .with_child(
-            TreeNode::new("b", "B")
-                .with_child(
-                    TreeNode::new("c", "C")
-                        .with_child(TreeNode::new("d", "D")),
-                ),
-        );
+    let deep = TreeNode::new("a", "A").with_child(
+        TreeNode::new("b", "B")
+            .with_child(TreeNode::new("c", "C").with_child(TreeNode::new("d", "D"))),
+    );
     let mut t = Tree::new().with_data(vec![deep]);
     t.handle(TreeMessage::ToggleExpand("a".to_string()));
     t.handle(TreeMessage::ToggleExpand("b".to_string()));

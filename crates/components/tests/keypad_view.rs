@@ -86,5 +86,5 @@ fn test_keypad_view_custom_message_type() {
     enum AppMsg {
         Key(String),
     }
-    let _element = k.view(&theme, |s| AppMsg::Key(s));
+    let _element = k.view(&theme, AppMsg::Key);
 }

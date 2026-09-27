@@ -59,7 +59,9 @@ fn test_checkbox_view_small_size_renders() {
 #[test]
 fn test_checkbox_view_checked_disabled_renders() {
     let theme = Theme::element_light();
-    let c = Checkbox::new("Apple").with_checked(true).with_disabled(true);
+    let c = Checkbox::new("Apple")
+        .with_checked(true)
+        .with_disabled(true);
     let _element = c.view(&theme, ());
 }
 

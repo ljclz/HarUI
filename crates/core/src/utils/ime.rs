@@ -276,11 +276,11 @@ impl Default for ImeProcessor {
 // R.3.1 IME 事件桥接（iced Subscription）
 // ============================================================================
 
+use iced::Subscription;
 use iced::advanced::widget::Id as WidgetId;
 use iced::event::{self, Event, Status};
 use iced::keyboard;
 use iced::window::Id as WindowId;
-use iced::Subscription;
 
 /// IME 桥接事件（R.3.1）
 ///
@@ -331,15 +331,11 @@ pub fn subscription() -> Subscription<ImeBridgeEvent> {
 }
 
 /// `listen_with` 的过滤函数（函数指针，非闭包，符合 iced 0.13.x 签名约束）
-fn filter_ime_event(
-    event: Event,
-    _status: Status,
-    _window: WindowId,
-) -> Option<ImeBridgeEvent> {
+fn filter_ime_event(event: Event, _status: Status, _window: WindowId) -> Option<ImeBridgeEvent> {
     match event {
         Event::Keyboard(keyboard::Event::KeyPressed {
             text: Some(text), ..
-        }) if text.chars().any(|c| !c.is_ascii()) => Some(ImeBridgeEvent::Commit {
+        }) if !text.is_ascii() => Some(ImeBridgeEvent::Commit {
             id: WidgetId::new(DEFAULT_IME_ID),
             text: text.to_string(),
         }),

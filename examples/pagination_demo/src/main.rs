@@ -30,7 +30,7 @@ fn update(state: &mut State, message: Message) -> Task<Message> {
 
 fn view(state: &State) -> Element<'_, Message> {
     let theme = &state.theme;
-    let pagination_elem = state.pagination.view(theme, |p| Message::PageJump(p));
+    let pagination_elem = state.pagination.view(theme, Message::PageJump);
 
     let info = text(format!(
         "Page {} of {}",

@@ -16,8 +16,16 @@ fn test_to_iced_theme_light_basic() {
     let iced_theme = iced_adapter::to_iced_theme(&theme);
     // 自定义主题名称
     let display = format!("{}", iced_theme);
-    assert!(display.contains("HarUI"), "iced theme display 应包含 HarUI, got: {}", display);
-    assert!(display.contains("Light"), "iced theme display 应包含 Light, got: {}", display);
+    assert!(
+        display.contains("HarUI"),
+        "iced theme display 应包含 HarUI, got: {}",
+        display
+    );
+    assert!(
+        display.contains("Light"),
+        "iced theme display 应包含 Light, got: {}",
+        display
+    );
 }
 
 #[test]
@@ -62,7 +70,10 @@ fn test_to_iced_theme_text_color_mapped() {
     // 深色主题：text 仍 = text_primary（已是浅色 #E5EAF3）
     let theme_dark = Theme::element_dark();
     let palette_dark = iced_adapter::to_iced_theme(&theme_dark).palette();
-    assert_eq!(palette_dark.text, Color::from(theme_dark.neutral.text_primary));
+    assert_eq!(
+        palette_dark.text,
+        Color::from(theme_dark.neutral.text_primary)
+    );
 }
 
 #[test]
@@ -74,7 +85,10 @@ fn test_to_iced_theme_background_color_mapped() {
     // 深色主题：background = bg_page（黑）
     let theme_dark = Theme::element_dark();
     let palette_dark = iced_adapter::to_iced_theme(&theme_dark).palette();
-    assert_eq!(palette_dark.background, Color::from(theme_dark.neutral.bg_page));
+    assert_eq!(
+        palette_dark.background,
+        Color::from(theme_dark.neutral.bg_page)
+    );
 }
 
 // ============== R.1.2 style_sheets：Button style ==============
@@ -173,7 +187,13 @@ fn test_button_style_plain_primary() {
         true, // plain
         button::Status::Active,
     );
-    assert!(style.background.is_none() || matches!(style.background, Some(Background::Color(Color { a: 0.0, .. }))));
+    assert!(
+        style.background.is_none()
+            || matches!(
+                style.background,
+                Some(Background::Color(Color { a: 0.0, .. }))
+            )
+    );
     assert_eq!(style.text_color, Color::from(theme.primary.base));
     assert_eq!(style.border.color, Color::from(theme.primary.base));
 }
@@ -210,7 +230,10 @@ fn test_button_style_hovered_state_changed() {
         button::Status::Hovered,
     );
     // Hovered 态的背景应该比 Active 态亮（用 light-3 或 light-5）
-    assert_ne!(active.background, hovered.background, "hovered 应有不同背景");
+    assert_ne!(
+        active.background, hovered.background,
+        "hovered 应有不同背景"
+    );
 }
 
 // ============== R.1.2 style_sheets：Input (text_input) style ==============
@@ -229,7 +252,10 @@ fn test_input_style_active() {
     // 文字值色：text_regular
     assert_eq!(style.value, Color::from(theme.neutral.text_regular));
     // placeholder 色：text_placeholder
-    assert_eq!(style.placeholder, Color::from(theme.neutral.text_placeholder));
+    assert_eq!(
+        style.placeholder,
+        Color::from(theme.neutral.text_placeholder)
+    );
 }
 
 #[test]
@@ -264,7 +290,10 @@ fn test_container_style_card() {
         _ => panic!("card 应有 Color 背景"),
     }
     // 边框：border_lighter
-    assert_eq!(style.border.color, Color::from(theme.neutral.border_lighter));
+    assert_eq!(
+        style.border.color,
+        Color::from(theme.neutral.border_lighter)
+    );
     // 阴影：shadow.base
     assert_ne!(style.shadow.color, Color::TRANSPARENT);
     assert!(style.shadow.blur_radius > 0.0);

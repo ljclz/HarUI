@@ -62,25 +62,30 @@ fn test_status_item_levels() {
 
 #[test]
 fn test_status_bar_update_left_item() {
-    let mut s = StatusBar::new()
-        .with_left_item(StatusItem::new("秤", StatusLevel::Success));
-    s.handle(StatusBarMessage::UpdateLeft(0, StatusLevel::Error, Some("离线".to_string())));
+    let mut s = StatusBar::new().with_left_item(StatusItem::new("秤", StatusLevel::Success));
+    s.handle(StatusBarMessage::UpdateLeft(
+        0,
+        StatusLevel::Error,
+        Some("离线".to_string()),
+    ));
     assert_eq!(s.left_items()[0].level(), StatusLevel::Error);
     assert_eq!(s.left_items()[0].detail(), Some(&"离线".to_string()));
 }
 
 #[test]
 fn test_status_bar_update_right_item() {
-    let mut s = StatusBar::new()
-        .with_right_item(StatusItem::new("网络", StatusLevel::Success));
-    s.handle(StatusBarMessage::UpdateRight(0, StatusLevel::Warning, Some("弱信号".to_string())));
+    let mut s = StatusBar::new().with_right_item(StatusItem::new("网络", StatusLevel::Success));
+    s.handle(StatusBarMessage::UpdateRight(
+        0,
+        StatusLevel::Warning,
+        Some("弱信号".to_string()),
+    ));
     assert_eq!(s.right_items()[0].level(), StatusLevel::Warning);
 }
 
 #[test]
 fn test_status_bar_update_nonexistent_index_ignored() {
-    let mut s = StatusBar::new()
-        .with_left_item(StatusItem::new("秤", StatusLevel::Success));
+    let mut s = StatusBar::new().with_left_item(StatusItem::new("秤", StatusLevel::Success));
     // 越界索引应被忽略，不 panic
     s.handle(StatusBarMessage::UpdateLeft(5, StatusLevel::Error, None));
     assert_eq!(s.left_items()[0].level(), StatusLevel::Success);

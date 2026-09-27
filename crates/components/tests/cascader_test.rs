@@ -70,9 +70,11 @@ fn test_cascader_select_intermediate_without_strict_noop() {
 
 #[test]
 fn test_cascader_select_disabled_noop() {
-    let opts = vec![CascaderNode::new("a", "A")
-        .with_disabled(true)
-        .with_children(vec![CascaderNode::new("a1", "A1")])];
+    let opts = vec![
+        CascaderNode::new("a", "A")
+            .with_disabled(true)
+            .with_children(vec![CascaderNode::new("a1", "A1")]),
+    ];
     let mut c = Cascader::new().with_options(opts).with_check_strictly(true);
     c.handle(CascaderMessage::Select("a".into()));
     assert!(c.selected_path().is_empty());

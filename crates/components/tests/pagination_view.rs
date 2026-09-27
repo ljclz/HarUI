@@ -80,5 +80,5 @@ fn test_pagination_view_with_custom_message_type() {
     enum AppMsg {
         PageChange(i64),
     }
-    let _element = p.view(&theme, |page| AppMsg::PageChange(page));
+    let _element = p.view(&theme, AppMsg::PageChange);
 }

@@ -12,9 +12,9 @@
 //! `Subscription` 实际事件流需要 iced runtime 驱动，无法在普通单元测试中运行。
 //! 此处仅验证类型可构造、函数签名正确。
 
-use har_ui_core::utils::ime::{subscription, ImeBridgeEvent, DEFAULT_IME_ID};
-use iced::advanced::widget::Id;
+use har_ui_core::utils::ime::{DEFAULT_IME_ID, ImeBridgeEvent, subscription};
 use iced::Subscription;
+use iced::advanced::widget::Id;
 
 #[test]
 fn test_ime_bridge_event_enabled_constructible() {

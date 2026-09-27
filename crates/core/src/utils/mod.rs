@@ -2,7 +2,7 @@
 //!
 //! 包含 IME 处理、键盘事件、动画辅助、颜色工具等通用工具。
 
-pub mod ime;
-pub mod color_utils;
 pub mod animation;
+pub mod color_utils;
+pub mod ime;
 pub mod keyboard;

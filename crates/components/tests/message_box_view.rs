@@ -1,8 +1,6 @@
 //! MessageBox view() 测试 — TDD RED 阶段
 
-use har_ui_components::message_box::{
-    MessageBox, MessageBoxMessage, MessageBoxType,
-};
+use har_ui_components::message_box::{MessageBox, MessageBoxMessage, MessageBoxType};
 use har_ui_core::theme::Theme;
 
 #[test]

@@ -4,8 +4,8 @@
 
 use har_ui_components::form::{Form, FormItem, FormMessage, FormRule};
 use har_ui_core::theme::Theme;
-use iced::widget::text;
 use iced::Element;
+use iced::widget::text;
 
 fn field_renderer<'a>(_item: &har_ui_components::form::FormItem) -> Element<'a, ()> {
     text("input").into()
@@ -33,10 +33,7 @@ fn test_form_view_with_items_renders() {
 fn test_form_view_with_required_item_renders() {
     let theme = Theme::element_light();
     let form = Form::new()
-        .with_item(
-            FormItem::new("name", "Name")
-                .with_rule(FormRule::new("name").required(true)),
-        );
+        .with_item(FormItem::new("name", "Name").with_rule(FormRule::new("name").required(true)));
     let _element = form.view(&theme, field_renderer);
 }
 
@@ -82,11 +79,13 @@ fn test_form_view_with_label_width_renders() {
 #[test]
 fn test_form_view_with_validation_errors_renders() {
     let theme = Theme::element_light();
-    let mut form = Form::new()
-        .with_item(
-            FormItem::new("name", "Name")
-                .with_rule(FormRule::new("name").required(true).with_message("Name required")),
-        );
+    let mut form = Form::new().with_item(
+        FormItem::new("name", "Name").with_rule(
+            FormRule::new("name")
+                .required(true)
+                .with_message("Name required"),
+        ),
+    );
     let _ = form.validate();
     assert!(!form.errors().is_empty());
     let _element = form.view(&theme, field_renderer);
@@ -95,8 +94,7 @@ fn test_form_view_with_validation_errors_renders() {
 #[test]
 fn test_form_view_passed_state_renders() {
     let theme = Theme::element_light();
-    let mut form = Form::new()
-        .with_item(FormItem::new("name", "Name"));
+    let mut form = Form::new().with_item(FormItem::new("name", "Name"));
     form.set_value("name", "Alice");
     let _ = form.validate();
     let _element = form.view(&theme, field_renderer);
@@ -106,10 +104,7 @@ fn test_form_view_passed_state_renders() {
 fn test_form_view_after_reset_renders() {
     let theme = Theme::element_light();
     let mut form = Form::new()
-        .with_item(
-            FormItem::new("name", "Name")
-                .with_rule(FormRule::new("name").required(true)),
-        );
+        .with_item(FormItem::new("name", "Name").with_rule(FormRule::new("name").required(true)));
     let _ = form.validate();
     form.handle(FormMessage::Reset);
     let _element = form.view(&theme, field_renderer);

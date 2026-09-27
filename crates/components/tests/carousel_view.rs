@@ -23,7 +23,10 @@ fn test_carousel_view_with_slides_renders() {
 #[test]
 fn test_carousel_view_after_next_renders() {
     let theme = Theme::element_light();
-    let mut c = Carousel::new().with_slide("a").with_slide("b").with_slide("c");
+    let mut c = Carousel::new()
+        .with_slide("a")
+        .with_slide("b")
+        .with_slide("c");
     c.handle(CarouselMessage::Next);
     let _element = c.view(&theme, || (), || ());
 }
@@ -31,7 +34,10 @@ fn test_carousel_view_after_next_renders() {
 #[test]
 fn test_carousel_view_after_prev_renders() {
     let theme = Theme::element_light();
-    let mut c = Carousel::new().with_slide("a").with_slide("b").with_slide("c");
+    let mut c = Carousel::new()
+        .with_slide("a")
+        .with_slide("b")
+        .with_slide("c");
     c.handle(CarouselMessage::Prev);
     let _element = c.view(&theme, || (), || ());
 }

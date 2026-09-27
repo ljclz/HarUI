@@ -20,23 +20,25 @@ fn test_alert_view_dark_theme_renders() {
 #[test]
 fn test_alert_view_with_description_renders() {
     let theme = Theme::element_light();
-    let a = Alert::new()
-        .with_title("标题")
-        .with_description("详细描述");
+    let a = Alert::new().with_title("标题").with_description("详细描述");
     let _element = a.view(&theme, || ());
 }
 
 #[test]
 fn test_alert_view_success_type_renders() {
     let theme = Theme::element_light();
-    let a = Alert::new().with_title("成功").with_type(AlertType::Success);
+    let a = Alert::new()
+        .with_title("成功")
+        .with_type(AlertType::Success);
     let _element = a.view(&theme, || ());
 }
 
 #[test]
 fn test_alert_view_warning_type_renders() {
     let theme = Theme::element_light();
-    let a = Alert::new().with_title("警告").with_type(AlertType::Warning);
+    let a = Alert::new()
+        .with_title("警告")
+        .with_type(AlertType::Warning);
     let _element = a.view(&theme, || ());
 }
 

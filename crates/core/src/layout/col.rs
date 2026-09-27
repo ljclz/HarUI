@@ -212,8 +212,6 @@ impl Default for Col {
 /// 构建垂直布局 Element — 把 children 装入 iced Column
 ///
 /// 简化版签名，等价于 `iced::widget::Column::with_children(children).into()`。
-pub fn col<'a, Message: Clone + 'a>(
-    children: Vec<Element<'a, Message>>,
-) -> Element<'a, Message> {
+pub fn col<'a, Message: Clone + 'a>(children: Vec<Element<'a, Message>>) -> Element<'a, Message> {
     iced::widget::Column::with_children(children).into()
 }

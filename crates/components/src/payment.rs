@@ -213,12 +213,20 @@ impl Payment {
             let received_row = iced::widget::Row::new()
                 .push(text("实收".to_string()).color(text_secondary).size(12.0))
                 .push(iced::widget::Space::with_width(Length::Fixed(8.0)))
-                .push(text(format!("¥ {:.2}", self.received)).color(text_primary).size(16.0))
+                .push(
+                    text(format!("¥ {:.2}", self.received))
+                        .color(text_primary)
+                        .size(16.0),
+                )
                 .align_y(iced::Alignment::Center);
             let change_row = iced::widget::Row::new()
                 .push(text("找零".to_string()).color(text_secondary).size(12.0))
                 .push(iced::widget::Space::with_width(Length::Fixed(8.0)))
-                .push(text(format!("¥ {:.2}", self.change())).color(primary).size(16.0))
+                .push(
+                    text(format!("¥ {:.2}", self.change()))
+                        .color(primary)
+                        .size(16.0),
+                )
                 .align_y(iced::Alignment::Center);
             col_children.push(
                 container(received_row)
@@ -246,20 +254,13 @@ impl Payment {
         for (method, label) in methods {
             let method_name = format!("{:?}", method);
             let is_current = method == self.method;
-            let btn_color = if is_current {
-                primary
-            } else {
-                text_secondary
-            };
+            let btn_color = if is_current { primary } else { text_secondary };
             let btn = button(text(label.to_string()).color(btn_color).size(14.0))
                 .padding(Padding::from([8u16, 12u16]))
                 .on_press(on_pay(method_name))
                 .style(move |_t, _status| iced::widget::button::Style {
                     background: if is_current {
-                        Some(iced::Background::Color(Color {
-                            a: 0.1,
-                            ..primary
-                        }))
+                        Some(iced::Background::Color(Color { a: 0.1, ..primary }))
                     } else {
                         None
                     },
@@ -282,7 +283,9 @@ impl Payment {
 
         // 状态文本
         let state_text = match self.state {
-            PaymentState::Pending => text("待支付".to_string()).color(text_placeholder).size(12.0),
+            PaymentState::Pending => text("待支付".to_string())
+                .color(text_placeholder)
+                .size(12.0),
             PaymentState::Confirmed => text("已确认".to_string()).color(primary).size(12.0),
             PaymentState::Cancelled => text("已取消".to_string()).color(danger).size(12.0),
         };

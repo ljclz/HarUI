@@ -271,10 +271,18 @@ impl Slider {
             .width(Length::Fill)
             .padding(Padding::from([8u16, 12u16]))
             .style(move |_t| iced::widget::container::Style {
-                text_color: Some(if is_disabled { text_disabled } else { text_primary }),
+                text_color: Some(if is_disabled {
+                    text_disabled
+                } else {
+                    text_primary
+                }),
                 background: Some(iced::Background::Color(bg_overlay)),
                 border: iced::Border {
-                    color: if is_disabled { border_base } else { border_lighter },
+                    color: if is_disabled {
+                        border_base
+                    } else {
+                        border_lighter
+                    },
                     width: 1.0,
                     radius: iced::border::radius(4.0),
                 },

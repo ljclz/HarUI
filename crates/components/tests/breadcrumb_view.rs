@@ -107,5 +107,5 @@ fn test_breadcrumb_view_custom_message_type() {
     enum AppMsg {
         Navigate(String),
     }
-    let _element = b.view(&theme, |to| AppMsg::Navigate(to));
+    let _element = b.view(&theme, AppMsg::Navigate);
 }

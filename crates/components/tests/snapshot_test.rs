@@ -68,18 +68,13 @@ fn snap_alert_success_with_description() {
 
 #[test]
 fn snap_button_primary_disabled() {
-    let b = Button::new("提交").with_type(ButtonType::Primary).disabled(true);
+    let b = Button::new("提交")
+        .with_type(ButtonType::Primary)
+        .disabled(true);
     let p = b.props();
     let snap = format!(
         "text={:?} type={:?} size={:?} disabled={} loading={} plain={} round={} circle={}",
-        p.text,
-        p.button_type,
-        p.size,
-        p.disabled,
-        p.loading,
-        p.plain,
-        p.round,
-        p.circle,
+        p.text, p.button_type, p.size, p.disabled, p.loading, p.plain, p.round, p.circle,
     );
     assert_eq!(
         snap,

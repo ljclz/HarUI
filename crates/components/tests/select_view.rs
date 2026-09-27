@@ -110,7 +110,10 @@ fn test_select_view_many_options_renders() {
     let theme = Theme::element_light();
     let mut s = Select::new();
     for i in 0..50 {
-        s = s.with_option(SelectOption::new(format!("v{}", i), format!("Option {}", i)));
+        s = s.with_option(SelectOption::new(
+            format!("v{}", i),
+            format!("Option {}", i),
+        ));
     }
     s.handle(SelectMessage::Open);
     let _element = s.view(&theme, |_| ());
@@ -119,16 +122,14 @@ fn test_select_view_many_options_renders() {
 #[test]
 fn test_select_view_dark_theme_renders() {
     let theme = Theme::element_dark();
-    let s = Select::new()
-        .with_option(SelectOption::new("a", "Apple"));
+    let s = Select::new().with_option(SelectOption::new("a", "Apple"));
     let _element = s.view(&theme, |_| ());
 }
 
 #[test]
 fn test_select_view_with_custom_message_type() {
     let theme = Theme::element_light();
-    let s = Select::new()
-        .with_option(SelectOption::new("a", "Apple"));
+    let s = Select::new().with_option(SelectOption::new("a", "Apple"));
     #[derive(Clone, Debug)]
     #[allow(dead_code)]
     enum AppMsg {
@@ -136,5 +137,5 @@ fn test_select_view_with_custom_message_type() {
         Open,
         Close,
     }
-    let _element = s.view(&theme, |v| AppMsg::Choose(v));
+    let _element = s.view(&theme, AppMsg::Choose);
 }

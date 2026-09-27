@@ -3,8 +3,8 @@
 //! 参考 Element Plus `<el-select>`。
 //! 支持：单选/多选、禁用选项、可搜索(filterable)、clearable、1000 选项虚拟列表。
 
-use har_ui_core::theme::style_sheets::{self, ButtonKind};
 use har_ui_core::theme::Theme;
+use har_ui_core::theme::style_sheets::{self, ButtonKind};
 use iced::widget::{button, container, scrollable, text, text_input};
 use iced::{Color, Element, Length, Padding};
 
@@ -185,7 +185,10 @@ impl Select {
         let q_lower = q.to_lowercase();
         self.options
             .iter()
-            .filter(|o| o.label.to_lowercase().contains(&q_lower) || o.value.to_lowercase().contains(&q_lower))
+            .filter(|o| {
+                o.label.to_lowercase().contains(&q_lower)
+                    || o.value.to_lowercase().contains(&q_lower)
+            })
             .collect()
     }
 
@@ -285,7 +288,11 @@ impl Select {
         };
 
         // 触发器按钮（Row 包裹 文本 + Fill + 箭头）
-        let arrow = if self.state == SelectState::Open { "▲" } else { "▼" };
+        let arrow = if self.state == SelectState::Open {
+            "▲"
+        } else {
+            "▼"
+        };
         let trigger_content = iced::widget::Row::new()
             .push(text(trigger_text).color(trigger_text_color))
             .push(iced::widget::Space::with_width(Length::Fill))
@@ -303,23 +310,22 @@ impl Select {
         }
 
         // clearable + 有值：右侧追加 × 按钮
-        let trigger_elem: Element<'a, Message> =
-            if self.clearable && !is_empty && !self.disabled {
-                let clear_btn = button(text("×").color(text_color))
-                    .padding(Padding::from([2u16, 6u16]))
-                    .on_press(on_choose("__clear__".to_string()))
-                    .style(move |_t, status| {
-                        style_sheets::button_style(theme, ButtonKind::Text, false, status)
-                    });
-                iced::widget::Row::new()
-                    .push(trigger_btn)
-                    .push(clear_btn)
-                    .spacing(4)
-                    .align_y(iced::Alignment::Center)
-                    .into()
-            } else {
-                trigger_btn.into()
-            };
+        let trigger_elem: Element<'a, Message> = if self.clearable && !is_empty && !self.disabled {
+            let clear_btn = button(text("×").color(text_color))
+                .padding(Padding::from([2u16, 6u16]))
+                .on_press(on_choose("__clear__".to_string()))
+                .style(move |_t, status| {
+                    style_sheets::button_style(theme, ButtonKind::Text, false, status)
+                });
+            iced::widget::Row::new()
+                .push(trigger_btn)
+                .push(clear_btn)
+                .spacing(4)
+                .align_y(iced::Alignment::Center)
+                .into()
+        } else {
+            trigger_btn.into()
+        };
 
         // Closed：仅触发器
         if self.state != SelectState::Open {
@@ -397,25 +403,26 @@ impl Select {
             dropdown_children.insert(0, search_input.into());
         }
 
-        let dropdown = container(
-            iced::widget::Column::with_children(dropdown_children).spacing(0),
-        )
-        .width(Length::Fill)
-        .max_height(400.0)
-        .style(move |_t| iced::widget::container::Style {
-            text_color: Some(text_color),
-            background: Some(iced::Background::Color(bg_overlay)),
-            border: iced::Border {
-                color: border_color,
-                width: 1.0,
-                radius: iced::border::radius(4.0),
-            },
-            shadow: iced::Shadow {
-                color: Color { a: 0.2, ..Color::BLACK },
-                offset: iced::Vector::new(0.0, 2.0),
-                blur_radius: 8.0,
-            },
-        });
+        let dropdown = container(iced::widget::Column::with_children(dropdown_children).spacing(0))
+            .width(Length::Fill)
+            .max_height(400.0)
+            .style(move |_t| iced::widget::container::Style {
+                text_color: Some(text_color),
+                background: Some(iced::Background::Color(bg_overlay)),
+                border: iced::Border {
+                    color: border_color,
+                    width: 1.0,
+                    radius: iced::border::radius(4.0),
+                },
+                shadow: iced::Shadow {
+                    color: Color {
+                        a: 0.2,
+                        ..Color::BLACK
+                    },
+                    offset: iced::Vector::new(0.0, 2.0),
+                    blur_radius: 8.0,
+                },
+            });
 
         container(
             iced::widget::Column::new()
@@ -450,8 +457,7 @@ mod internal_tests {
 
     #[test]
     fn test_select_choose_disabled_option_ignored() {
-        let mut s = Select::new()
-            .with_option(SelectOption::new("a", "A").set_disabled(true));
+        let mut s = Select::new().with_option(SelectOption::new("a", "A").set_disabled(true));
         s.handle(SelectMessage::Choose("a".to_string()));
         assert_eq!(s.value(), None);
     }

@@ -97,7 +97,9 @@ fn test_menu_collapse_closes_all_submenus() {
 #[test]
 fn test_menu_collapse_horizontal_ignored() {
     // horizontal 模式下 collapse 无效
-    let s = MenuState::new().with_mode(MenuMode::Horizontal).with_collapse(true);
+    let s = MenuState::new()
+        .with_mode(MenuMode::Horizontal)
+        .with_collapse(true);
     assert!(!s.collapsed());
 }
 

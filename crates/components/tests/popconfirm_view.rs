@@ -4,8 +4,8 @@ use har_ui_components::popconfirm::{
     Popconfirm, PopconfirmMessage, PopconfirmPlacement, PopconfirmTrigger,
 };
 use har_ui_core::theme::Theme;
-use iced::widget::text;
 use iced::Element;
+use iced::widget::text;
 
 fn make_content<'a>() -> Element<'a, ()> {
     text("Delete").into()
@@ -38,8 +38,7 @@ fn test_popconfirm_view_dark_theme_renders() {
 #[test]
 fn test_popconfirm_view_with_width_renders() {
     let theme = Theme::element_light();
-    let mut p = Popconfirm::new("确认?")
-        .with_width(200);
+    let mut p = Popconfirm::new("确认?").with_width(200);
     p.handle(PopconfirmMessage::Click);
     let _element = p.view(&theme, make_content(), || (), || ());
 }
@@ -47,8 +46,7 @@ fn test_popconfirm_view_with_width_renders() {
 #[test]
 fn test_popconfirm_view_no_arrow_renders() {
     let theme = Theme::element_light();
-    let mut p = Popconfirm::new("确认?")
-        .with_show_arrow(false);
+    let mut p = Popconfirm::new("确认?").with_show_arrow(false);
     p.handle(PopconfirmMessage::Click);
     let _element = p.view(&theme, make_content(), || (), || ());
 }
@@ -75,8 +73,7 @@ fn test_popconfirm_view_custom_button_text_renders() {
 #[test]
 fn test_popconfirm_view_hover_trigger_renders() {
     let theme = Theme::element_light();
-    let mut p = Popconfirm::new("确认?")
-        .with_trigger(PopconfirmTrigger::Hover);
+    let mut p = Popconfirm::new("确认?").with_trigger(PopconfirmTrigger::Hover);
     p.handle(PopconfirmMessage::MouseEnter);
     let _element = p.view(&theme, make_content(), || (), || ());
 }
@@ -84,8 +81,7 @@ fn test_popconfirm_view_hover_trigger_renders() {
 #[test]
 fn test_popconfirm_view_focus_trigger_renders() {
     let theme = Theme::element_light();
-    let mut p = Popconfirm::new("确认?")
-        .with_trigger(PopconfirmTrigger::Focus);
+    let mut p = Popconfirm::new("确认?").with_trigger(PopconfirmTrigger::Focus);
     p.handle(PopconfirmMessage::Focus);
     let _element = p.view(&theme, make_content(), || (), || ());
 }
@@ -93,8 +89,7 @@ fn test_popconfirm_view_focus_trigger_renders() {
 #[test]
 fn test_popconfirm_view_manual_trigger_renders() {
     let theme = Theme::element_light();
-    let mut p = Popconfirm::new("确认?")
-        .with_trigger(PopconfirmTrigger::Manual);
+    let mut p = Popconfirm::new("确认?").with_trigger(PopconfirmTrigger::Manual);
     p.handle(PopconfirmMessage::Show);
     let _element = p.view(&theme, make_content(), || (), || ());
 }

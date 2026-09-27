@@ -65,23 +65,24 @@ fn test_color_picker_with_format_rgb() {
 
 #[test]
 fn test_color_picker_with_predefine() {
-    let c = ColorPicker::new()
-        .with_predefine(vec!["#ff0000".into(), "#00ff00".into(), "#0000ff".into()]);
+    let c = ColorPicker::new().with_predefine(vec![
+        "#ff0000".into(),
+        "#00ff00".into(),
+        "#0000ff".into(),
+    ]);
     assert_eq!(c.predefine().len(), 3);
 }
 
 #[test]
 fn test_color_picker_select_predefine() {
-    let mut c = ColorPicker::new()
-        .with_predefine(vec!["#ff0000".into(), "#00ff00".into()]);
+    let mut c = ColorPicker::new().with_predefine(vec!["#ff0000".into(), "#00ff00".into()]);
     c.handle(ColorPickerMessage::SelectPredefine(1));
     assert_eq!(c.color(), "#00ff00");
 }
 
 #[test]
 fn test_color_picker_select_predefine_out_of_bounds_noop() {
-    let mut c = ColorPicker::new()
-        .with_predefine(vec!["#ff0000".into()]);
+    let mut c = ColorPicker::new().with_predefine(vec!["#ff0000".into()]);
     c.handle(ColorPickerMessage::SelectPredefine(5));
     assert_eq!(c.color(), "");
 }

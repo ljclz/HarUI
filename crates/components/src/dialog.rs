@@ -11,8 +11,8 @@
 //!    └──AnimationFinished──◄── Closing ◄───────────┘
 //! ```
 
-use har_ui_core::theme::style_sheets::{self, ButtonKind};
 use har_ui_core::theme::Theme;
+use har_ui_core::theme::style_sheets::{self, ButtonKind};
 use iced::widget::{button, container, text};
 use iced::{Color, Element, Length, Padding};
 
@@ -179,26 +179,34 @@ impl Dialog {
             .padding(Padding::from([12u16, 16u16]));
 
         // 内容区
-        let body = container(text(self.content.clone()).color(Color::from(theme.neutral.text_regular)))
-            .width(Length::Fill)
-            .padding(Padding::from(16u16));
+        let body =
+            container(text(self.content.clone()).color(Color::from(theme.neutral.text_regular)))
+                .width(Length::Fill)
+                .padding(Padding::from(16u16));
 
         // 对话框主体（用 container 包裹以应用样式，因为 Column 无 style 方法）
-        let dialog_inner = iced::widget::Column::new()
-            .push(header)
-            .push(body);
+        let dialog_inner = iced::widget::Column::new().push(header).push(body);
         let dialog_box = container(dialog_inner)
-            .max_width(if self.props.fullscreen { 100000.0 } else { 500.0 })
+            .max_width(if self.props.fullscreen {
+                100000.0
+            } else {
+                500.0
+            })
             .style(move |_t| iced::widget::container::Style {
                 text_color: Some(Color::from(theme.neutral.text_primary)),
-                background: Some(iced::Background::Color(Color::from(theme.neutral.bg_overlay))),
+                background: Some(iced::Background::Color(Color::from(
+                    theme.neutral.bg_overlay,
+                ))),
                 border: iced::Border {
                     color: Color::from(theme.neutral.border_lighter),
                     width: 1.0,
                     radius: iced::border::radius(4.0),
                 },
                 shadow: iced::Shadow {
-                    color: Color { a: 0.3, ..Color::BLACK },
+                    color: Color {
+                        a: 0.3,
+                        ..Color::BLACK
+                    },
                     offset: iced::Vector::new(0.0, 4.0),
                     blur_radius: 16.0,
                 },
@@ -235,14 +243,12 @@ impl Dialog {
                     self.state = DialogState::Opening;
                 }
             }
-            DialogMessage::Close => {
-                match self.state {
-                    DialogState::Opening | DialogState::Open => {
-                        self.state = DialogState::Closing;
-                    }
-                    _ => {}
+            DialogMessage::Close => match self.state {
+                DialogState::Opening | DialogState::Open => {
+                    self.state = DialogState::Closing;
                 }
-            }
+                _ => {}
+            },
             DialogMessage::AnimationFinished => {
                 match self.state {
                     DialogState::Opening => self.state = DialogState::Open,

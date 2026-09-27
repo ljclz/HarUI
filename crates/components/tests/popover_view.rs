@@ -1,11 +1,9 @@
 //! Popover view() 测试
 
-use har_ui_components::popover::{
-    Popover, PopoverMessage, PopoverPlacement, PopoverTrigger,
-};
+use har_ui_components::popover::{Popover, PopoverMessage, PopoverPlacement, PopoverTrigger};
 use har_ui_core::theme::Theme;
-use iced::widget::text;
 use iced::Element;
+use iced::widget::text;
 
 fn make_content<'a>() -> Element<'a, ()> {
     text("Trigger").into()
@@ -84,9 +82,7 @@ fn test_popover_view_no_arrow_renders() {
 #[test]
 fn test_popover_view_disabled_renders() {
     let theme = Theme::element_light();
-    let mut p = Popover::new()
-        .with_title("禁用")
-        .with_disabled(true);
+    let mut p = Popover::new().with_title("禁用").with_disabled(true);
     p.handle(PopoverMessage::Click);
     assert!(!p.visible());
     let _element = p.view(&theme, make_content(), || ());
@@ -131,9 +127,7 @@ fn test_popover_view_placements_renders() {
         PopoverPlacement::Left,
         PopoverPlacement::Right,
     ] {
-        let mut p = Popover::new()
-            .with_title("x")
-            .with_placement(placement);
+        let mut p = Popover::new().with_title("x").with_placement(placement);
         p.handle(PopoverMessage::Click);
         let _element = p.view(&theme, make_content(), || ());
     }

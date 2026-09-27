@@ -178,8 +178,18 @@ impl Skeleton {
             SkeletonVariant::Image => (Length::Fixed(120.0), Length::Fixed(120.0)),
         };
         // 自定义 width/height 覆盖（支持 "120px" / "120" 格式）
-        let width = item.width.as_deref().and_then(parse_px).map(Length::Fixed).unwrap_or(width);
-        let height = item.height.as_deref().and_then(parse_px).map(Length::Fixed).unwrap_or(height);
+        let width = item
+            .width
+            .as_deref()
+            .and_then(parse_px)
+            .map(Length::Fixed)
+            .unwrap_or(width);
+        let height = item
+            .height
+            .as_deref()
+            .and_then(parse_px)
+            .map(Length::Fixed)
+            .unwrap_or(height);
         let radius = match item.variant {
             SkeletonVariant::Avatar => 20.0,
             _ => 4.0,

@@ -103,7 +103,11 @@ impl ResultPage {
         let (default_emoji, _accent) = Self::type_visual(self.result_type, theme);
 
         // icon: 自定义 URL 优先（iced 0.13 无内置 image，使用占位 emoji）
-        let icon_str = if self.icon_url.is_some() { "🖼" } else { default_emoji };
+        let icon_str = if self.icon_url.is_some() {
+            "🖼"
+        } else {
+            default_emoji
+        };
         let icon_text = text(icon_str).size(64.0);
 
         let title_text = text(self.title.clone())

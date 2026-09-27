@@ -6,7 +6,7 @@
 use std::collections::BTreeMap;
 
 use har_ui_components::table::{
-    SortOrder, TableColumn, TableMessage, TableProps, TableRow, Table, VirtualScroll,
+    SortOrder, Table, TableColumn, TableMessage, TableProps, TableRow, VirtualScroll,
 };
 use har_ui_core::theme::Theme;
 
@@ -26,7 +26,9 @@ fn make_columns() -> Vec<TableColumn> {
     vec![
         TableColumn::new("id", "ID").with_width(60.0),
         TableColumn::new("name", "Name").with_width(120.0),
-        TableColumn::new("age", "Age").with_width(60.0).sortable(true),
+        TableColumn::new("age", "Age")
+            .with_width(60.0)
+            .sortable(true),
     ]
 }
 
@@ -50,19 +52,14 @@ fn test_table_view_with_rows_renders() {
         make_row("2", "Bob", "25"),
         make_row("3", "Charlie", "35"),
     ];
-    let table = Table::new()
-        .with_columns(make_columns())
-        .with_rows(rows);
+    let table = Table::new().with_columns(make_columns()).with_rows(rows);
     let _element = table.view(&theme, field_extractor, |_| ());
 }
 
 #[test]
 fn test_table_view_with_stripe_renders() {
     let theme = Theme::element_light();
-    let rows = vec![
-        make_row("1", "Alice", "30"),
-        make_row("2", "Bob", "25"),
-    ];
+    let rows = vec![make_row("1", "Alice", "30"), make_row("2", "Bob", "25")];
     let table = Table::new()
         .with_columns(make_columns())
         .with_rows(rows)
@@ -73,9 +70,7 @@ fn test_table_view_with_stripe_renders() {
 #[test]
 fn test_table_view_with_border_renders() {
     let theme = Theme::element_light();
-    let rows = vec![
-        make_row("1", "Alice", "30"),
-    ];
+    let rows = vec![make_row("1", "Alice", "30")];
     let table = Table::new()
         .with_columns(make_columns())
         .with_rows(rows)
@@ -86,13 +81,8 @@ fn test_table_view_with_border_renders() {
 #[test]
 fn test_table_view_with_selected_row_renders() {
     let theme = Theme::element_light();
-    let rows = vec![
-        make_row("1", "Alice", "30"),
-        make_row("2", "Bob", "25"),
-    ];
-    let mut table = Table::new()
-        .with_columns(make_columns())
-        .with_rows(rows);
+    let rows = vec![make_row("1", "Alice", "30"), make_row("2", "Bob", "25")];
+    let mut table = Table::new().with_columns(make_columns()).with_rows(rows);
     table.handle(TableMessage::RowClicked(1));
     assert_eq!(table.selected_row_index(), Some(1));
     let _element = table.view(&theme, field_extractor, |_| ());
@@ -105,7 +95,13 @@ fn test_table_view_virtual_scroll_renders() {
     let theme = Theme::element_light();
     // 200 行，阈值 100，启用虚拟滚动
     let rows: Vec<TableRow> = (0..200)
-        .map(|i| make_row(&i.to_string(), &format!("User{}", i), &((i % 50 + 20).to_string())))
+        .map(|i| {
+            make_row(
+                &i.to_string(),
+                &format!("User{}", i),
+                &((i % 50 + 20).to_string()),
+            )
+        })
         .collect();
     let table = Table::new()
         .with_columns(make_columns())
@@ -146,7 +142,10 @@ fn test_table_view_with_sort_applied_renders() {
         .with_columns(make_columns())
         .with_rows(rows)
         .with_field_extractor(field_extractor);
-    table.handle(TableMessage::SortBy("name".to_string(), SortOrder::Ascending));
+    table.handle(TableMessage::SortBy(
+        "name".to_string(),
+        SortOrder::Ascending,
+    ));
     assert_eq!(table.sort_prop(), Some(&"name".to_string()));
     let _element = table.view(&theme, field_extractor, |_| ());
 }
@@ -157,9 +156,7 @@ fn test_table_view_with_sort_applied_renders() {
 fn test_table_view_dark_theme_renders() {
     let theme = Theme::element_dark();
     let rows = vec![make_row("1", "Alice", "30")];
-    let table = Table::new()
-        .with_columns(make_columns())
-        .with_rows(rows);
+    let table = Table::new().with_columns(make_columns()).with_rows(rows);
     let _element = table.view(&theme, field_extractor, |_| ());
 }
 
@@ -167,24 +164,20 @@ fn test_table_view_dark_theme_renders() {
 fn test_table_view_with_custom_message_type() {
     let theme = Theme::element_light();
     let rows = vec![make_row("1", "Alice", "30")];
-    let table = Table::new()
-        .with_columns(make_columns())
-        .with_rows(rows);
+    let table = Table::new().with_columns(make_columns()).with_rows(rows);
     #[derive(Clone, Debug)]
     #[allow(dead_code)]
     enum AppMsg {
         RowClicked(usize),
     }
-    let _element = table.view(&theme, field_extractor, |idx| AppMsg::RowClicked(idx));
+    let _element = table.view(&theme, field_extractor, AppMsg::RowClicked);
 }
 
 #[test]
 fn test_table_view_single_row_renders() {
     let theme = Theme::element_light();
     let rows = vec![make_row("1", "Alice", "30")];
-    let table = Table::new()
-        .with_columns(make_columns())
-        .with_rows(rows);
+    let table = Table::new().with_columns(make_columns()).with_rows(rows);
     let _element = table.view(&theme, field_extractor, |_| ());
 }
 
@@ -204,8 +197,6 @@ fn test_table_view_many_columns_renders() {
     row.insert("c".to_string(), "3".to_string());
     row.insert("d".to_string(), "4".to_string());
     row.insert("e".to_string(), "5".to_string());
-    let table = Table::new()
-        .with_columns(cols)
-        .with_rows(vec![row]);
+    let table = Table::new().with_columns(cols).with_rows(vec![row]);
     let _element = table.view(&theme, field_extractor, |_| ());
 }

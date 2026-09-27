@@ -24,9 +24,9 @@ use har_ui_components::tabs::{TabItem, Tabs};
 use har_ui_components::upload::Upload;
 use har_ui_core::Theme;
 use iced::keyboard::key::Named;
-use iced::keyboard::{on_key_press, Key};
+use iced::keyboard::{Key, on_key_press};
 use iced::time::every;
-use iced::widget::{button, column, container, row, scrollable, text, text_input, Space};
+use iced::widget::{Space, button, column, container, row, scrollable, text, text_input};
 use iced::{Color, Element, Length, Padding, Subscription, Task};
 use std::time::Duration;
 
@@ -193,8 +193,7 @@ fn subscription(state: &State) -> Subscription<Message> {
     let mut subs: Vec<Subscription<Message>> = Vec::new();
 
     if state.recording {
-        let timer = every(Duration::from_secs(ADVANCE_INTERVAL_SECS))
-            .map(|_| Message::AutoAdvance);
+        let timer = every(Duration::from_secs(ADVANCE_INTERVAL_SECS)).map(|_| Message::AutoAdvance);
         subs.push(timer);
     }
 
@@ -344,7 +343,7 @@ fn build_button_panel(state: &State) -> Element<'_, Message> {
 
 fn build_input_panel(state: &State) -> Element<'_, Message> {
     let theme = &state.theme;
-    let input_elem = state.text_input.view(theme, |s| Message::InputChanged(s));
+    let input_elem = state.text_input.view(theme, Message::InputChanged);
     let value_text = text(format!("Value: {}", state.text_input.value())).size(14);
     column![text("Text input").size(16), input_elem, value_text]
         .spacing(12)
@@ -355,7 +354,11 @@ fn build_table_panel(state: &State) -> Element<'_, Message> {
     let theme = &state.theme;
     let (vstart, vend) = state.table.visible_range();
     let total = state.table.rows().len();
-    let info = text(format!("Total: {} | Visible: [{}, {})", total, vstart, vend)).size(14);
+    let info = text(format!(
+        "Total: {} | Visible: [{}, {})",
+        total, vstart, vend
+    ))
+    .size(14);
     let table_elem = state.table.view(
         theme,
         |row, prop| row.get(prop).cloned().unwrap_or_default(),
@@ -452,9 +455,7 @@ fn build_pagination_panel(state: &State) -> Element<'_, Message> {
 fn build_card_panel(state: &State) -> Element<'_, Message> {
     let theme = &state.theme;
     let card_elem = state.card.view(theme).map(|_| Message::Noop);
-    column![text("Card").size(16), card_elem]
-        .spacing(12)
-        .into()
+    column![text("Card").size(16), card_elem].spacing(12).into()
 }
 
 fn build_tabs_panel(state: &State) -> Element<'_, Message> {
@@ -489,9 +490,13 @@ fn build_date_picker_panel(state: &State) -> Element<'_, Message> {
         format!("Selected: {}", selected)
     };
     let picker_view = state.picker.view(&state.theme, |_| Message::Noop);
-    column![text("DatePicker").size(16), text(display).size(14), picker_view]
-        .spacing(12)
-        .into()
+    column![
+        text("DatePicker").size(16),
+        text(display).size(14),
+        picker_view
+    ]
+    .spacing(12)
+    .into()
 }
 
 fn build_cascader_panel(state: &State) -> Element<'_, Message> {
@@ -573,10 +578,7 @@ fn build_table() -> Table<TableRow> {
         .with_columns(columns)
         .with_rows(rows)
         .with_props(TableProps::new().with_stripe(true).with_border(true))
-        .with_virtual_scroll(VirtualScroll::new(
-            TABLE_ROW_HEIGHT,
-            TABLE_VIEWPORT_HEIGHT,
-        ))
+        .with_virtual_scroll(VirtualScroll::new(TABLE_ROW_HEIGHT, TABLE_VIEWPORT_HEIGHT))
 }
 
 fn next_theme(theme: &Theme) -> Theme {
@@ -588,11 +590,7 @@ fn next_theme(theme: &Theme) -> Theme {
 }
 
 fn theme_label(theme: &Theme) -> &'static str {
-    if theme.is_dark {
-        "dark"
-    } else {
-        "light"
-    }
+    if theme.is_dark { "dark" } else { "light" }
 }
 
 fn main() -> iced::Result {

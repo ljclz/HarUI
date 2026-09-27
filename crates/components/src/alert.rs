@@ -186,11 +186,14 @@ impl Alert {
         }
 
         let mut text_col_children: Vec<Element<'a, Message>> = Vec::new();
-        text_col_children.push(text(self.title.clone()).color(title_color).size(15.0).into());
+        text_col_children.push(
+            text(self.title.clone())
+                .color(title_color)
+                .size(15.0)
+                .into(),
+        );
         if let Some(d) = &self.description {
-            text_col_children.push(
-                text(d.clone()).color(desc_color).size(13.0).into(),
-            );
+            text_col_children.push(text(d.clone()).color(desc_color).size(13.0).into());
         }
         let text_col = iced::widget::Column::with_children(text_col_children)
             .spacing(4)

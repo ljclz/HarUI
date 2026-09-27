@@ -202,11 +202,12 @@ impl Notification {
         let title_text = text(self.title.clone()).color(title_color).size(16.0);
         let content_text = text(self.message.clone()).color(content_color).size(14.0);
 
-        let mut header_children: Vec<Element<'a, ()>> = Vec::new();
-        header_children.push(text(icon).color(accent).size(18.0).into());
-        header_children.push(iced::widget::Space::with_width(Length::Fixed(8.0)).into());
-        header_children.push(title_text.into());
-        header_children.push(iced::widget::Space::with_width(Length::Fill).into());
+        let mut header_children: Vec<Element<'a, ()>> = vec![
+            text(icon).color(accent).size(18.0).into(),
+            iced::widget::Space::with_width(Length::Fixed(8.0)).into(),
+            title_text.into(),
+            iced::widget::Space::with_width(Length::Fill).into(),
+        ];
         if self.show_close {
             header_children.push(text("×").color(content_color).size(16.0).into());
         }

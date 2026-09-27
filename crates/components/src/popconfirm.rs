@@ -279,33 +279,41 @@ impl Popconfirm {
         let title_text = text(self.title.clone()).color(title_color).size(14.0);
 
         // 按钮行
-        let cancel_btn = button(text(self.cancel_text.clone()).color(text_regular).size(13.0))
-            .padding(Padding::from([4u16, 10u16]))
-            .style(move |_t, _status| iced::widget::button::Style {
-                background: None,
-                text_color: text_regular,
-                border: iced::Border {
-                    color: border_color,
-                    width: 1.0,
-                    radius: iced::border::radius(3.0),
-                },
-                shadow: iced::Shadow::default(),
-            })
-            .on_press(on_cancel());
+        let cancel_btn = button(
+            text(self.cancel_text.clone())
+                .color(text_regular)
+                .size(13.0),
+        )
+        .padding(Padding::from([4u16, 10u16]))
+        .style(move |_t, _status| iced::widget::button::Style {
+            background: None,
+            text_color: text_regular,
+            border: iced::Border {
+                color: border_color,
+                width: 1.0,
+                radius: iced::border::radius(3.0),
+            },
+            shadow: iced::Shadow::default(),
+        })
+        .on_press(on_cancel());
 
-        let confirm_btn = button(text(self.confirm_text.clone()).color(Color::WHITE).size(13.0))
-            .padding(Padding::from([4u16, 10u16]))
-            .style(move |_t, _status| iced::widget::button::Style {
-                background: Some(iced::Background::Color(primary)),
-                text_color: Color::WHITE,
-                border: iced::Border {
-                    color: primary,
-                    width: 1.0,
-                    radius: iced::border::radius(3.0),
-                },
-                shadow: iced::Shadow::default(),
-            })
-            .on_press(on_confirm());
+        let confirm_btn = button(
+            text(self.confirm_text.clone())
+                .color(Color::WHITE)
+                .size(13.0),
+        )
+        .padding(Padding::from([4u16, 10u16]))
+        .style(move |_t, _status| iced::widget::button::Style {
+            background: Some(iced::Background::Color(primary)),
+            text_color: Color::WHITE,
+            border: iced::Border {
+                color: primary,
+                width: 1.0,
+                radius: iced::border::radius(3.0),
+            },
+            shadow: iced::Shadow::default(),
+        })
+        .on_press(on_confirm());
 
         let buttons_row = iced::widget::Row::new()
             .push(iced::widget::Space::with_width(Length::Fill))
@@ -314,9 +322,7 @@ impl Popconfirm {
             .push(confirm_btn)
             .align_y(iced::Alignment::Center);
 
-        let mut pop_children: Vec<Element<'a, Message>> = Vec::new();
-        pop_children.push(title_text.into());
-        pop_children.push(buttons_row.into());
+        let pop_children: Vec<Element<'a, Message>> = vec![title_text.into(), buttons_row.into()];
 
         let pop_col = iced::widget::Column::with_children(pop_children).spacing(10);
         let pop_width = match self.width {

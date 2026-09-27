@@ -282,7 +282,10 @@ impl MessageBox {
         let bg = Color::from(theme.neutral.bg_overlay);
         let border_color = Color::from(theme.neutral.border_lighter);
         let primary = Color::from(theme.primary.base);
-        let mask = Color { a: 0.5, ..Color::BLACK };
+        let mask = Color {
+            a: 0.5,
+            ..Color::BLACK
+        };
 
         // 标题栏
         let title_text = text(self.title.clone()).color(title_color).size(16.0);
@@ -313,19 +316,23 @@ impl MessageBox {
         body_children.push(content_text.into());
         if self.is_prompt {
             // prompt 输入框（只读展示当前输入值）
-            let input_box = container(text(self.input_value.clone()).color(content_color).size(14.0))
-                .width(Length::Fill)
-                .padding(Padding::from([8u16, 12u16]))
-                .style(move |_t| iced::widget::container::Style {
-                    text_color: None,
-                    background: Some(iced::Background::Color(Color::from(theme.neutral.bg_base))),
-                    border: iced::Border {
-                        color: border_color,
-                        width: 1.0,
-                        radius: iced::border::radius(4.0),
-                    },
-                    shadow: iced::Shadow::default(),
-                });
+            let input_box = container(
+                text(self.input_value.clone())
+                    .color(content_color)
+                    .size(14.0),
+            )
+            .width(Length::Fill)
+            .padding(Padding::from([8u16, 12u16]))
+            .style(move |_t| iced::widget::container::Style {
+                text_color: None,
+                background: Some(iced::Background::Color(Color::from(theme.neutral.bg_base))),
+                border: iced::Border {
+                    color: border_color,
+                    width: 1.0,
+                    radius: iced::border::radius(4.0),
+                },
+                shadow: iced::Shadow::default(),
+            });
             body_children.push(iced::widget::Space::with_height(Length::Fixed(8.0)).into());
             body_children.push(input_box.into());
         }
@@ -336,37 +343,45 @@ impl MessageBox {
         btn_row_children.push(iced::widget::Space::with_width(Length::Fill).into());
         if self.show_cancel {
             let cancel_msg = on_action("cancel".to_string());
-            let cancel_btn = button(text(self.cancel_text.clone()).color(content_color).size(14.0))
-                .padding(Padding::from([8u16, 16u16]))
-                .on_press(cancel_msg)
-                .style(move |_t, _status| iced::widget::button::Style {
-                    background: Some(iced::Background::Color(Color::from(theme.neutral.bg_base))),
-                    text_color: content_color,
-                    border: iced::Border {
-                        color: border_color,
-                        width: 1.0,
-                        radius: iced::border::radius(4.0),
-                    },
-                    shadow: iced::Shadow::default(),
-                });
+            let cancel_btn = button(
+                text(self.cancel_text.clone())
+                    .color(content_color)
+                    .size(14.0),
+            )
+            .padding(Padding::from([8u16, 16u16]))
+            .on_press(cancel_msg)
+            .style(move |_t, _status| iced::widget::button::Style {
+                background: Some(iced::Background::Color(Color::from(theme.neutral.bg_base))),
+                text_color: content_color,
+                border: iced::Border {
+                    color: border_color,
+                    width: 1.0,
+                    radius: iced::border::radius(4.0),
+                },
+                shadow: iced::Shadow::default(),
+            });
             btn_row_children.push(cancel_btn.into());
             btn_row_children.push(iced::widget::Space::with_width(Length::Fixed(8.0)).into());
         }
         if self.show_confirm {
             let confirm_msg = on_action("confirm".to_string());
-            let confirm_btn = button(text(self.confirm_text.clone()).color(Color::WHITE).size(14.0))
-                .padding(Padding::from([8u16, 16u16]))
-                .on_press(confirm_msg)
-                .style(move |_t, _status| iced::widget::button::Style {
-                    background: Some(iced::Background::Color(primary)),
-                    text_color: Color::WHITE,
-                    border: iced::Border {
-                        color: primary,
-                        width: 1.0,
-                        radius: iced::border::radius(4.0),
-                    },
-                    shadow: iced::Shadow::default(),
-                });
+            let confirm_btn = button(
+                text(self.confirm_text.clone())
+                    .color(Color::WHITE)
+                    .size(14.0),
+            )
+            .padding(Padding::from([8u16, 16u16]))
+            .on_press(confirm_msg)
+            .style(move |_t, _status| iced::widget::button::Style {
+                background: Some(iced::Background::Color(primary)),
+                text_color: Color::WHITE,
+                border: iced::Border {
+                    color: primary,
+                    width: 1.0,
+                    radius: iced::border::radius(4.0),
+                },
+                shadow: iced::Shadow::default(),
+            });
             btn_row_children.push(confirm_btn.into());
         }
         let btn_row = iced::widget::Row::with_children(btn_row_children)
@@ -392,7 +407,10 @@ impl MessageBox {
                     radius: iced::border::radius(4.0),
                 },
                 shadow: iced::Shadow {
-                    color: Color { a: 0.3, ..Color::BLACK },
+                    color: Color {
+                        a: 0.3,
+                        ..Color::BLACK
+                    },
                     offset: iced::Vector::new(0.0, 4.0),
                     blur_radius: 16.0,
                 },

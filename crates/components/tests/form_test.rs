@@ -17,7 +17,9 @@ fn test_form_rule_required() {
 
 #[test]
 fn test_form_rule_with_message() {
-    let rule = FormRule::new("name").required(true).with_message("姓名必填");
+    let rule = FormRule::new("name")
+        .required(true)
+        .with_message("姓名必填");
     assert_eq!(rule.message, Some("姓名必填".to_string()));
 }
 
@@ -125,10 +127,8 @@ fn test_form_validate_required_fail() {
 
 #[test]
 fn test_form_validate_min_length_fail() {
-    let mut f = Form::new().with_item(
-        FormItem::new("name", "姓名")
-            .with_rule(FormRule::new("name").with_min(3)),
-    );
+    let mut f = Form::new()
+        .with_item(FormItem::new("name", "姓名").with_rule(FormRule::new("name").with_min(3)));
     f.set_value("name", "ab"); // 长度 2 < 3
     let result = f.validate().unwrap();
     assert_eq!(result.len(), 1);
@@ -136,10 +136,8 @@ fn test_form_validate_min_length_fail() {
 
 #[test]
 fn test_form_validate_max_length_fail() {
-    let mut f = Form::new().with_item(
-        FormItem::new("name", "姓名")
-            .with_rule(FormRule::new("name").with_max(5)),
-    );
+    let mut f = Form::new()
+        .with_item(FormItem::new("name", "姓名").with_rule(FormRule::new("name").with_max(5)));
     f.set_value("name", "abcdef"); // 长度 6 > 5
     let result = f.validate().unwrap();
     assert_eq!(result.len(), 1);
@@ -148,8 +146,7 @@ fn test_form_validate_max_length_fail() {
 #[test]
 fn test_form_validate_min_max_pass() {
     let mut f = Form::new().with_item(
-        FormItem::new("name", "姓名")
-            .with_rule(FormRule::new("name").with_min(2).with_max(5)),
+        FormItem::new("name", "姓名").with_rule(FormRule::new("name").with_min(2).with_max(5)),
     );
     f.set_value("name", "abc"); // 长度 3 在 [2, 5]
     let result = f.validate().unwrap();
@@ -160,13 +157,11 @@ fn test_form_validate_min_max_pass() {
 
 #[test]
 fn test_form_validate_custom_validator_pass() {
-    let mut f = Form::new().with_item(
-        FormItem::new("age", "年龄").with_rule(
-            FormRule::new("age").with_validator(Box::new(|v: &str| {
-                v.parse::<u32>().map(|n| n <= 150).unwrap_or(false)
-            })),
-        ),
-    );
+    let mut f = Form::new().with_item(FormItem::new("age", "年龄").with_rule(
+        FormRule::new("age").with_validator(Box::new(|v: &str| {
+            v.parse::<u32>().map(|n| n <= 150).unwrap_or(false)
+        })),
+    ));
     f.set_value("age", "30");
     let result = f.validate().unwrap();
     assert_eq!(result.len(), 0);
@@ -174,13 +169,11 @@ fn test_form_validate_custom_validator_pass() {
 
 #[test]
 fn test_form_validate_custom_validator_fail() {
-    let mut f = Form::new().with_item(
-        FormItem::new("age", "年龄").with_rule(
-            FormRule::new("age").with_validator(Box::new(|v: &str| {
-                v.parse::<u32>().map(|n| n <= 150).unwrap_or(false)
-            })),
-        ),
-    );
+    let mut f = Form::new().with_item(FormItem::new("age", "年龄").with_rule(
+        FormRule::new("age").with_validator(Box::new(|v: &str| {
+            v.parse::<u32>().map(|n| n <= 150).unwrap_or(false)
+        })),
+    ));
     f.set_value("age", "200"); // > 150
     let result = f.validate().unwrap();
     assert_eq!(result.len(), 1);
@@ -191,14 +184,8 @@ fn test_form_validate_custom_validator_fail() {
 #[test]
 fn test_form_validate_multiple_fields() {
     let mut f = Form::new()
-        .with_item(
-            FormItem::new("name", "姓名")
-                .with_rule(FormRule::new("name").required(true)),
-        )
-        .with_item(
-            FormItem::new("age", "年龄")
-                .with_rule(FormRule::new("age").required(true)),
-        );
+        .with_item(FormItem::new("name", "姓名").with_rule(FormRule::new("name").required(true)))
+        .with_item(FormItem::new("age", "年龄").with_rule(FormRule::new("age").required(true)));
     f.set_value("name", "");
     f.set_value("age", "");
     let result = f.validate().unwrap();
@@ -208,14 +195,8 @@ fn test_form_validate_multiple_fields() {
 #[test]
 fn test_form_validate_partial_failure() {
     let mut f = Form::new()
-        .with_item(
-            FormItem::new("name", "姓名")
-                .with_rule(FormRule::new("name").required(true)),
-        )
-        .with_item(
-            FormItem::new("age", "年龄")
-                .with_rule(FormRule::new("age").required(true)),
-        );
+        .with_item(FormItem::new("name", "姓名").with_rule(FormRule::new("name").required(true)))
+        .with_item(FormItem::new("age", "年龄").with_rule(FormRule::new("age").required(true)));
     f.set_value("name", "张三");
     f.set_value("age", "");
     let result = f.validate().unwrap();
@@ -228,10 +209,7 @@ fn test_form_validate_partial_failure() {
 #[test]
 fn test_form_reset_clears_values_and_errors() {
     let mut f = Form::new()
-        .with_item(
-            FormItem::new("name", "姓名")
-                .with_rule(FormRule::new("name").required(true)),
-        );
+        .with_item(FormItem::new("name", "姓名").with_rule(FormRule::new("name").required(true)));
     f.set_value("name", "张三");
     let _ = f.validate();
     f.reset();
@@ -258,10 +236,7 @@ fn test_form_get_nonexistent_value_returns_none() {
 #[test]
 fn test_form_state_transitions() {
     let mut f = Form::new()
-        .with_item(
-            FormItem::new("name", "姓名")
-                .with_rule(FormRule::new("name").required(true)),
-        );
+        .with_item(FormItem::new("name", "姓名").with_rule(FormRule::new("name").required(true)));
     assert_eq!(f.state(), FormState::Idle);
     f.set_value("name", "");
     let _ = f.validate();
@@ -276,10 +251,7 @@ fn test_form_state_transitions() {
 #[test]
 fn test_form_validate_field_by_name() {
     let mut f = Form::new()
-        .with_item(
-            FormItem::new("name", "姓名")
-                .with_rule(FormRule::new("name").required(true)),
-        );
+        .with_item(FormItem::new("name", "姓名").with_rule(FormRule::new("name").required(true)));
     f.set_value("name", "");
     let result = f.validate_field("name");
     assert!(result.is_some()); // 有错误

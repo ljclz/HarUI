@@ -65,8 +65,7 @@ fn test_breadcrumb_replace_last_item() {
 
 #[test]
 fn test_breadcrumb_clear_click_state() {
-    let mut b = Breadcrumb::new()
-        .with_item(BreadcrumbItem::new("a").with_to("/a"));
+    let mut b = Breadcrumb::new().with_item(BreadcrumbItem::new("a").with_to("/a"));
     b.handle(BreadcrumbMessage::Click(0));
     assert!(b.last_clicked().is_some());
     b.handle(BreadcrumbMessage::ClearClick);

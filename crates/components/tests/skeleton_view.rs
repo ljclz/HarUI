@@ -55,14 +55,18 @@ fn test_skeleton_view_multiple_items_renders() {
 #[test]
 fn test_skeleton_view_animated_renders() {
     let theme = Theme::element_light();
-    let s = make_loading().with_item(SkeletonItem::paragraph()).with_animated(true);
+    let s = make_loading()
+        .with_item(SkeletonItem::paragraph())
+        .with_animated(true);
     let _element = s.view(&theme);
 }
 
 #[test]
 fn test_skeleton_view_count_renders() {
     let theme = Theme::element_light();
-    let s = make_loading().with_item(SkeletonItem::paragraph()).with_count(3);
+    let s = make_loading()
+        .with_item(SkeletonItem::paragraph())
+        .with_count(3);
     let _element = s.view(&theme);
 }
 

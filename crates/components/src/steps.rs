@@ -152,7 +152,11 @@ impl Steps {
     }
 
     pub fn handle(&mut self, msg: StepsMessage) {
-        let max = if self.steps.is_empty() { 0 } else { self.steps.len() - 1 };
+        let max = if self.steps.is_empty() {
+            0
+        } else {
+            self.steps.len() - 1
+        };
         match msg {
             StepsMessage::Next => {
                 if self.current < max {
@@ -245,14 +249,10 @@ impl Steps {
 
             let mut step_col_children: Vec<Element<'a, ()>> = Vec::new();
             step_col_children.push(node.into());
-            step_col_children.push(
-                iced::widget::Space::with_height(Length::Fixed(4.0)).into(),
-            );
+            step_col_children.push(iced::widget::Space::with_height(Length::Fixed(4.0)).into());
             step_col_children.push(title_text.into());
             if let Some(desc) = step.description() {
-                step_col_children.push(
-                    iced::widget::Space::with_height(Length::Fixed(2.0)).into(),
-                );
+                step_col_children.push(iced::widget::Space::with_height(Length::Fixed(2.0)).into());
                 step_col_children.push(
                     text(desc.to_string())
                         .color(text_secondary)

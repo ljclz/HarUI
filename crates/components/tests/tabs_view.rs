@@ -104,5 +104,5 @@ fn test_tabs_view_custom_message_type() {
     enum AppMsg {
         TabSelect(String),
     }
-    let _element = t.view(&theme, |id| AppMsg::TabSelect(id));
+    let _element = t.view(&theme, AppMsg::TabSelect);
 }

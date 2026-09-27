@@ -6,9 +6,7 @@
 //! - disabled / loading / plain / round / circle / icon 状态
 //! - click 事件派发
 
-use har_ui_components::button::{
-    Button, ButtonMessage, ButtonSize, ButtonType, ButtonState,
-};
+use har_ui_components::button::{Button, ButtonMessage, ButtonSize, ButtonState, ButtonType};
 
 #[test]
 fn test_button_default_type_is_default() {
@@ -32,7 +30,11 @@ fn test_button_all_type_variants() {
     // 8 种 type 互不相同
     for i in 0..types.len() {
         for j in (i + 1)..types.len() {
-            assert_ne!(types[i], types[j], "type {:?} == type {:?}", types[i], types[j]);
+            assert_ne!(
+                types[i], types[j],
+                "type {:?} == type {:?}",
+                types[i], types[j]
+            );
         }
     }
 }

@@ -23,8 +23,14 @@ fn test_timeline_with_reverse() {
 #[test]
 fn test_timeline_add_item() {
     let mut t = Timeline::new();
-    t.handle(TimelineMessage::AddItem(TimelineItem::new("2024-01-01", "上线")));
-    t.handle(TimelineMessage::AddItem(TimelineItem::new("2024-02-01", "迭代")));
+    t.handle(TimelineMessage::AddItem(TimelineItem::new(
+        "2024-01-01",
+        "上线",
+    )));
+    t.handle(TimelineMessage::AddItem(TimelineItem::new(
+        "2024-02-01",
+        "迭代",
+    )));
     assert_eq!(t.items().len(), 2);
     assert_eq!(t.items()[0].timestamp(), "2024-01-01");
     assert_eq!(t.items()[1].content(), "迭代");

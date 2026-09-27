@@ -84,5 +84,5 @@ fn test_time_picker_view_custom_message_type() {
     enum AppMsg {
         Pick(String),
     }
-    let _element = p.view(&theme, |s| AppMsg::Pick(s));
+    let _element = p.view(&theme, AppMsg::Pick);
 }

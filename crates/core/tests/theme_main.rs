@@ -29,7 +29,11 @@ fn test_element_dark_theme() {
     assert_eq!(theme.primary.base.to_rgb(), (64, 158, 255));
     // 深色主题背景应为深色
     let bg = theme.neutral.bg_overlay.to_rgb();
-    assert!(bg.0 < 50 && bg.1 < 50 && bg.2 < 50, "dark bg should be dark, got {:?}", bg);
+    assert!(
+        bg.0 < 50 && bg.1 < 50 && bg.2 < 50,
+        "dark bg should be dark, got {:?}",
+        bg
+    );
 }
 
 #[test]
@@ -90,12 +94,18 @@ fn test_dark_theme_neutral_colors_are_dark() {
     let dark = Theme::element_dark();
     // 深色主题文字主色应为浅色
     let text = dark.neutral.text_primary.to_rgb();
-    assert!(text.0 > 200 && text.1 > 200 && text.2 > 200,
-        "dark theme text should be light, got {:?}", text);
+    assert!(
+        text.0 > 200 && text.1 > 200 && text.2 > 200,
+        "dark theme text should be light, got {:?}",
+        text
+    );
     // 深色主题背景应为深色
     let bg = dark.neutral.bg_overlay.to_rgb();
-    assert!(bg.0 < 30 && bg.1 < 30 && bg.2 < 30,
-        "dark theme bg should be dark, got {:?}", bg);
+    assert!(
+        bg.0 < 30 && bg.1 < 30 && bg.2 < 30,
+        "dark theme bg should be dark, got {:?}",
+        bg
+    );
 }
 
 #[test]

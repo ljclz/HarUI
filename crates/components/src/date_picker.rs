@@ -179,7 +179,11 @@ impl DatePicker {
             1 | 3 | 5 | 7 | 8 | 10 | 12 => 31,
             4 | 6 | 9 | 11 => 30,
             2 => {
-                if Self::is_leap_year(year) { 29 } else { 28 }
+                if Self::is_leap_year(year) {
+                    29
+                } else {
+                    28
+                }
             }
             _ => 30,
         }
@@ -191,7 +195,11 @@ impl DatePicker {
 
     /// 蔡勒公式：返回 0=周一, 1=周二, ..., 6=周日
     fn day_of_week(year: i32, month: u32, day: u32) -> u32 {
-        let (y, m) = if month < 3 { (year - 1, month + 12) } else { (year, month) };
+        let (y, m) = if month < 3 {
+            (year - 1, month + 12)
+        } else {
+            (year, month)
+        };
         let k = y % 100;
         let j = y / 100;
         let h = (day as i32 + (13 * (m as i32 + 1)) / 5 + k + k / 4 + j / 4 + 5 * j) % 7;
@@ -223,10 +231,11 @@ impl DatePicker {
         for _ in 0..42 {
             let date = SimpleDate::new(y, m, d);
             let is_current_month = (y == self.panel_year) && (m == self.panel_month);
-            let is_today = (y == self.today.year) && (m == self.today.month) && (d == self.today.day);
-            let is_selected = self.value.map_or(false, |v| {
-                v.year == y && v.month == m && v.day == d
-            });
+            let is_today =
+                (y == self.today.year) && (m == self.today.month) && (d == self.today.day);
+            let is_selected = self
+                .value
+                .is_some_and(|v| v.year == y && v.month == m && v.day == d);
             let in_range = match (self.range_start, self.range_end) {
                 (Some(s), Some(e)) => {
                     let val = date_to_ord(&date);
@@ -268,23 +277,24 @@ impl DatePicker {
                     None => String::new(),
                 }
             }
-            DatePickerType::DateTime => {
-                match (self.value, self.time_part) {
-                    (Some(d), Some((h, m, s))) => {
-                        format!("{:04}-{:02}-{:02} {:02}:{:02}:{:02}", d.year, d.month, d.day, h, m, s)
-                    }
-                    _ => String::new(),
+            DatePickerType::DateTime => match (self.value, self.time_part) {
+                (Some(d), Some((h, m, s))) => {
+                    format!(
+                        "{:04}-{:02}-{:02} {:02}:{:02}:{:02}",
+                        d.year, d.month, d.day, h, m, s
+                    )
                 }
-            }
-            DatePickerType::DateRange => {
-                match (self.range_start, self.range_end) {
-                    (Some(s), Some(e)) => {
-                        format!("{:04}-{:02}-{:02} ~ {:04}-{:02}-{:02}",
-                            s.year, s.month, s.day, e.year, e.month, e.day)
-                    }
-                    _ => String::new(),
+                _ => String::new(),
+            },
+            DatePickerType::DateRange => match (self.range_start, self.range_end) {
+                (Some(s), Some(e)) => {
+                    format!(
+                        "{:04}-{:02}-{:02} ~ {:04}-{:02}-{:02}",
+                        s.year, s.month, s.day, e.year, e.month, e.day
+                    )
                 }
-            }
+                _ => String::new(),
+            },
         }
     }
 
@@ -373,7 +383,11 @@ impl DatePicker {
 
         let formatted = self.formatted_value();
         let has_value = !formatted.is_empty();
-        let display_text = if has_value { formatted } else { self.placeholder.clone() };
+        let display_text = if has_value {
+            formatted
+        } else {
+            self.placeholder.clone()
+        };
         let display_color = if self.disabled {
             text_disabled
         } else if has_value {
@@ -413,21 +427,29 @@ impl DatePicker {
 
         let header_text = format!("{} 年 {} 月", self.panel_year, self.panel_month);
         let header_row = iced::widget::Row::new()
-            .push(button(text("<<").color(text_regular))
-                .on_press(on_pick("__prev_year__".to_string()))
-                .padding(Padding::from([2u16, 6u16])))
-            .push(button(text("<").color(text_regular))
-                .on_press(on_pick("__prev_month__".to_string()))
-                .padding(Padding::from([2u16, 6u16])))
+            .push(
+                button(text("<<").color(text_regular))
+                    .on_press(on_pick("__prev_year__".to_string()))
+                    .padding(Padding::from([2u16, 6u16])),
+            )
+            .push(
+                button(text("<").color(text_regular))
+                    .on_press(on_pick("__prev_month__".to_string()))
+                    .padding(Padding::from([2u16, 6u16])),
+            )
             .push(iced::widget::Space::with_width(Length::Fill))
             .push(text(header_text).color(text_primary).size(14.0))
             .push(iced::widget::Space::with_width(Length::Fill))
-            .push(button(text(">").color(text_regular))
-                .on_press(on_pick("__next_month__".to_string()))
-                .padding(Padding::from([2u16, 6u16])))
-            .push(button(text(">>").color(text_regular))
-                .on_press(on_pick("__next_year__".to_string()))
-                .padding(Padding::from([2u16, 6u16])))
+            .push(
+                button(text(">").color(text_regular))
+                    .on_press(on_pick("__next_month__".to_string()))
+                    .padding(Padding::from([2u16, 6u16])),
+            )
+            .push(
+                button(text(">>").color(text_regular))
+                    .on_press(on_pick("__next_year__".to_string()))
+                    .padding(Padding::from([2u16, 6u16])),
+            )
             .align_y(iced::Alignment::Center);
         panel_children.push(header_row.into());
 
@@ -494,21 +516,19 @@ impl DatePicker {
             panel_children.push(row.into());
         }
 
-        let panel = container(
-            iced::widget::Column::with_children(panel_children).spacing(4),
-        )
-        .width(Length::Fill)
-        .padding(Padding::from(8u16))
-        .style(move |_t| iced::widget::container::Style {
-            text_color: Some(text_primary),
-            background: Some(iced::Background::Color(bg_overlay)),
-            border: iced::Border {
-                color: border_lighter,
-                width: 1.0,
-                radius: iced::border::radius(4.0),
-            },
-            shadow: iced::Shadow::default(),
-        });
+        let panel = container(iced::widget::Column::with_children(panel_children).spacing(4))
+            .width(Length::Fill)
+            .padding(Padding::from(8u16))
+            .style(move |_t| iced::widget::container::Style {
+                text_color: Some(text_primary),
+                background: Some(iced::Background::Color(bg_overlay)),
+                border: iced::Border {
+                    color: border_lighter,
+                    width: 1.0,
+                    radius: iced::border::radius(4.0),
+                },
+                shadow: iced::Shadow::default(),
+            });
 
         container(
             iced::widget::Column::new()
@@ -598,8 +618,12 @@ mod internal_tests {
         let mut dp = DatePicker::new()
             .with_type(DatePickerType::DateRange)
             .with_today(SimpleDate::new(2026, 7, 19));
-        dp.handle(DatePickerMessage::SelectRangeStart(SimpleDate::new(2026, 7, 10)));
-        dp.handle(DatePickerMessage::SelectRangeEnd(SimpleDate::new(2026, 7, 20)));
+        dp.handle(DatePickerMessage::SelectRangeStart(SimpleDate::new(
+            2026, 7, 10,
+        )));
+        dp.handle(DatePickerMessage::SelectRangeEnd(SimpleDate::new(
+            2026, 7, 20,
+        )));
         let grid = dp.panel_grid();
         let in_range_count = grid.iter().filter(|c| c.in_range).count();
         // 7月10日到7月20日共 11 天

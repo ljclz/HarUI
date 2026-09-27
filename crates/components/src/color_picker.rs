@@ -169,7 +169,11 @@ impl ColorPicker {
             Color::from_rgb8(238, 238, 238)
         };
 
-        let swatch_border_color = if self.disabled { text_disabled } else { border_lighter };
+        let swatch_border_color = if self.disabled {
+            text_disabled
+        } else {
+            border_lighter
+        };
         let swatch = container(text(""))
             .width(Length::Fixed(28.0))
             .height(Length::Fixed(28.0))
@@ -184,14 +188,22 @@ impl ColorPicker {
                 shadow: iced::Shadow::default(),
             });
 
-        let arrow_color = if self.disabled { text_disabled } else { text_regular };
+        let arrow_color = if self.disabled {
+            text_disabled
+        } else {
+            text_regular
+        };
         let trigger = iced::widget::Row::new()
             .push(swatch)
             .push(iced::widget::Space::with_width(Length::Fixed(6.0)))
             .push(text("▼").color(arrow_color).size(12.0))
             .align_y(iced::Alignment::Center);
 
-        let trigger_text_color = if self.disabled { text_disabled } else { text_primary };
+        let trigger_text_color = if self.disabled {
+            text_disabled
+        } else {
+            text_primary
+        };
         let trigger_wrap = container(trigger)
             .width(Length::Fill)
             .padding(Padding::from([4u16, 8u16]))

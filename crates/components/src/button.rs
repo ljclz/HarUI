@@ -20,8 +20,8 @@
 //!   └──────────unhover────────────────────
 //! ```
 
-use har_ui_core::theme::style_sheets::{self, ButtonKind};
 use har_ui_core::theme::Theme;
+use har_ui_core::theme::style_sheets::{self, ButtonKind};
 use iced::widget::{button, text};
 use iced::{Element, Padding};
 

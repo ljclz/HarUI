@@ -5,8 +5,8 @@
 //!
 //! R.2 阶段每个组件 view() 实现时，会按需补齐其他组件的 style 函数到本模块。
 
-use crate::theme::color::ColorPalette;
 use crate::theme::Theme;
+use crate::theme::color::ColorPalette;
 use iced::widget::{button, container, text_input};
 use iced::{Background, Border, Color, Shadow};
 
@@ -79,7 +79,10 @@ fn colored(
     if disabled {
         return button::Style {
             background: Some(Background::Color(Color { a: 0.5, ..base })),
-            text_color: Color { a: 0.7, ..Color::WHITE },
+            text_color: Color {
+                a: 0.7,
+                ..Color::WHITE
+            },
             border: Border::default(),
             shadow: Shadow::default(),
         };
@@ -100,13 +103,19 @@ fn colored(
 fn default_button(theme: &Theme, status: button::Status, disabled: bool) -> button::Style {
     let (bg, text_color, border_color) = if disabled {
         (
-            Some(Background::Color(Color { a: 0.5, ..Color::from(theme.neutral.bg_base) })),
+            Some(Background::Color(Color {
+                a: 0.5,
+                ..Color::from(theme.neutral.bg_base)
+            })),
             Color::from(theme.neutral.text_disabled),
             Color::from(theme.neutral.border_light),
         )
     } else {
         let bg = match status {
-            button::Status::Hovered => Some(Background::Color(Color { a: 0.1, ..Color::from(theme.primary.base) })),
+            button::Status::Hovered => Some(Background::Color(Color {
+                a: 0.1,
+                ..Color::from(theme.primary.base)
+            })),
             _ => Some(Background::Color(Color::from(theme.neutral.bg_overlay))),
         };
         (
@@ -136,7 +145,10 @@ fn text_button(theme: &Theme, status: button::Status, disabled: bool) -> button:
     };
     button::Style {
         background: None,
-        text_color: Color { a: alpha, ..text_color },
+        text_color: Color {
+            a: alpha,
+            ..text_color
+        },
         border: Border::default(),
         shadow: Shadow::default(),
     }
@@ -194,7 +206,10 @@ pub fn container_card_style(theme: &Theme) -> container::Style {
             radius: iced::border::Radius::default(),
         },
         shadow: Shadow {
-            color: Color { a: 0.1, ..Color::BLACK },
+            color: Color {
+                a: 0.1,
+                ..Color::BLACK
+            },
             offset: iced::Vector::new(0.0, 2.0),
             blur_radius: 8.0,
         },
@@ -205,7 +220,10 @@ pub fn container_card_style(theme: &Theme) -> container::Style {
 pub fn container_dialog_mask_style(_theme: &Theme) -> container::Style {
     container::Style {
         text_color: None,
-        background: Some(Background::Color(Color { a: 0.5, ..Color::BLACK })),
+        background: Some(Background::Color(Color {
+            a: 0.5,
+            ..Color::BLACK
+        })),
         border: Border::default(),
         shadow: Shadow::default(),
     }

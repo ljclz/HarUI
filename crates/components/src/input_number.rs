@@ -3,8 +3,8 @@
 //! 参考 Element Plus `<el-input-number>` 组件。
 //! 支持 min/max/step/precision 以及 +/- 按钮和直接输入。
 
-use har_ui_core::theme::style_sheets::{self, ButtonKind};
 use har_ui_core::theme::Theme;
+use har_ui_core::theme::style_sheets::{self, ButtonKind};
 use iced::widget::{button, text, text_input};
 use iced::{Element, Length, Padding};
 
@@ -131,7 +131,7 @@ impl InputNumber {
         if self.disabled {
             return false;
         }
-        self.max.map_or(true, |max| self.value < max)
+        self.max.is_none_or(|max| self.value < max)
     }
 
     /// 是否允许 -（未达 min 且未禁用）
@@ -139,7 +139,7 @@ impl InputNumber {
         if self.disabled {
             return false;
         }
-        self.min.map_or(true, |min| self.value > min)
+        self.min.is_none_or(|min| self.value > min)
     }
 
     /// 渲染为 iced::Element
@@ -169,7 +169,8 @@ impl InputNumber {
             let mut b = button(text(label))
                 .padding(Padding::from([4u16, 8u16]))
                 .style(move |_t, status| {
-                    let mut s = style_sheets::button_style(theme, ButtonKind::Default, false, status);
+                    let mut s =
+                        style_sheets::button_style(theme, ButtonKind::Default, false, status);
                     if !enabled {
                         // 禁用按钮：淡化
                         s.background = Some(iced::Background::Color(iced::Color {
@@ -194,8 +195,7 @@ impl InputNumber {
             }
             ControlsPosition::Right => {
                 // 右侧：上下箭头竖排
-                let arrows = iced::widget::Column::with_children(vec![inc_btn, dec_btn])
-                    .spacing(0);
+                let arrows = iced::widget::Column::with_children(vec![inc_btn, dec_btn]).spacing(0);
                 vec![ti.into(), Element::from(arrows)]
             }
         };
@@ -241,8 +241,8 @@ impl InputNumber {
     /// 限制值在 [min, max] 范围内
     fn clamp(&self, v: f64) -> f64 {
         let v = self.min.map_or(v, |min| v.max(min));
-        let v = self.max.map_or(v, |max| v.min(max));
-        v
+
+        self.max.map_or(v, |max| v.min(max))
     }
 }
 
@@ -271,12 +271,12 @@ mod internal_tests {
     #[test]
     fn test_apply_precision_with_no_precision() {
         let inp = InputNumber::new();
-        assert_eq!(inp.apply_precision(3.14159), 3.14159);
+        assert_eq!(inp.apply_precision(123.456), 123.456);
     }
 
     #[test]
     fn test_apply_precision_with_two_decimal() {
         let inp = InputNumber::new().with_precision(2);
-        assert!((inp.apply_precision(3.14159) - 3.14).abs() < 0.001);
+        assert!((inp.apply_precision(123.456) - 123.46).abs() < 0.001);
     }
 }

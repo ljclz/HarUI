@@ -2,15 +2,11 @@
 
 use har_ui_components::space::{Space, SpaceAlignment, SpaceDirection, SpaceMessage};
 use har_ui_core::theme::Theme;
-use iced::widget::text;
 use iced::Element;
+use iced::widget::text;
 
 fn make_children<'a>() -> Vec<Element<'a, ()>> {
-    vec![
-        text("A").into(),
-        text("B").into(),
-        text("C").into(),
-    ]
+    vec![text("A").into(), text("B").into(), text("C").into()]
 }
 
 #[test]

@@ -102,14 +102,9 @@ impl Radio {
     // ---------- 消息处理 ----------
 
     pub fn handle(&mut self, msg: RadioMessage) {
-        match msg {
-            RadioMessage::SetChecked(c) => {
-                if !self.disabled {
-                    self.checked = c;
-                }
-            }
-            // 单个 Radio 不处理 Group 相关消息
-            _ => {}
+        // 单个 Radio 只处理 SetChecked，不处理 Group 相关消息
+        if let (RadioMessage::SetChecked(c), false) = (&msg, self.disabled) {
+            self.checked = *c;
         }
     }
 
@@ -198,7 +193,11 @@ impl Radio {
                 };
                 let border = if self.border {
                     iced::Border {
-                        color: if self.checked { primary } else { Color::from(theme.neutral.border_base) },
+                        color: if self.checked {
+                            primary
+                        } else {
+                            Color::from(theme.neutral.border_base)
+                        },
                         width: 1.0,
                         radius: iced::border::radius(4.0),
                     }
@@ -335,7 +334,11 @@ impl RadioGroup {
             } else {
                 border_base
             };
-            let label_color = if self.disabled { text_disabled } else { text_regular };
+            let label_color = if self.disabled {
+                text_disabled
+            } else {
+                text_regular
+            };
             let dot = if is_checked { "●" } else { "○" };
 
             let content = iced::widget::Row::new()
@@ -344,16 +347,14 @@ impl RadioGroup {
                 .push(text(label.to_string()).color(label_color).size(size))
                 .align_y(iced::Alignment::Center);
 
-            let mut btn = button(content)
-                .padding(padding)
-                .style(move |_t, _status| {
-                    iced::widget::button::Style {
-                        background: None,
-                        text_color: label_color,
-                        border: iced::Border::default(),
-                        shadow: iced::Shadow::default(),
-                    }
-                });
+            let mut btn = button(content).padding(padding).style(move |_t, _status| {
+                iced::widget::button::Style {
+                    background: None,
+                    text_color: label_color,
+                    border: iced::Border::default(),
+                    shadow: iced::Shadow::default(),
+                }
+            });
             if !self.disabled {
                 btn = btn.on_press(on_change(value.to_string()));
             }

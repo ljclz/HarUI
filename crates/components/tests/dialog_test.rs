@@ -10,9 +10,7 @@
 //! - 多 Dialog 叠加
 //! - 动画状态机
 
-use har_ui_components::dialog::{
-    Dialog, DialogMessage, DialogState, DialogProps,
-};
+use har_ui_components::dialog::{Dialog, DialogMessage, DialogProps, DialogState};
 
 #[test]
 fn test_dialog_default_is_closed() {
@@ -100,22 +98,20 @@ fn test_dialog_escape_blocked_when_close_on_press_escape_false() {
 
 #[test]
 fn test_dialog_fullscreen_mode() {
-    let dlg = Dialog::new("Title", "Content")
-        .with_props(DialogProps::new().with_fullscreen(true));
+    let dlg = Dialog::new("Title", "Content").with_props(DialogProps::new().with_fullscreen(true));
     assert!(dlg.props().fullscreen);
 }
 
 #[test]
 fn test_dialog_draggable() {
-    let dlg = Dialog::new("Title", "Content")
-        .with_props(DialogProps::new().with_draggable(true));
+    let dlg = Dialog::new("Title", "Content").with_props(DialogProps::new().with_draggable(true));
     assert!(dlg.props().draggable);
 }
 
 #[test]
 fn test_dialog_drag_updates_position() {
-    let mut dlg = Dialog::new("Title", "Content")
-        .with_props(DialogProps::new().with_draggable(true));
+    let mut dlg =
+        Dialog::new("Title", "Content").with_props(DialogProps::new().with_draggable(true));
     dlg.handle(DialogMessage::Open);
     dlg.handle(DialogMessage::AnimationFinished);
     // 拖拽到新位置
@@ -158,7 +154,12 @@ fn test_dialog_props_default() {
 
 #[test]
 fn test_dialog_state_variants() {
-    let states = [DialogState::Closed, DialogState::Opening, DialogState::Open, DialogState::Closing];
+    let states = [
+        DialogState::Closed,
+        DialogState::Opening,
+        DialogState::Open,
+        DialogState::Closing,
+    ];
     assert_eq!(states.len(), 4);
     // 状态互不相等
     for i in 0..states.len() {
@@ -170,8 +171,8 @@ fn test_dialog_state_variants() {
 
 #[test]
 fn test_dialog_reset_clears_position() {
-    let mut dlg = Dialog::new("Title", "Content")
-        .with_props(DialogProps::new().with_draggable(true));
+    let mut dlg =
+        Dialog::new("Title", "Content").with_props(DialogProps::new().with_draggable(true));
     dlg.handle(DialogMessage::Open);
     dlg.handle(DialogMessage::AnimationFinished);
     dlg.handle(DialogMessage::Dragged(50.0, 50.0));

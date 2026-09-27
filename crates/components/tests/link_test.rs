@@ -28,11 +28,26 @@ fn test_link_with_href() {
 
 #[test]
 fn test_link_types() {
-    assert_eq!(Link::new().with_type(LinkType::Primary).link_type(), LinkType::Primary);
-    assert_eq!(Link::new().with_type(LinkType::Success).link_type(), LinkType::Success);
-    assert_eq!(Link::new().with_type(LinkType::Warning).link_type(), LinkType::Warning);
-    assert_eq!(Link::new().with_type(LinkType::Danger).link_type(), LinkType::Danger);
-    assert_eq!(Link::new().with_type(LinkType::Info).link_type(), LinkType::Info);
+    assert_eq!(
+        Link::new().with_type(LinkType::Primary).link_type(),
+        LinkType::Primary
+    );
+    assert_eq!(
+        Link::new().with_type(LinkType::Success).link_type(),
+        LinkType::Success
+    );
+    assert_eq!(
+        Link::new().with_type(LinkType::Warning).link_type(),
+        LinkType::Warning
+    );
+    assert_eq!(
+        Link::new().with_type(LinkType::Danger).link_type(),
+        LinkType::Danger
+    );
+    assert_eq!(
+        Link::new().with_type(LinkType::Info).link_type(),
+        LinkType::Info
+    );
 }
 
 #[test]

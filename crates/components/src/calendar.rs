@@ -106,7 +106,11 @@ impl Calendar {
     /// 蔡勒公式：返回 0=周一, 1=周二, ..., 6=周日
     fn day_of_week(year: i32, month: u32, day: u32) -> u32 {
         // 把 1、2 月视为上一年的 13、14 月
-        let (y, m) = if month < 3 { (year - 1, month + 12) } else { (year, month) };
+        let (y, m) = if month < 3 {
+            (year - 1, month + 12)
+        } else {
+            (year, month)
+        };
         let k = y % 100;
         let j = y / 100;
         let h = (day as i32 + (13 * (m as i32 + 1)) / 5 + k + k / 4 + j / 4 + 5 * j) % 7;
@@ -228,25 +232,29 @@ impl Calendar {
         let month_str = format!("{:04}-{:02}", self.year, self.month);
         let month_text = text(month_str).color(text_primary).size(16.0);
         let header = iced::widget::Row::new()
-            .push(button(text("<").color(text_regular).size(14.0))
-                .padding(Padding::from([4u16, 8u16]))
-                .style(move |_t, _status| iced::widget::button::Style {
-                    background: None,
-                    text_color: text_regular,
-                    border: iced::Border::default(),
-                    shadow: iced::Shadow::default(),
-                }))
+            .push(
+                button(text("<").color(text_regular).size(14.0))
+                    .padding(Padding::from([4u16, 8u16]))
+                    .style(move |_t, _status| iced::widget::button::Style {
+                        background: None,
+                        text_color: text_regular,
+                        border: iced::Border::default(),
+                        shadow: iced::Shadow::default(),
+                    }),
+            )
             .push(iced::widget::Space::with_width(Length::Fixed(8.0)))
             .push(month_text)
             .push(iced::widget::Space::with_width(Length::Fixed(8.0)))
-            .push(button(text(">").color(text_regular).size(14.0))
-                .padding(Padding::from([4u16, 8u16]))
-                .style(move |_t, _status| iced::widget::button::Style {
-                    background: None,
-                    text_color: text_regular,
-                    border: iced::Border::default(),
-                    shadow: iced::Shadow::default(),
-                }))
+            .push(
+                button(text(">").color(text_regular).size(14.0))
+                    .padding(Padding::from([4u16, 8u16]))
+                    .style(move |_t, _status| iced::widget::button::Style {
+                        background: None,
+                        text_color: text_regular,
+                        border: iced::Border::default(),
+                        shadow: iced::Shadow::default(),
+                    }),
+            )
             .align_y(iced::Alignment::Center)
             .spacing(0);
 
@@ -282,10 +290,7 @@ impl Calendar {
                 let date = grid[week * 7 + day_idx];
                 let in_month = self.is_current_month(&date);
                 let is_today = self.is_today(&date);
-                let is_selected = self
-                    .selected
-                    .map(|s| s == date)
-                    .unwrap_or(false);
+                let is_selected = self.selected.map(|s| s == date).unwrap_or(false);
                 let in_range = self.in_range(&date);
 
                 // 颜色规则
@@ -344,7 +349,9 @@ impl Calendar {
             .padding(Padding::from(8u16))
             .style(move |_t| iced::widget::container::Style {
                 text_color: None,
-                background: Some(iced::Background::Color(Color::from(theme.neutral.bg_overlay))),
+                background: Some(iced::Background::Color(Color::from(
+                    theme.neutral.bg_overlay,
+                ))),
                 border: iced::Border {
                     color: border_lighter,
                     width: 1.0,

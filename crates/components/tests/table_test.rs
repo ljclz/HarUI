@@ -10,7 +10,7 @@
 //! - 固定列（left / right）
 
 use har_ui_components::table::{
-    TableColumn, TableProps, Table, TableMessage, SortOrder, FixedSide, Identifiable,
+    FixedSide, Identifiable, SortOrder, Table, TableColumn, TableMessage, TableProps,
 };
 
 #[derive(Debug, Clone, PartialEq)]
@@ -38,15 +38,27 @@ fn extract_field(row: &TestRow, prop: &str) -> String {
 
 fn make_test_rows() -> Vec<TestRow> {
     vec![
-        TestRow { id: 1, name: "Apple".to_string(), price: 5.5 },
-        TestRow { id: 2, name: "Banana".to_string(), price: 3.2 },
-        TestRow { id: 3, name: "Cherry".to_string(), price: 12.8 },
+        TestRow {
+            id: 1,
+            name: "Apple".to_string(),
+            price: 5.5,
+        },
+        TestRow {
+            id: 2,
+            name: "Banana".to_string(),
+            price: 3.2,
+        },
+        TestRow {
+            id: 3,
+            name: "Cherry".to_string(),
+            price: 12.8,
+        },
     ]
 }
 
 #[test]
 fn test_table_columns_definition() {
-    let cols = vec![
+    let cols = [
         TableColumn::new("id", "ID"),
         TableColumn::new("name", "Name"),
         TableColumn::new("price", "Price"),
@@ -100,12 +112,27 @@ fn test_table_default_sort_is_none() {
 #[test]
 fn test_table_sort_ascending_by_id() {
     let rows = vec![
-        TestRow { id: 3, name: "C".to_string(), price: 0.0 },
-        TestRow { id: 1, name: "A".to_string(), price: 0.0 },
-        TestRow { id: 2, name: "B".to_string(), price: 0.0 },
+        TestRow {
+            id: 3,
+            name: "C".to_string(),
+            price: 0.0,
+        },
+        TestRow {
+            id: 1,
+            name: "A".to_string(),
+            price: 0.0,
+        },
+        TestRow {
+            id: 2,
+            name: "B".to_string(),
+            price: 0.0,
+        },
     ];
     let cols = vec![TableColumn::new("id", "ID")];
-    let mut table = Table::new().with_columns(cols).with_rows(rows).with_field_extractor(extract_field);
+    let mut table = Table::new()
+        .with_columns(cols)
+        .with_rows(rows)
+        .with_field_extractor(extract_field);
     table.handle(TableMessage::SortBy("id".to_string(), SortOrder::Ascending));
     let sorted: Vec<i32> = table.rows().iter().map(|r| r.id).collect();
     assert_eq!(sorted, vec![1, 2, 3]);
@@ -115,8 +142,14 @@ fn test_table_sort_ascending_by_id() {
 fn test_table_sort_descending_by_price() {
     let rows = make_test_rows();
     let cols = vec![TableColumn::new("price", "Price")];
-    let mut table = Table::new().with_columns(cols).with_rows(rows).with_field_extractor(extract_field);
-    table.handle(TableMessage::SortBy("price".to_string(), SortOrder::Descending));
+    let mut table = Table::new()
+        .with_columns(cols)
+        .with_rows(rows)
+        .with_field_extractor(extract_field);
+    table.handle(TableMessage::SortBy(
+        "price".to_string(),
+        SortOrder::Descending,
+    ));
     let sorted: Vec<f64> = table.rows().iter().map(|r| r.price).collect();
     assert_eq!(sorted, vec![12.8, 5.5, 3.2]);
 }
@@ -126,8 +159,14 @@ fn test_table_sort_none_restores_original_order() {
     let original = make_test_rows();
     let rows = make_test_rows();
     let cols = vec![TableColumn::new("id", "ID")];
-    let mut table = Table::new().with_columns(cols).with_rows(rows).with_field_extractor(extract_field);
-    table.handle(TableMessage::SortBy("id".to_string(), SortOrder::Descending));
+    let mut table = Table::new()
+        .with_columns(cols)
+        .with_rows(rows)
+        .with_field_extractor(extract_field);
+    table.handle(TableMessage::SortBy(
+        "id".to_string(),
+        SortOrder::Descending,
+    ));
     table.handle(TableMessage::SortBy("id".to_string(), SortOrder::None));
     let result: Vec<i32> = table.rows().iter().map(|r| r.id).collect();
     let original_ids: Vec<i32> = original.iter().map(|r| r.id).collect();
@@ -156,7 +195,10 @@ fn test_table_empty_data() {
 fn test_table_empty_data_custom_text() {
     let cols = vec![TableColumn::new("id", "ID")];
     let props = TableProps::new().with_empty_text("暂无商品");
-    let table: Table<TestRow> = Table::new().with_columns(cols).with_props(props).with_rows(vec![]);
+    let table: Table<TestRow> = Table::new()
+        .with_columns(cols)
+        .with_props(props)
+        .with_rows(vec![]);
     assert_eq!(table.props().empty_text, "暂无商品");
 }
 

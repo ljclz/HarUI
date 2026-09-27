@@ -9,11 +9,13 @@ use har_ui_components::form::{Form, FormItem, FormMessage, FormRule, FormState};
 use har_ui_components::input::{Input, InputMessage};
 use har_ui_components::pagination::{Pagination, PaginationMessage};
 use har_ui_components::select::{Select, SelectMessage, SelectOption};
-use har_ui_components::table::{Table, TableColumn, TableMessage, TableProps, TableRow, VirtualScroll};
+use har_ui_components::table::{
+    Table, TableColumn, TableMessage, TableProps, TableRow, VirtualScroll,
+};
 use har_ui_components::tabs::{TabItem, Tabs, TabsMessage};
 use har_ui_components::upload::{Upload, UploadFile, UploadMessage};
 use har_ui_core::Theme;
-use iced::widget::{button, column, container, row, scrollable, text, text_input, Space};
+use iced::widget::{Space, button, column, container, row, scrollable, text, text_input};
 use iced::{Color, Element, Length, Padding, Task};
 
 const TABLE_ROW_HEIGHT: f32 = 30.0;
@@ -169,7 +171,9 @@ fn update(state: &mut State, message: Message) -> Task<Message> {
                     let q = s.strip_prefix("__query:").unwrap_or("");
                     state.select.handle(SelectMessage::Query(q.to_string()));
                 }
-                other => state.select.handle(SelectMessage::Choose(other.to_string())),
+                other => state
+                    .select
+                    .handle(SelectMessage::Choose(other.to_string())),
             }
             Task::none()
         }
@@ -267,9 +271,7 @@ fn view(state: &State) -> Element<'_, Message> {
 }
 
 fn build_top_bar(theme: &Theme) -> Element<'_, Message> {
-    let title = text("HarUI Showcase")
-        .size(20)
-        .color(Color::WHITE);
+    let title = text("HarUI Showcase").size(20).color(Color::WHITE);
     container(title)
         .width(Length::Fill)
         .height(Length::Fixed(48.0))
@@ -341,7 +343,9 @@ fn build_nav(theme: &Theme, current: Category) -> Element<'_, Message> {
         .width(Length::Fixed(160.0))
         .height(Length::Fill)
         .style(move |_t| container::Style {
-            background: Some(iced::Background::Color(Color::from(theme.neutral.bg_overlay))),
+            background: Some(iced::Background::Color(Color::from(
+                theme.neutral.bg_overlay,
+            ))),
             border: iced::Border {
                 color: Color::from(theme.neutral.border_lighter),
                 width: 1.0,
@@ -401,7 +405,7 @@ fn build_button_panel(state: &State) -> Element<'_, Message> {
 
 fn build_input_panel(state: &State) -> Element<'_, Message> {
     let theme = &state.theme;
-    let input_elem = state.text_input.view(theme, |s| Message::InputChanged(s));
+    let input_elem = state.text_input.view(theme, Message::InputChanged);
     let value_text = text(format!("Value: {}", state.text_input.value())).size(14);
     column![text("Text input").size(16), input_elem, value_text]
         .spacing(12)
@@ -412,7 +416,11 @@ fn build_table_panel(state: &State) -> Element<'_, Message> {
     let theme = &state.theme;
     let (vstart, vend) = state.table.visible_range();
     let total = state.table.rows().len();
-    let info = text(format!("Total: {} | Visible: [{}, {})", total, vstart, vend)).size(14);
+    let info = text(format!(
+        "Total: {} | Visible: [{}, {})",
+        total, vstart, vend
+    ))
+    .size(14);
     let table_elem = state.table.view(
         theme,
         |row, prop| row.get(prop).cloned().unwrap_or_default(),
@@ -479,7 +487,7 @@ fn build_form_panel(state: &State) -> Element<'_, Message> {
 
 fn build_select_panel(state: &State) -> Element<'_, Message> {
     let theme = &state.theme;
-    let select_elem = state.select.view(theme, |s| Message::SelectChoose(s));
+    let select_elem = state.select.view(theme, Message::SelectChoose);
     let current = state
         .select
         .display_label()
@@ -495,7 +503,7 @@ fn build_select_panel(state: &State) -> Element<'_, Message> {
 
 fn build_pagination_panel(state: &State) -> Element<'_, Message> {
     let theme = &state.theme;
-    let pagination_elem = state.pagination.view(theme, |p| Message::PageJump(p));
+    let pagination_elem = state.pagination.view(theme, Message::PageJump);
     let info = text(format!(
         "Page {} of {}",
         state.pagination.current_page(),
@@ -510,9 +518,7 @@ fn build_pagination_panel(state: &State) -> Element<'_, Message> {
 fn build_card_panel(state: &State) -> Element<'_, Message> {
     let theme = &state.theme;
     let card_elem = state.card.view(theme).map(|_| Message::Noop);
-    column![text("Card").size(16), card_elem]
-        .spacing(12)
-        .into()
+    column![text("Card").size(16), card_elem].spacing(12).into()
 }
 
 fn build_tabs_panel(state: &State) -> Element<'_, Message> {
@@ -529,7 +535,7 @@ fn build_tabs_panel(state: &State) -> Element<'_, Message> {
                 .map(|i| i.label.as_str())
         })
         .unwrap_or("(none)");
-    let tabs_view = state.tabs.view(theme, |id| Message::TabSelected(id));
+    let tabs_view = state.tabs.view(theme, Message::TabSelected);
     column![
         text("Tabs").size(16),
         text(format!("Active: {}", active_label)).size(14),
@@ -546,10 +552,14 @@ fn build_date_picker_panel(state: &State) -> Element<'_, Message> {
     } else {
         format!("Selected: {}", selected)
     };
-    let picker_view = state.picker.view(&state.theme, |s| Message::DatePick(s));
-    column![text("DatePicker").size(16), text(display).size(14), picker_view]
-        .spacing(12)
-        .into()
+    let picker_view = state.picker.view(&state.theme, Message::DatePick);
+    column![
+        text("DatePicker").size(16),
+        text(display).size(14),
+        picker_view
+    ]
+    .spacing(12)
+    .into()
 }
 
 fn build_cascader_panel(state: &State) -> Element<'_, Message> {
@@ -569,9 +579,7 @@ fn build_cascader_panel(state: &State) -> Element<'_, Message> {
         }
         labels.join(" / ")
     };
-    let cascader_view = state
-        .cascader
-        .view(&state.theme, |p| Message::CascaderPath(p));
+    let cascader_view = state.cascader.view(&state.theme, Message::CascaderPath);
     column![
         text("Cascader").size(16),
         text(format!("Path: {}", path_display)).size(14),
@@ -633,10 +641,7 @@ fn build_table() -> Table<TableRow> {
         .with_columns(columns)
         .with_rows(rows)
         .with_props(TableProps::new().with_stripe(true).with_border(true))
-        .with_virtual_scroll(VirtualScroll::new(
-            TABLE_ROW_HEIGHT,
-            TABLE_VIEWPORT_HEIGHT,
-        ))
+        .with_virtual_scroll(VirtualScroll::new(TABLE_ROW_HEIGHT, TABLE_VIEWPORT_HEIGHT))
 }
 
 fn main() -> iced::Result {

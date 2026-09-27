@@ -340,12 +340,12 @@ impl CheckboxGroup {
 
     /// 是否已达到 max 上限
     pub fn at_max(&self) -> bool {
-        self.max.map_or(false, |m| self.value.len() >= m)
+        self.max.is_some_and(|m| self.value.len() >= m)
     }
 
     /// 是否已达到 min 下限
     pub fn at_min(&self) -> bool {
-        self.min.map_or(false, |m| self.value.len() <= m)
+        self.min.is_some_and(|m| self.value.len() <= m)
     }
 
     /// 判断给定选项集合下的"半选"状态
@@ -393,7 +393,7 @@ impl CheckboxGroup {
             }
             CheckboxMessage::ClearAll => {
                 // 受 min 限制：min=None 或 min=0 才能清空
-                if self.min.map_or(true, |m| m == 0) {
+                if self.min.is_none_or(|m| m == 0) {
                     self.value.clear();
                 }
             }
@@ -437,7 +437,11 @@ impl CheckboxGroup {
             } else {
                 border_base
             };
-            let label_color = if option_disabled { text_disabled } else { text_regular };
+            let label_color = if option_disabled {
+                text_disabled
+            } else {
+                text_regular
+            };
             let indicator = if is_checked { "☑" } else { "☐" };
 
             let content = iced::widget::Row::new()
@@ -446,14 +450,14 @@ impl CheckboxGroup {
                 .push(text(label.to_string()).color(label_color).size(size))
                 .align_y(iced::Alignment::Center);
 
-            let mut btn = button(content)
-                .padding(padding)
-                .style(move |_t, _status| iced::widget::button::Style {
+            let mut btn = button(content).padding(padding).style(move |_t, _status| {
+                iced::widget::button::Style {
                     background: None,
                     text_color: label_color,
                     border: iced::Border::default(),
                     shadow: iced::Shadow::default(),
-                });
+                }
+            });
             if !option_disabled {
                 btn = btn.on_press(on_toggle(value.to_string()));
             }

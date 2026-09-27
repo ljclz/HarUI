@@ -7,7 +7,7 @@
 //!
 //! 覆盖组件：Slider、Cascader、Collapse、Steps、Upload、Rate、Progress
 
-use criterion::{black_box, criterion_group, criterion_main, BenchmarkId, Criterion, Throughput};
+use criterion::{BenchmarkId, Criterion, Throughput, black_box, criterion_group, criterion_main};
 use har_ui_components::cascader::{Cascader, CascaderMessage, CascaderNode};
 use har_ui_components::collapse::{Collapse, CollapseItem, CollapseMessage};
 use har_ui_components::progress::{Progress, ProgressMessage};
@@ -23,10 +23,7 @@ fn bench_slider_handle_single(c: &mut Criterion) {
     for &step in &[1.0_f64, 0.1, 0.01] {
         group.bench_with_input(BenchmarkId::from_parameter(step), &step, |b, &step| {
             b.iter(|| {
-                let mut s = Slider::new()
-                    .with_min(0.0)
-                    .with_max(100.0)
-                    .with_step(step);
+                let mut s = Slider::new().with_min(0.0).with_max(100.0).with_step(step);
                 s.handle(SliderMessage::SetValue(42.0));
                 s.handle(SliderMessage::Increase);
                 s.handle(SliderMessage::Decrease);
@@ -191,10 +188,7 @@ fn bench_collapse_toggle_batch(c: &mut Criterion) {
                 b.iter(|| {
                     let mut col = Collapse::new();
                     for i in 0..n_items {
-                        col.add_item(CollapseItem::new(
-                            format!("k_{}", i),
-                            format!("标题{}", i),
-                        ));
+                        col.add_item(CollapseItem::new(format!("k_{}", i), format!("标题{}", i)));
                     }
                     // 每项 Toggle 10 次
                     for i in 0..n_items * 10 {

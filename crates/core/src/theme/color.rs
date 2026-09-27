@@ -72,8 +72,7 @@ pub fn hex_to_rgb(hex: &str) -> Option<(u8, u8, u8)> {
 
 /// hex 字符串转 ThemeColor (不透明)
 pub fn hex(hex: &str) -> ThemeColor {
-    let (r, g, b) = hex_to_rgb(hex)
-        .unwrap_or_else(|| panic!("Invalid hex color: {}", hex));
+    let (r, g, b) = hex_to_rgb(hex).unwrap_or_else(|| panic!("Invalid hex color: {}", hex));
     ThemeColor::from_rgb(r, g, b)
 }
 
@@ -91,18 +90,28 @@ pub struct ColorPalette {
 
 impl ColorPalette {
     /// 构建调色板
-    pub fn new(base: ThemeColor, light: HashMap<u8, ThemeColor>, dark: HashMap<u8, ThemeColor>) -> Self {
+    pub fn new(
+        base: ThemeColor,
+        light: HashMap<u8, ThemeColor>,
+        dark: HashMap<u8, ThemeColor>,
+    ) -> Self {
         Self { base, light, dark }
     }
 
     /// 获取 light 变体 (1-9)
     pub fn light(&self, n: u8) -> ThemeColor {
-        *self.light.get(&n).unwrap_or_else(|| panic!("light:{} not in palette", n))
+        *self
+            .light
+            .get(&n)
+            .unwrap_or_else(|| panic!("light:{} not in palette", n))
     }
 
     /// 获取 dark 变体 (1-2)
     pub fn dark(&self, n: u8) -> ThemeColor {
-        *self.dark.get(&n).unwrap_or_else(|| panic!("dark:{} not in palette", n))
+        *self
+            .dark
+            .get(&n)
+            .unwrap_or_else(|| panic!("dark:{} not in palette", n))
     }
 
     /// 从 base 色自动计算调色板（使用 SCSS mix 公式）

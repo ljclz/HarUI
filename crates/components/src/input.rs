@@ -3,11 +3,11 @@
 //! 参考 Element Plus `<el-input>` 组件。
 //! 集成 har-ui-core 的 ImeProcessor 处理 IME 组合输入。
 
-use har_ui_core::theme::style_sheets;
 use har_ui_core::theme::Theme;
+use har_ui_core::theme::style_sheets;
 use har_ui_core::utils::ime::{ImeEvent, ImeProcessor, InputMode as CoreInputMode, ProcessResult};
-use iced::widget::{text, text_input};
 use iced::Element;
+use iced::widget::{text, text_input};
 
 /// 输入框模式（包装 CoreInputMode 以便公开 API）
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
@@ -171,11 +171,7 @@ impl Input {
     /// 计算完整的 text_input::Style
     ///
     /// 委托给 `style_sheets::input_style`，按 status 返回对应样式。
-    pub fn compute_style(
-        &self,
-        theme: &Theme,
-        status: text_input::Status,
-    ) -> text_input::Style {
+    pub fn compute_style(&self, theme: &Theme, status: text_input::Status) -> text_input::Style {
         style_sheets::input_style(theme, status)
     }
 
@@ -212,8 +208,7 @@ impl Input {
             &self.value
         };
 
-        let mut ti = text_input(&self.placeholder, display_value)
-            .secure(self.is_secure());
+        let mut ti = text_input(&self.placeholder, display_value).secure(self.is_secure());
 
         if !self.disabled {
             ti = ti.on_input(on_input);
@@ -257,10 +252,10 @@ impl Input {
                     return;
                 }
                 // maxlength 检查
-                if let Some(max) = self.maxlength {
-                    if self.value.chars().count() >= max {
-                        return;
-                    }
+                if let Some(max) = self.maxlength
+                    && self.value.chars().count() >= max
+                {
+                    return;
                 }
                 // 委托给 ImeProcessor 处理
                 self.ime.set_current_value(self.value.clone());

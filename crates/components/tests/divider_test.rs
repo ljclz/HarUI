@@ -34,8 +34,7 @@ fn test_divider_content_left() {
 
 #[test]
 fn test_divider_content_right() {
-    let d = Divider::new()
-        .with_content_position(DividerContentPosition::Right);
+    let d = Divider::new().with_content_position(DividerContentPosition::Right);
     assert_eq!(d.content_position(), DividerContentPosition::Right);
 }
 

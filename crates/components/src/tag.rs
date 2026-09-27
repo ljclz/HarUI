@@ -153,7 +153,7 @@ impl Tag {
     }
 
     /// 按类型选调色板
-    fn palette_for_type<'a>(theme: &'a Theme, t: TagType) -> &'a har_ui_core::theme::color::ColorPalette {
+    fn palette_for_type(theme: &Theme, t: TagType) -> &har_ui_core::theme::color::ColorPalette {
         match t {
             TagType::Primary => &theme.primary,
             TagType::Success => &theme.success,
@@ -195,17 +195,32 @@ impl Tag {
         // 按 effect 计算 bg / text / border
         let (bg_color, text_color, border_color) = match self.effect {
             TagEffect::Dark => (
-                Color { a: 1.0, ..base_color },
+                Color {
+                    a: 1.0,
+                    ..base_color
+                },
                 Color::WHITE,
-                Color { a: 0.0, ..base_color },
+                Color {
+                    a: 0.0,
+                    ..base_color
+                },
             ),
             TagEffect::Light => (
-                Color { a: 0.1, ..base_color },
+                Color {
+                    a: 0.1,
+                    ..base_color
+                },
                 base_color,
-                Color { a: 0.0, ..base_color },
+                Color {
+                    a: 0.0,
+                    ..base_color
+                },
             ),
             TagEffect::Plain => (
-                Color { a: 0.0, ..base_color },
+                Color {
+                    a: 0.0,
+                    ..base_color
+                },
                 base_color,
                 base_color,
             ),
@@ -224,7 +239,10 @@ impl Tag {
 
         // hit 边框：border_color 加深
         let final_border_color = if self.hit {
-            Color { a: 1.0, ..base_color }
+            Color {
+                a: 1.0,
+                ..base_color
+            }
         } else {
             border_color
         };
@@ -254,7 +272,11 @@ impl Tag {
                 background: Some(iced::Background::Color(bg_color)),
                 border: iced::Border {
                     color: final_border_color,
-                    width: if self.effect == TagEffect::Plain || self.hit { 1.0 } else { 0.0 },
+                    width: if self.effect == TagEffect::Plain || self.hit {
+                        1.0
+                    } else {
+                        0.0
+                    },
                     radius: iced::border::radius(4.0),
                 },
                 shadow: iced::Shadow::default(),

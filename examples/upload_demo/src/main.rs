@@ -36,13 +36,9 @@ fn view(state: &State) -> Element<'_, Message> {
 
     let upload_view = state.upload.view(&state.theme, || Message::Trigger);
 
-    let content = column![
-        text("HarUI — Upload Demo").size(24),
-        status,
-        upload_view,
-    ]
-    .spacing(16)
-    .padding(40);
+    let content = column![text("HarUI — Upload Demo").size(24), status, upload_view,]
+        .spacing(16)
+        .padding(40);
 
     container(content)
         .width(Length::Fill)

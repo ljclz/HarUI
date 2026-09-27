@@ -2,7 +2,7 @@
 
 use har_ui_components::button::{Button, ButtonType};
 use har_ui_core::Theme;
-use iced::widget::{column, container, text, Row};
+use iced::widget::{Row, column, container, text};
 use iced::{Element, Length, Task};
 
 pub struct State {
@@ -82,7 +82,9 @@ fn main() -> iced::Result {
                     .plain(true),
             ];
             let shape_buttons = vec![
-                Button::new("Round").with_type(ButtonType::Primary).round(true),
+                Button::new("Round")
+                    .with_type(ButtonType::Primary)
+                    .round(true),
                 Button::new("R").with_type(ButtonType::Primary).circle(true),
                 Button::new("Disabled")
                     .with_type(ButtonType::Primary)

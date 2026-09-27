@@ -9,10 +9,10 @@
 
 use std::collections::HashMap;
 
+use iced::Subscription;
 use iced::event::{self, Event, Status};
 use iced::keyboard::{self, Key, Modifiers};
 use iced::window::Id as WindowId;
-use iced::Subscription;
 
 /// 按键修饰符状态
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
@@ -110,11 +110,7 @@ pub fn subscription() -> Subscription<KeyEvent> {
 }
 
 /// `listen_with` 的过滤函数（函数指针，非闭包，符合 iced 0.13.x 签名约束）
-fn filter_key_event(
-    event: Event,
-    _status: Status,
-    _window: WindowId,
-) -> Option<KeyEvent> {
+fn filter_key_event(event: Event, _status: Status, _window: WindowId) -> Option<KeyEvent> {
     match event {
         Event::Keyboard(keyboard::Event::KeyPressed { key, modifiers, .. }) => {
             Some(KeyEvent::Pressed { key, modifiers })

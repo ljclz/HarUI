@@ -136,9 +136,7 @@ impl HangOrder {
 
         let mut children: Vec<Element<'a, Message>> = Vec::new();
         for item in &self.items {
-            children.push(Self::render_item(
-                item, theme, &on_resume, &on_delete,
-            ));
+            children.push(Self::render_item(item, theme, &on_resume, &on_delete));
         }
 
         let col = iced::widget::Column::with_children(children).spacing(4);
@@ -173,17 +171,29 @@ impl HangOrder {
         let header = iced::widget::Row::new()
             .push(text(format!("#{}", item.id)).color(primary).size(14.0))
             .push(iced::widget::Space::with_width(Length::Fill))
-            .push(text(format!("{} 件", item.item_count)).color(text_secondary).size(12.0))
+            .push(
+                text(format!("{} 件", item.item_count))
+                    .color(text_secondary)
+                    .size(12.0),
+            )
             .align_y(iced::Alignment::Center);
 
         let body = iced::widget::Row::new()
             .push(text("客户".to_string()).color(text_secondary).size(12.0))
             .push(iced::widget::Space::with_width(Length::Fixed(4.0)))
-            .push(text(item.customer_name.clone()).color(text_primary).size(13.0))
+            .push(
+                text(item.customer_name.clone())
+                    .color(text_primary)
+                    .size(13.0),
+            )
             .push(iced::widget::Space::with_width(Length::Fixed(12.0)))
             .push(text("金额".to_string()).color(text_secondary).size(12.0))
             .push(iced::widget::Space::with_width(Length::Fixed(4.0)))
-            .push(text(format!("¥ {:.2}", item.total)).color(primary).size(13.0))
+            .push(
+                text(format!("¥ {:.2}", item.total))
+                    .color(primary)
+                    .size(13.0),
+            )
             .align_y(iced::Alignment::Center);
 
         let resume_msg = on_resume(item.id.clone());

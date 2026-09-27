@@ -25,9 +25,9 @@ fn test_input_number_format_value_with_precision_2() {
 #[test]
 fn test_input_number_format_value_negative_with_precision() {
     let mut inp = InputNumber::new().with_precision(2);
-    inp.handle(InputNumberMessage::SetValue(-3.14159));
+    inp.handle(InputNumberMessage::SetValue(-123.456));
     let s = inp.format_value();
-    assert_eq!(s, "-3.14");
+    assert_eq!(s, "-123.46");
 }
 
 #[test]
@@ -48,8 +48,8 @@ fn test_input_number_format_value_integer_no_precision() {
 #[test]
 fn test_input_number_format_value_fraction_no_precision() {
     let mut inp = InputNumber::new();
-    inp.handle(InputNumberMessage::SetValue(3.14));
-    assert_eq!(inp.format_value(), "3.14");
+    inp.handle(InputNumberMessage::SetValue(123.45));
+    assert_eq!(inp.format_value(), "123.45");
 }
 
 // ============== R.2.P0.3.b can_increment / can_decrement（边界） ==============
@@ -158,10 +158,5 @@ fn test_input_number_view_with_custom_message_type() {
         Dec,
         Input(String),
     }
-    let _element = inp.view(
-        &theme,
-        |s| AppMsg::Input(s),
-        AppMsg::Inc,
-        AppMsg::Dec,
-    );
+    let _element = inp.view(&theme, AppMsg::Input, AppMsg::Inc, AppMsg::Dec);
 }

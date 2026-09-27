@@ -5,15 +5,15 @@
 /// 圆角系统
 #[derive(Debug, Clone, Copy)]
 pub struct Radius {
-    pub none: f32,     // 0
-    pub sm: f32,       // 2px
-    pub base: f32,     // 4px (默认)
-    pub md: f32,       // 6px
-    pub lg: f32,       // 8px
-    pub xl: f32,       // 12px
-    pub xxl: f32,      // 16px
-    pub round: f32,    // 20px
-    pub circle: f32,   // 9999px (圆形)
+    pub none: f32,   // 0
+    pub sm: f32,     // 2px
+    pub base: f32,   // 4px (默认)
+    pub md: f32,     // 6px
+    pub lg: f32,     // 8px
+    pub xl: f32,     // 12px
+    pub xxl: f32,    // 16px
+    pub round: f32,  // 20px
+    pub circle: f32, // 9999px (圆形)
 }
 
 impl Default for Radius {

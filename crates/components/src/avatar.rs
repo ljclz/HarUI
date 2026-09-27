@@ -212,7 +212,11 @@ impl Avatar {
             AvatarSource::Image => {
                 // 简化：图片显示为占位框（实际加载需 features=["image"]）
                 let url = self.image_url.clone().unwrap_or_default();
-                let label = if url.is_empty() { "IMG".to_string() } else { "🖼".to_string() };
+                let label = if url.is_empty() {
+                    "IMG".to_string()
+                } else {
+                    "🖼".to_string()
+                };
                 text(label).color(text_color).size(px * 0.4).into()
             }
         };

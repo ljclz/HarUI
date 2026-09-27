@@ -22,17 +22,38 @@ fn test_text_with_content() {
 
 #[test]
 fn test_text_types() {
-    assert_eq!(Text::new().with_type(TextType::Primary).text_type(), TextType::Primary);
-    assert_eq!(Text::new().with_type(TextType::Success).text_type(), TextType::Success);
-    assert_eq!(Text::new().with_type(TextType::Warning).text_type(), TextType::Warning);
-    assert_eq!(Text::new().with_type(TextType::Danger).text_type(), TextType::Danger);
-    assert_eq!(Text::new().with_type(TextType::Info).text_type(), TextType::Info);
+    assert_eq!(
+        Text::new().with_type(TextType::Primary).text_type(),
+        TextType::Primary
+    );
+    assert_eq!(
+        Text::new().with_type(TextType::Success).text_type(),
+        TextType::Success
+    );
+    assert_eq!(
+        Text::new().with_type(TextType::Warning).text_type(),
+        TextType::Warning
+    );
+    assert_eq!(
+        Text::new().with_type(TextType::Danger).text_type(),
+        TextType::Danger
+    );
+    assert_eq!(
+        Text::new().with_type(TextType::Info).text_type(),
+        TextType::Info
+    );
 }
 
 #[test]
 fn test_text_sizes() {
-    assert_eq!(Text::new().with_size(TextSize::Large).size(), TextSize::Large);
-    assert_eq!(Text::new().with_size(TextSize::Small).size(), TextSize::Small);
+    assert_eq!(
+        Text::new().with_size(TextSize::Large).size(),
+        TextSize::Large
+    );
+    assert_eq!(
+        Text::new().with_size(TextSize::Small).size(),
+        TextSize::Small
+    );
 }
 
 #[test]

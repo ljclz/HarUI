@@ -25,7 +25,9 @@ fn update(state: &mut State, message: Message) -> Task<Message> {
                     let q = s.strip_prefix("__query:").unwrap_or("");
                     state.select.handle(SelectMessage::Query(q.to_string()));
                 }
-                other => state.select.handle(SelectMessage::Choose(other.to_string())),
+                other => state
+                    .select
+                    .handle(SelectMessage::Choose(other.to_string())),
             }
             Task::none()
         }
@@ -34,7 +36,7 @@ fn update(state: &mut State, message: Message) -> Task<Message> {
 
 fn view(state: &State) -> Element<'_, Message> {
     let theme = &state.theme;
-    let select_elem = state.select.view(theme, |s| Message::Choose(s));
+    let select_elem = state.select.view(theme, Message::Choose);
 
     let current = state
         .select

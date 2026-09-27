@@ -4,10 +4,10 @@
 //! 这些值来自 Element Plus 官方 SCSS 变量。
 
 use har_ui_core::theme::{
-    typography::{Typography, FontSize, FontWeight, LineHeight},
-    spacing::Spacing,
     radius::Radius,
     shadow::Shadow,
+    spacing::Spacing,
+    typography::{FontSize, FontWeight, LineHeight, Typography},
     zindex::ZIndex,
 };
 
@@ -19,7 +19,7 @@ fn test_font_sizes() {
 
     // Element Plus 字号: 12, 14, 16, 18, 20, 24, 28, 32, 36, 40
     assert_eq!(typo.size(FontSize::Xs), 12.0);
-    assert_eq!(typo.size(FontSize::Sm), 14.0);     // 基础字号
+    assert_eq!(typo.size(FontSize::Sm), 14.0); // 基础字号
     assert_eq!(typo.size(FontSize::Md), 16.0);
     assert_eq!(typo.size(FontSize::Lg), 18.0);
     assert_eq!(typo.size(FontSize::Xl), 20.0);
@@ -33,7 +33,7 @@ fn test_font_sizes() {
 #[test]
 fn test_default_font_size_is_sm() {
     let typo = Typography::default();
-    assert_eq!(typo.base_size(), 14.0);  // Element Plus 默认字号 14px
+    assert_eq!(typo.base_size(), 14.0); // Element Plus 默认字号 14px
 }
 
 #[test]
@@ -67,15 +67,15 @@ fn test_default_font_family() {
 fn test_spacing_4px_grid() {
     let s = Spacing::default();
     // Element Plus 间距: 4px 网格 (n*4)
-    assert_eq!(s.xxs, 2.0);    // 2px 微间距
-    assert_eq!(s.xs, 4.0);     // 4px
-    assert_eq!(s.sm, 8.0);     // 8px
-    assert_eq!(s.md, 12.0);    // 12px
-    assert_eq!(s.base, 16.0);  // 16px 基础间距
-    assert_eq!(s.lg, 20.0);    // 20px
-    assert_eq!(s.xl, 24.0);    // 24px
-    assert_eq!(s.xxl, 32.0);   // 32px
-    assert_eq!(s.xxxl, 40.0);  // 40px
+    assert_eq!(s.xxs, 2.0); // 2px 微间距
+    assert_eq!(s.xs, 4.0); // 4px
+    assert_eq!(s.sm, 8.0); // 8px
+    assert_eq!(s.md, 12.0); // 12px
+    assert_eq!(s.base, 16.0); // 16px 基础间距
+    assert_eq!(s.lg, 20.0); // 20px
+    assert_eq!(s.xl, 24.0); // 24px
+    assert_eq!(s.xxl, 32.0); // 32px
+    assert_eq!(s.xxxl, 40.0); // 40px
 }
 
 #[test]
@@ -100,13 +100,13 @@ fn test_radius_values() {
     // Element Plus 圆角: 0, 2, 4, 8, 12, 16, 20, 24, 50%
     assert_eq!(r.none, 0.0);
     assert_eq!(r.sm, 2.0);
-    assert_eq!(r.base, 4.0);    // 默认圆角
+    assert_eq!(r.base, 4.0); // 默认圆角
     assert_eq!(r.md, 6.0);
     assert_eq!(r.lg, 8.0);
     assert_eq!(r.xl, 12.0);
     assert_eq!(r.xxl, 16.0);
     assert_eq!(r.round, 20.0);
-    assert_eq!(r.circle, 9999.0);  // 圆形
+    assert_eq!(r.circle, 9999.0); // 圆形
 }
 
 #[test]
@@ -151,8 +151,16 @@ fn test_shadow_to_string() {
     let sh = Shadow::default();
     let s = sh.base.to_css();
     // 应该包含 "0px 0px 12px"
-    assert!(s.contains("12px"), "shadow css should contain 12px, got: {}", s);
-    assert!(s.contains("rgba"), "shadow css should contain rgba, got: {}", s);
+    assert!(
+        s.contains("12px"),
+        "shadow css should contain 12px, got: {}",
+        s
+    );
+    assert!(
+        s.contains("rgba"),
+        "shadow css should contain rgba, got: {}",
+        s
+    );
 }
 
 // ============ Z-index 层级系统 ============

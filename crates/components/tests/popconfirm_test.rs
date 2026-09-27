@@ -69,8 +69,18 @@ fn test_popconfirm_with_disabled() {
 fn test_popconfirm_all_placements() {
     use PopconfirmPlacement::*;
     let cases = [
-        Top, TopStart, TopEnd, Bottom, BottomStart, BottomEnd,
-        Left, LeftStart, LeftEnd, Right, RightStart, RightEnd,
+        Top,
+        TopStart,
+        TopEnd,
+        Bottom,
+        BottomStart,
+        BottomEnd,
+        Left,
+        LeftStart,
+        LeftEnd,
+        Right,
+        RightStart,
+        RightEnd,
     ];
     for placement in cases.iter() {
         let p = Popconfirm::new("x").with_placement(*placement);

@@ -6,8 +6,8 @@
 //! 这些测试在 view() 及其辅助方法未实现前必须编译失败/测试失败。
 
 use har_ui_components::button::{Button, ButtonSize, ButtonType};
-use har_ui_core::theme::style_sheets::ButtonKind;
 use har_ui_core::theme::Theme;
+use har_ui_core::theme::style_sheets::ButtonKind;
 use iced::widget::button;
 
 // ============== R.2.P0.1.a ButtonType → ButtonKind 映射 ==============
@@ -185,7 +185,10 @@ fn test_button_compute_style_primary_uses_primary_palette() {
     match style.background {
         Some(Background::Color(c)) => {
             let expected = Color::from(theme.primary.base);
-            assert_eq!(c, expected, "Primary button Active 应使用 primary.base 背景");
+            assert_eq!(
+                c, expected,
+                "Primary button Active 应使用 primary.base 背景"
+            );
         }
         other => panic!("Primary button 应有 Color 背景, got {:?}", other),
     }
@@ -247,7 +250,9 @@ fn test_button_view_loading_renders() {
 #[test]
 fn test_button_view_plain_renders() {
     let theme = Theme::element_light();
-    let btn = Button::new("test").plain(true).with_type(ButtonType::Primary);
+    let btn = Button::new("test")
+        .plain(true)
+        .with_type(ButtonType::Primary);
     let _element = btn.view(&theme, ());
 }
 

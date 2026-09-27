@@ -5,9 +5,9 @@
 //! - Col: span(0-24) / offset / push / pull / xs/sm/md/lg/xl/xxl 响应式断点
 
 use har_ui_core::layout::{
-    row::{Row, RowAlign, RowJustify},
-    col::{Col, ColSpan, ColOffset},
+    col::{Col, ColOffset, ColSpan},
     container::{Container, ContainerWidth},
+    row::{Row, RowAlign, RowJustify},
 };
 
 #[test]
@@ -26,17 +26,38 @@ fn test_row_with_gutter() {
 
 #[test]
 fn test_row_justify_variants() {
-    assert_eq!(Row::new().with_justify(RowJustify::Center).justify(), RowJustify::Center);
-    assert_eq!(Row::new().with_justify(RowJustify::End).justify(), RowJustify::End);
-    assert_eq!(Row::new().with_justify(RowJustify::SpaceBetween).justify(), RowJustify::SpaceBetween);
-    assert_eq!(Row::new().with_justify(RowJustify::SpaceAround).justify(), RowJustify::SpaceAround);
-    assert_eq!(Row::new().with_justify(RowJustify::SpaceEvenly).justify(), RowJustify::SpaceEvenly);
+    assert_eq!(
+        Row::new().with_justify(RowJustify::Center).justify(),
+        RowJustify::Center
+    );
+    assert_eq!(
+        Row::new().with_justify(RowJustify::End).justify(),
+        RowJustify::End
+    );
+    assert_eq!(
+        Row::new().with_justify(RowJustify::SpaceBetween).justify(),
+        RowJustify::SpaceBetween
+    );
+    assert_eq!(
+        Row::new().with_justify(RowJustify::SpaceAround).justify(),
+        RowJustify::SpaceAround
+    );
+    assert_eq!(
+        Row::new().with_justify(RowJustify::SpaceEvenly).justify(),
+        RowJustify::SpaceEvenly
+    );
 }
 
 #[test]
 fn test_row_align_variants() {
-    assert_eq!(Row::new().with_align(RowAlign::Middle).align(), RowAlign::Middle);
-    assert_eq!(Row::new().with_align(RowAlign::Bottom).align(), RowAlign::Bottom);
+    assert_eq!(
+        Row::new().with_align(RowAlign::Middle).align(),
+        RowAlign::Middle
+    );
+    assert_eq!(
+        Row::new().with_align(RowAlign::Bottom).align(),
+        RowAlign::Bottom
+    );
 }
 
 #[test]

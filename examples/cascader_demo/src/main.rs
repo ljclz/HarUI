@@ -47,9 +47,7 @@ fn view(state: &State) -> Element<'_, Message> {
     };
     let status = text(format!("已选路径: {}", path_display)).size(14);
 
-    let cascader_view = state
-        .cascader
-        .view(&state.theme, |p| Message::PathSelected(p));
+    let cascader_view = state.cascader.view(&state.theme, Message::PathSelected);
 
     let content = column![
         text("HarUI — Cascader Demo").size(24),

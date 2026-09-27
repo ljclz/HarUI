@@ -40,17 +40,11 @@ fn view(state: &State) -> Element<'_, Message> {
 
     let status = text(format!("当前激活: {}", active_label)).size(14);
 
-    let tabs_view = state
-        .tabs
-        .view(&state.theme, |id| Message::TabSelected(id));
+    let tabs_view = state.tabs.view(&state.theme, Message::TabSelected);
 
-    let content = column![
-        text("HarUI — Tabs Demo").size(24),
-        status,
-        tabs_view,
-    ]
-    .spacing(16)
-    .padding(40);
+    let content = column![text("HarUI — Tabs Demo").size(24), status, tabs_view,]
+        .spacing(16)
+        .padding(40);
 
     container(content)
         .width(Length::Fill)

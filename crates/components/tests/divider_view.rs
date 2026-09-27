@@ -1,8 +1,6 @@
 //! Divider view() 测试
 
-use har_ui_components::divider::{
-    Divider, DividerContentPosition, DividerDirection,
-};
+use har_ui_components::divider::{Divider, DividerContentPosition, DividerDirection};
 use har_ui_core::theme::Theme;
 
 #[test]
@@ -70,9 +68,7 @@ fn test_divider_view_dashed_renders() {
 #[test]
 fn test_divider_view_dashed_with_text_renders() {
     let theme = Theme::element_light();
-    let d = Divider::new()
-        .with_text("虚线")
-        .with_border_dashed(true);
+    let d = Divider::new().with_text("虚线").with_border_dashed(true);
     let _element = d.view(&theme);
 }
 

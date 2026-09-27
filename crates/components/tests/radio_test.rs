@@ -124,9 +124,7 @@ fn test_radio_group_disabled_blocks_set_value() {
 
 #[test]
 fn test_radio_group_disabled_blocks_clear() {
-    let mut g = RadioGroup::new()
-        .with_value("apple")
-        .with_disabled(true);
+    let mut g = RadioGroup::new().with_value("apple").with_disabled(true);
     g.handle(RadioMessage::Clear);
     assert_eq!(g.value(), Some("apple"));
 }

@@ -94,5 +94,5 @@ fn test_payment_view_custom_message_type() {
         Pay(String),
         Cancel,
     }
-    let _element = p.view(&theme, |s| AppMsg::Pay(s), || AppMsg::Cancel);
+    let _element = p.view(&theme, AppMsg::Pay, || AppMsg::Cancel);
 }

@@ -68,19 +68,46 @@ impl IconName {
     /// 返回所有图标名称（用于测试和遍历）
     pub fn all() -> Vec<IconName> {
         vec![
-            IconName::Plus, IconName::Minus, IconName::Delete, IconName::Edit,
-            IconName::Search, IconName::Refresh, IconName::Print, IconName::Setting,
+            IconName::Plus,
+            IconName::Minus,
+            IconName::Delete,
+            IconName::Edit,
+            IconName::Search,
+            IconName::Refresh,
+            IconName::Print,
+            IconName::Setting,
             IconName::User,
-            IconName::WeChat, IconName::Alipay, IconName::UnionPay,
-            IconName::Cash, IconName::BankCard, IconName::Coupon,
-            IconName::HangOrder, IconName::TakeOrder, IconName::Clear,
-            IconName::Back, IconName::Close, IconName::Expand, IconName::Fold,
-            IconName::Success, IconName::Warning, IconName::Error, IconName::Info,
-            IconName::Loading, IconName::More, IconName::Upload,
-            IconName::Image, IconName::File,
-            IconName::Data, IconName::Statistic,
-            IconName::Calendar, IconName::Clock, IconName::Filter,
-            IconName::ArrowLeft, IconName::ArrowRight, IconName::ArrowUp, IconName::ArrowDown,
+            IconName::WeChat,
+            IconName::Alipay,
+            IconName::UnionPay,
+            IconName::Cash,
+            IconName::BankCard,
+            IconName::Coupon,
+            IconName::HangOrder,
+            IconName::TakeOrder,
+            IconName::Clear,
+            IconName::Back,
+            IconName::Close,
+            IconName::Expand,
+            IconName::Fold,
+            IconName::Success,
+            IconName::Warning,
+            IconName::Error,
+            IconName::Info,
+            IconName::Loading,
+            IconName::More,
+            IconName::Upload,
+            IconName::Image,
+            IconName::File,
+            IconName::Data,
+            IconName::Statistic,
+            IconName::Calendar,
+            IconName::Clock,
+            IconName::Filter,
+            IconName::ArrowLeft,
+            IconName::ArrowRight,
+            IconName::ArrowUp,
+            IconName::ArrowDown,
         ]
     }
 }
@@ -120,7 +147,8 @@ pub struct IconLibrary {
 
 impl Default for IconLibrary {
     fn default() -> Self {
-        let mut svgs: std::collections::HashMap<IconName, &'static str> = std::collections::HashMap::new();
+        let mut svgs: std::collections::HashMap<IconName, &'static str> =
+            std::collections::HashMap::new();
 
         // 数值操作
         svgs.insert(IconName::Plus, SVG_PLUS);
@@ -204,7 +232,9 @@ const SVG_WRAP_START: &str = r#"<svg viewBox="0 0 1024 1024" xmlns="http://www.w
 const SVG_WRAP_END: &str = "</svg>";
 
 // 通用包装宏
-const fn _wrap(_inner: &str) -> String { String::new() }
+const fn _wrap(_inner: &str) -> String {
+    String::new()
+}
 
 // 数值操作
 const SVG_PLUS: &str = r#"<svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><path d="M477.866667 213.333333h68.266666v597.333334h-68.266666z"/><path d="M213.333333 477.866667h597.333334v68.266666H213.333333z"/></svg>"#;

@@ -164,9 +164,7 @@ impl Space {
         let _ = self.wrap;
 
         if self.fill {
-            container(element)
-                .width(Length::Fill)
-                .into()
+            container(element).width(Length::Fill).into()
         } else {
             element
         }

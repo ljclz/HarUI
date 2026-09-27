@@ -41,7 +41,10 @@ fn test_input_compute_style_active() {
     let inp = Input::new();
     let style = inp.compute_style(&theme, text_input::Status::Active);
     // Active 态边框 = border_base
-    assert_eq!(style.border.color, iced::Color::from(theme.neutral.border_base));
+    assert_eq!(
+        style.border.color,
+        iced::Color::from(theme.neutral.border_base)
+    );
 }
 
 #[test]
@@ -148,7 +151,7 @@ fn test_input_view_with_custom_message_type() {
     enum AppMsg {
         InputChanged(String),
     }
-    let _element = inp.view(&theme, |s| AppMsg::InputChanged(s));
+    let _element = inp.view(&theme, AppMsg::InputChanged);
 }
 
 #[test]

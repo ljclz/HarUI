@@ -80,7 +80,7 @@ fn test_loading_rotation_loops_at_360() {
         l.tick(16);
     }
     let r = l.rotation();
-    assert!(r >= 0.0 && r < 360.0);
+    assert!((0.0..360.0).contains(&r));
 }
 
 #[test]

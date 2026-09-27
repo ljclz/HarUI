@@ -139,14 +139,13 @@ impl Loading {
 
         let primary = Color::from(theme.primary.base);
         let text_color = Color::from(theme.neutral.text_primary);
-        let overlay_bg = Color::from_rgba(
-            1.0,
-            1.0,
-            1.0,
-            if self.fullscreen { 0.9 } else { 0.7 },
-        );
+        let overlay_bg = Color::from_rgba(1.0, 1.0, 1.0, if self.fullscreen { 0.9 } else { 0.7 });
         let dark_overlay_bg = Color::from_rgba(0.0, 0.0, 0.0, 0.5);
-        let mask = if theme.is_dark { dark_overlay_bg } else { overlay_bg };
+        let mask = if theme.is_dark {
+            dark_overlay_bg
+        } else {
+            overlay_bg
+        };
 
         // 旋转字符（按当前 rotation 取近似符号）
         let spinner = match (self.rotation / 90.0) as u32 % 4 {
@@ -157,16 +156,9 @@ impl Loading {
         };
 
         let mut col_children: Vec<Element<'a, Message>> = Vec::new();
-        col_children.push(
-            text(spinner.to_string())
-                .color(primary)
-                .size(28.0)
-                .into(),
-        );
+        col_children.push(text(spinner.to_string()).color(primary).size(28.0).into());
         if let Some(t) = &self.text {
-            col_children.push(
-                iced::widget::Space::with_height(Length::Fixed(8.0)).into(),
-            );
+            col_children.push(iced::widget::Space::with_height(Length::Fixed(8.0)).into());
             col_children.push(text(t.clone()).color(text_color).size(14.0).into());
         }
 

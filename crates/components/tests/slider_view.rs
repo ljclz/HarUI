@@ -105,5 +105,5 @@ fn test_slider_view_with_custom_message_type() {
     enum AppMsg {
         Change(f64),
     }
-    let _element = s.view(&theme, |v| AppMsg::Change(v));
+    let _element = s.view(&theme, AppMsg::Change);
 }

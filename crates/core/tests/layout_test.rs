@@ -74,16 +74,14 @@ fn test_container_wrapping_col() {
 
 #[test]
 fn test_row_containing_col_nested() {
-    let col_element: iced::Element<()> =
-        col(vec![iced::widget::text("inside col").into()]);
+    let col_element: iced::Element<()> = col(vec![iced::widget::text("inside col").into()]);
     let element = row(vec![col_element, iced::widget::text("sibling").into()]);
     let _ = element;
 }
 
 #[test]
 fn test_col_containing_row_nested() {
-    let row_element: iced::Element<()> =
-        row(vec![iced::widget::text("inside row").into()]);
+    let row_element: iced::Element<()> = row(vec![iced::widget::text("inside row").into()]);
     let element = col(vec![row_element, iced::widget::text("below").into()]);
     let _ = element;
 }
@@ -107,8 +105,7 @@ fn test_col_with_custom_message_type() {
 
 #[test]
 fn test_row_with_custom_message_type() {
-    let children: Vec<iced::Element<AppMessage>> =
-        vec![iced::widget::text("only").into()];
+    let children: Vec<iced::Element<AppMessage>> = vec![iced::widget::text("only").into()];
     let element = row(children);
     let _ = element;
 }
@@ -122,8 +119,7 @@ fn test_container_with_custom_message_type() {
 
 #[test]
 fn test_nested_container_in_col_in_row() {
-    let inner_container: iced::Element<()> =
-        container(iced::widget::text("deep").into());
+    let inner_container: iced::Element<()> = container(iced::widget::text("deep").into());
     let col_element: iced::Element<()> = col(vec![inner_container]);
     let element = row(vec![col_element]);
     let _ = element;

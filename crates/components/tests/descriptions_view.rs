@@ -71,7 +71,6 @@ fn test_descriptions_view_with_span_renders() {
 #[test]
 fn test_descriptions_view_dark_theme_renders() {
     let theme = Theme::element_dark();
-    let d = Descriptions::new()
-        .with_item(DescriptionsItem::new("Name", "Alice"));
+    let d = Descriptions::new().with_item(DescriptionsItem::new("Name", "Alice"));
     let _element = d.view(&theme);
 }

@@ -2,8 +2,8 @@
 
 use har_ui_components::scrollbar::{Scrollbar, ScrollbarMessage};
 use har_ui_core::theme::Theme;
-use iced::widget::text;
 use iced::Element;
+use iced::widget::text;
 
 fn make_content<'a>() -> Element<'a, ()> {
     iced::widget::Column::new()
@@ -46,9 +46,7 @@ fn test_scrollbar_view_with_max_height_renders() {
 #[test]
 fn test_scrollbar_view_with_height_and_max_height_renders() {
     let theme = Theme::element_light();
-    let s = Scrollbar::new()
-        .with_height(200)
-        .with_max_height(300);
+    let s = Scrollbar::new().with_height(200).with_max_height(300);
     let _element = s.view(&theme, make_content());
 }
 

@@ -50,8 +50,8 @@ fn test_dialog_view_closing_renders() {
 #[test]
 fn test_dialog_view_fullscreen_renders() {
     let theme = Theme::element_light();
-    let mut dlg = Dialog::new("Title", "Content")
-        .with_props(DialogProps::new().with_fullscreen(true));
+    let mut dlg =
+        Dialog::new("Title", "Content").with_props(DialogProps::new().with_fullscreen(true));
     dlg.handle(DialogMessage::Open);
     dlg.handle(DialogMessage::AnimationFinished);
     let _element = dlg.view(&theme, ());
@@ -70,8 +70,8 @@ fn test_dialog_view_no_close_on_modal_renders() {
 #[test]
 fn test_dialog_view_draggable_renders() {
     let theme = Theme::element_light();
-    let mut dlg = Dialog::new("Title", "Content")
-        .with_props(DialogProps::new().with_draggable(true));
+    let mut dlg =
+        Dialog::new("Title", "Content").with_props(DialogProps::new().with_draggable(true));
     dlg.handle(DialogMessage::Open);
     dlg.handle(DialogMessage::AnimationFinished);
     let _element = dlg.view(&theme, ());
@@ -80,8 +80,8 @@ fn test_dialog_view_draggable_renders() {
 #[test]
 fn test_dialog_view_with_dragged_position_renders() {
     let theme = Theme::element_light();
-    let mut dlg = Dialog::new("Title", "Content")
-        .with_props(DialogProps::new().with_draggable(true));
+    let mut dlg =
+        Dialog::new("Title", "Content").with_props(DialogProps::new().with_draggable(true));
     dlg.handle(DialogMessage::Open);
     dlg.handle(DialogMessage::AnimationFinished);
     dlg.handle(DialogMessage::Dragged(100.0, 200.0));
@@ -92,7 +92,10 @@ fn test_dialog_view_with_dragged_position_renders() {
 #[test]
 fn test_dialog_view_long_content_renders() {
     let theme = Theme::element_light();
-    let mut dlg = Dialog::new("Title", "This is a very long content that should wrap or scroll.");
+    let mut dlg = Dialog::new(
+        "Title",
+        "This is a very long content that should wrap or scroll.",
+    );
     dlg.handle(DialogMessage::Open);
     dlg.handle(DialogMessage::AnimationFinished);
     let _element = dlg.view(&theme, ());

@@ -82,8 +82,12 @@ fn test_date_picker_range_mode() {
     // 范围模式：选择起止日期
     let mut p = DatePicker::new().with_type(DatePickerType::DateRange);
     assert_eq!(p.picker_type(), DatePickerType::DateRange);
-    p.handle(DatePickerMessage::SelectRangeStart(SimpleDate::new(2026, 7, 1)));
-    p.handle(DatePickerMessage::SelectRangeEnd(SimpleDate::new(2026, 7, 31)));
+    p.handle(DatePickerMessage::SelectRangeStart(SimpleDate::new(
+        2026, 7, 1,
+    )));
+    p.handle(DatePickerMessage::SelectRangeEnd(SimpleDate::new(
+        2026, 7, 31,
+    )));
     assert_eq!(p.range_start(), Some(&SimpleDate::new(2026, 7, 1)));
     assert_eq!(p.range_end(), Some(&SimpleDate::new(2026, 7, 31)));
 }
@@ -98,6 +102,11 @@ fn test_date_picker_format_value() {
 #[test]
 fn test_date_picker_format_value_with_time() {
     let mut p = DatePicker::new().with_type(DatePickerType::DateTime);
-    p.handle(DatePickerMessage::SelectDateTime(SimpleDate::new(2026, 7, 19), 14, 30, 0));
+    p.handle(DatePickerMessage::SelectDateTime(
+        SimpleDate::new(2026, 7, 19),
+        14,
+        30,
+        0,
+    ));
     assert_eq!(p.formatted_value(), "2026-07-19 14:30:00");
 }

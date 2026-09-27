@@ -55,9 +55,7 @@ fn test_backtop_view_smooth_renders() {
 #[test]
 fn test_backtop_view_custom_position_renders() {
     let theme = Theme::element_light();
-    let mut b = Backtop::new()
-        .with_right(80)
-        .with_bottom(80);
+    let mut b = Backtop::new().with_right(80).with_bottom(80);
     b.handle(BacktopMessage::Scroll(300));
     let _element = b.view(&theme, ());
 }

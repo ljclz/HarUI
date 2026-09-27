@@ -200,10 +200,10 @@ impl Tooltip {
             return;
         }
         self.elapsed_since_show += ms;
-        if let Some(limit) = self.hide_after {
-            if self.elapsed_since_show >= limit {
-                self.visible = false;
-            }
+        if let Some(limit) = self.hide_after
+            && self.elapsed_since_show >= limit
+        {
+            self.visible = false;
         }
     }
 

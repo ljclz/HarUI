@@ -43,9 +43,9 @@ pub enum KeypadState {
 /// 键盘消息
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum KeypadMessage {
-    Digit(u8),     // 0-9
-    DoubleZero,    // 00
-    Dot,           // 小数点
+    Digit(u8),  // 0-9
+    DoubleZero, // 00
+    Dot,        // 小数点
     Backspace,
     Clear,
     Ok,
@@ -244,17 +244,17 @@ impl Keypad {
             }
         };
         // 边界检查
-        if let Some(max) = self.max {
-            if v > max {
-                self.state = KeypadState::Invalid;
-                return;
-            }
+        if let Some(max) = self.max
+            && v > max
+        {
+            self.state = KeypadState::Invalid;
+            return;
         }
-        if let Some(min) = self.min {
-            if v < min {
-                self.state = KeypadState::Invalid;
-                return;
-            }
+        if let Some(min) = self.min
+            && v < min
+        {
+            self.state = KeypadState::Invalid;
+            return;
         }
         self.state = KeypadState::Confirmed;
     }

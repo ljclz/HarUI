@@ -79,24 +79,22 @@ fn test_color_picker_view_disabled_with_color_renders() {
 #[test]
 fn test_color_picker_view_with_predefine_renders() {
     let theme = Theme::element_light();
-    let cp = ColorPicker::new()
-        .with_predefine(vec![
-            "#ff0000".to_string(),
-            "#00ff00".to_string(),
-            "#0000ff".to_string(),
-        ]);
+    let cp = ColorPicker::new().with_predefine(vec![
+        "#ff0000".to_string(),
+        "#00ff00".to_string(),
+        "#0000ff".to_string(),
+    ]);
     let _element = cp.view(&theme);
 }
 
 #[test]
 fn test_color_picker_view_panel_visible_with_predefine_renders() {
     let theme = Theme::element_light();
-    let mut cp = ColorPicker::new()
-        .with_predefine(vec![
-            "#ff0000".to_string(),
-            "#00ff00".to_string(),
-            "#0000ff".to_string(),
-        ]);
+    let mut cp = ColorPicker::new().with_predefine(vec![
+        "#ff0000".to_string(),
+        "#00ff00".to_string(),
+        "#0000ff".to_string(),
+    ]);
     cp.handle(ColorPickerMessage::TogglePanel);
     assert!(cp.panel_visible());
     let _element = cp.view(&theme);
@@ -115,11 +113,8 @@ fn test_color_picker_view_panel_visible_no_predefine_renders() {
 #[test]
 fn test_color_picker_view_select_predefine_renders() {
     let theme = Theme::element_light();
-    let mut cp = ColorPicker::new()
-        .with_predefine(vec![
-            "#ff0000".to_string(),
-            "#00ff00".to_string(),
-        ]);
+    let mut cp =
+        ColorPicker::new().with_predefine(vec!["#ff0000".to_string(), "#00ff00".to_string()]);
     cp.handle(ColorPickerMessage::TogglePanel);
     cp.handle(ColorPickerMessage::SelectPredefine(0));
     assert_eq!(cp.color(), "#ff0000");
@@ -193,8 +188,7 @@ fn test_color_picker_view_alpha_clamp_renders() {
 #[test]
 fn test_color_picker_view_predefine_out_of_bounds_renders() {
     let theme = Theme::element_light();
-    let mut cp = ColorPicker::new()
-        .with_predefine(vec!["#ff0000".to_string()]);
+    let mut cp = ColorPicker::new().with_predefine(vec!["#ff0000".to_string()]);
     cp.handle(ColorPickerMessage::SelectPredefine(10));
     // 越界应无操作
     assert_eq!(cp.color(), "");

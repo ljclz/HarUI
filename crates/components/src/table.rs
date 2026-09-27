@@ -172,8 +172,7 @@ impl VirtualScroll {
         if total_rows == 0 || self.row_height <= 0.0 {
             return (0, 0);
         }
-        let start = ((self.scroll_offset / self.row_height).floor() as usize)
-            .saturating_sub(0);
+        let start = ((self.scroll_offset / self.row_height).floor() as usize).saturating_sub(0);
         let visible_count = ((self.viewport_height / self.row_height).ceil() as usize) + 1;
         let end = (start.saturating_add(visible_count)).min(total_rows);
         (start.min(total_rows), end)
@@ -365,42 +364,51 @@ impl<R: Clone> Table<R> {
     ) -> Element<'a, Message> {
         let border_color = Color::from(theme.neutral.border_lighter);
         let header_bg = Color::from(theme.neutral.bg_base);
-        let stripe_bg = Color { a: 0.5, ..Color::from(theme.neutral.bg_base) };
-        let selected_bg = Color { a: 0.1, ..Color::from(theme.primary.base) };
+        let stripe_bg = Color {
+            a: 0.5,
+            ..Color::from(theme.neutral.bg_base)
+        };
+        let selected_bg = Color {
+            a: 0.1,
+            ..Color::from(theme.primary.base)
+        };
         let text_color = Color::from(theme.neutral.text_regular);
         let header_text_color = Color::from(theme.neutral.text_primary);
         let empty_text_color = Color::from(theme.neutral.text_placeholder);
 
         // 表头行
-        let header_cells: Vec<Element<'a, Message>> = self.columns.iter().map(|col| {
-            let label = if col.sortable {
-                let arrow = match (self.sort_prop.as_deref(), self.sort_order) {
-                    (Some(p), SortOrder::Ascending) if p == col.prop => " ↑",
-                    (Some(p), SortOrder::Descending) if p == col.prop => " ↓",
-                    _ => "",
+        let header_cells: Vec<Element<'a, Message>> = self
+            .columns
+            .iter()
+            .map(|col| {
+                let label = if col.sortable {
+                    let arrow = match (self.sort_prop.as_deref(), self.sort_order) {
+                        (Some(p), SortOrder::Ascending) if p == col.prop => " ↑",
+                        (Some(p), SortOrder::Descending) if p == col.prop => " ↓",
+                        _ => "",
+                    };
+                    format!("{}{}", col.label, arrow)
+                } else {
+                    col.label.clone()
                 };
-                format!("{}{}", col.label, arrow)
-            } else {
-                col.label.clone()
-            };
-            let mut t = text(label).color(header_text_color);
-            let w = col.width.map(Length::Fixed).unwrap_or(Length::Fill);
-            t = t;
-            let cell = container(t)
-                .width(w)
-                .padding(Padding::from([8u16, 12u16]))
-                .style(move |_t| iced::widget::container::Style {
-                    text_color: Some(header_text_color),
-                    background: Some(iced::Background::Color(header_bg)),
-                    border: iced::Border {
-                        color: border_color,
-                        width: if self.props.border { 1.0 } else { 0.0 },
-                        radius: iced::border::Radius::default(),
-                    },
-                    shadow: iced::Shadow::default(),
-                });
-            cell.into()
-        }).collect();
+                let t = text(label).color(header_text_color);
+                let w = col.width.map(Length::Fixed).unwrap_or(Length::Fill);
+                let cell = container(t)
+                    .width(w)
+                    .padding(Padding::from([8u16, 12u16]))
+                    .style(move |_t| iced::widget::container::Style {
+                        text_color: Some(header_text_color),
+                        background: Some(iced::Background::Color(header_bg)),
+                        border: iced::Border {
+                            color: border_color,
+                            width: if self.props.border { 1.0 } else { 0.0 },
+                            radius: iced::border::Radius::default(),
+                        },
+                        shadow: iced::Shadow::default(),
+                    });
+                cell.into()
+            })
+            .collect();
         let header_row = iced::widget::Row::with_children(header_cells);
 
         // 数据行
@@ -429,25 +437,29 @@ impl<R: Clone> Table<R> {
                 };
                 let row_text_color = text_color;
 
-                let cells: Vec<Element<'a, Message>> = self.columns.iter().map(|col| {
-                    let cell_text = cell_renderer(row_data, &col.prop);
-                    let w = col.width.map(Length::Fixed).unwrap_or(Length::Fill);
-                    let t = text(cell_text).color(row_text_color);
-                    container(t)
-                        .width(w)
-                        .padding(Padding::from([8u16, 12u16]))
-                        .style(move |_t| iced::widget::container::Style {
-                            text_color: Some(row_text_color),
-                            background: Some(iced::Background::Color(Color::TRANSPARENT)),
-                            border: iced::Border {
-                                color: border_color,
-                                width: if self.props.border { 1.0 } else { 0.0 },
-                                radius: iced::border::Radius::default(),
-                            },
-                            shadow: iced::Shadow::default(),
-                        })
-                        .into()
-                }).collect();
+                let cells: Vec<Element<'a, Message>> = self
+                    .columns
+                    .iter()
+                    .map(|col| {
+                        let cell_text = cell_renderer(row_data, &col.prop);
+                        let w = col.width.map(Length::Fixed).unwrap_or(Length::Fill);
+                        let t = text(cell_text).color(row_text_color);
+                        container(t)
+                            .width(w)
+                            .padding(Padding::from([8u16, 12u16]))
+                            .style(move |_t| iced::widget::container::Style {
+                                text_color: Some(row_text_color),
+                                background: Some(iced::Background::Color(Color::TRANSPARENT)),
+                                border: iced::Border {
+                                    color: border_color,
+                                    width: if self.props.border { 1.0 } else { 0.0 },
+                                    radius: iced::border::Radius::default(),
+                                },
+                                shadow: iced::Shadow::default(),
+                            })
+                            .into()
+                    })
+                    .collect();
                 let data_row_inner = iced::widget::Row::with_children(cells);
                 let data_row = container(data_row_inner)
                     .width(Length::Fill)
@@ -471,10 +483,8 @@ impl<R: Clone> Table<R> {
         let _ = on_row_click; // 暂未在 row 上挂点击（iced row 无直接 on_press，需要 button 包裹）
         let scrollable_body = scrollable(body_col).height(Length::Fill);
 
-        let table_col = iced::widget::Column::with_children(vec![
-            header_row.into(),
-            scrollable_body.into(),
-        ]);
+        let table_col =
+            iced::widget::Column::with_children(vec![header_row.into(), scrollable_body.into()]);
         Element::from(table_col)
     }
 
@@ -596,7 +606,7 @@ mod internal_tests {
     fn test_virtual_scroll_threshold() {
         let vs = VirtualScroll::new(30.0, 300.0).with_threshold(50);
         assert!(!vs.should_enable(50)); // 等于阈值不启用
-        assert!(vs.should_enable(51));  // 超过阈值启用
+        assert!(vs.should_enable(51)); // 超过阈值启用
     }
 
     #[test]
@@ -609,8 +619,8 @@ mod internal_tests {
 
     #[test]
     fn test_table_without_virtual_scroll_returns_all_rows() {
-        let table: Table<String> = Table::new()
-            .with_rows(vec!["a".to_string(), "b".to_string(), "c".to_string()]);
+        let table: Table<String> =
+            Table::new().with_rows(vec!["a".to_string(), "b".to_string(), "c".to_string()]);
         // 未配置虚拟滚动 → visible_range 返回 (0, 3)
         let (s, e) = table.visible_range();
         assert_eq!(s, 0);

@@ -24,7 +24,9 @@ fn test_carousel_with_slides() {
 #[test]
 fn test_carousel_next_wrap_around() {
     let mut c = Carousel::new()
-        .with_slide("a").with_slide("b").with_slide("c");
+        .with_slide("a")
+        .with_slide("b")
+        .with_slide("c");
     c.handle(CarouselMessage::Next);
     assert_eq!(c.current_index(), 1);
     c.handle(CarouselMessage::Next);
@@ -37,7 +39,9 @@ fn test_carousel_next_wrap_around() {
 #[test]
 fn test_carousel_prev_wrap_around() {
     let mut c = Carousel::new()
-        .with_slide("a").with_slide("b").with_slide("c");
+        .with_slide("a")
+        .with_slide("b")
+        .with_slide("c");
     c.handle(CarouselMessage::Prev);
     // 从 0 回到末尾
     assert_eq!(c.current_index(), 2);
@@ -46,7 +50,9 @@ fn test_carousel_prev_wrap_around() {
 #[test]
 fn test_carousel_jump_to_index() {
     let mut c = Carousel::new()
-        .with_slide("a").with_slide("b").with_slide("c");
+        .with_slide("a")
+        .with_slide("b")
+        .with_slide("c");
     c.handle(CarouselMessage::JumpTo(2));
     assert_eq!(c.current_index(), 2);
     c.handle(CarouselMessage::JumpTo(99));
@@ -77,7 +83,9 @@ fn test_carousel_direction_vertical() {
 #[test]
 fn test_carousel_loop_toggle() {
     let mut c = Carousel::new()
-        .with_slide("a").with_slide("b").with_slide("c")
+        .with_slide("a")
+        .with_slide("b")
+        .with_slide("c")
         .with_loop(false);
     c.handle(CarouselMessage::Next);
     c.handle(CarouselMessage::Next);
@@ -89,7 +97,8 @@ fn test_carousel_loop_toggle() {
 #[test]
 fn test_carousel_tick_auto_advance() {
     let mut c = Carousel::new()
-        .with_slide("a").with_slide("b")
+        .with_slide("a")
+        .with_slide("b")
         .with_autoplay(true)
         .with_interval(3000);
     // 模拟 3000ms 过去 → 自动前进
@@ -120,7 +129,8 @@ fn test_carousel_arrow_visible() {
 #[test]
 fn test_carousel_pause_on_hover() {
     let mut c = Carousel::new()
-        .with_slide("a").with_slide("b")
+        .with_slide("a")
+        .with_slide("b")
         .with_autoplay(true)
         .with_interval(1000)
         .with_pause_on_hover(true);

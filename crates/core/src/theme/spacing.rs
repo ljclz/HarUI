@@ -6,15 +6,15 @@
 /// 间距系统（4px 网格）
 #[derive(Debug, Clone, Copy)]
 pub struct Spacing {
-    pub xxs: f32,    // 2px
-    pub xs: f32,     // 4px
-    pub sm: f32,     // 8px
-    pub md: f32,     // 12px
-    pub base: f32,   // 16px
-    pub lg: f32,     // 20px
-    pub xl: f32,     // 24px
-    pub xxl: f32,    // 32px
-    pub xxxl: f32,   // 40px
+    pub xxs: f32,  // 2px
+    pub xs: f32,   // 4px
+    pub sm: f32,   // 8px
+    pub md: f32,   // 12px
+    pub base: f32, // 16px
+    pub lg: f32,   // 20px
+    pub xl: f32,   // 24px
+    pub xxl: f32,  // 32px
+    pub xxxl: f32, // 40px
 }
 
 impl Default for Spacing {

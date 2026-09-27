@@ -35,9 +35,7 @@ fn test_keypad_with_mode() {
 
 #[test]
 fn test_keypad_with_max_min() {
-    let k = Keypad::new()
-        .with_max(9999.99)
-        .with_min(0.10);
+    let k = Keypad::new().with_max(9999.99).with_min(0.10);
     assert_eq!(k.max(), Some(9999.99));
     assert_eq!(k.min(), Some(0.10));
 }
@@ -265,5 +263,5 @@ fn test_keypad_max_length_protection() {
         k.handle(KeypadMessage::Digit(9));
     }
     // 整数部分截断到 8 位
-    assert_eq!(k.value().len() <= 8, true);
+    assert!(k.value().len() <= 8);
 }

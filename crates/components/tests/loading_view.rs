@@ -2,8 +2,8 @@
 
 use har_ui_components::loading::{Loading, LoadingMessage};
 use har_ui_core::theme::Theme;
-use iced::widget::text;
 use iced::Element;
+use iced::widget::text;
 
 fn make_content<'a>() -> Element<'a, ()> {
     text("Content").into()
@@ -109,9 +109,7 @@ fn test_loading_view_custom_message_type_renders() {
 #[test]
 fn test_loading_view_fullscreen_with_text_dark_renders() {
     let theme = Theme::element_dark();
-    let mut l = Loading::new()
-        .with_fullscreen(true)
-        .with_text("Loading");
+    let mut l = Loading::new().with_fullscreen(true).with_text("Loading");
     l.handle(LoadingMessage::Start);
     let _element = l.view(&theme, make_content());
 }

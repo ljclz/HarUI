@@ -137,12 +137,10 @@ impl TimePicker {
     pub fn formatted_value(&self) -> String {
         let fmt = &self.format;
         match self.value {
-            Some(v) => {
-                let s = fmt.replace("HH", &format!("{:02}", v.hour))
-                    .replace("mm", &format!("{:02}", v.minute))
-                    .replace("ss", &format!("{:02}", v.second));
-                s
-            }
+            Some(v) => fmt
+                .replace("HH", &format!("{:02}", v.hour))
+                .replace("mm", &format!("{:02}", v.minute))
+                .replace("ss", &format!("{:02}", v.second)),
             None => String::new(),
         }
     }
@@ -175,12 +173,24 @@ impl TimePicker {
                     self.end_value = None;
                 }
             }
-            TimePickerMessage::IncHour => self.adjust(|t| TimeValue::new((t.hour + 1) % 24, t.minute, t.second)),
-            TimePickerMessage::DecHour => self.adjust(|t| TimeValue::new((t.hour + 23) % 24, t.minute, t.second)),
-            TimePickerMessage::IncMinute => self.adjust(|t| TimeValue::new(t.hour, (t.minute + 1) % 60, t.second)),
-            TimePickerMessage::DecMinute => self.adjust(|t| TimeValue::new(t.hour, (t.minute + 59) % 60, t.second)),
-            TimePickerMessage::IncSecond => self.adjust(|t| TimeValue::new(t.hour, t.minute, (t.second + 1) % 60)),
-            TimePickerMessage::DecSecond => self.adjust(|t| TimeValue::new(t.hour, t.minute, (t.second + 59) % 60)),
+            TimePickerMessage::IncHour => {
+                self.adjust(|t| TimeValue::new((t.hour + 1) % 24, t.minute, t.second))
+            }
+            TimePickerMessage::DecHour => {
+                self.adjust(|t| TimeValue::new((t.hour + 23) % 24, t.minute, t.second))
+            }
+            TimePickerMessage::IncMinute => {
+                self.adjust(|t| TimeValue::new(t.hour, (t.minute + 1) % 60, t.second))
+            }
+            TimePickerMessage::DecMinute => {
+                self.adjust(|t| TimeValue::new(t.hour, (t.minute + 59) % 60, t.second))
+            }
+            TimePickerMessage::IncSecond => {
+                self.adjust(|t| TimeValue::new(t.hour, t.minute, (t.second + 1) % 60))
+            }
+            TimePickerMessage::DecSecond => {
+                self.adjust(|t| TimeValue::new(t.hour, t.minute, (t.second + 59) % 60))
+            }
         }
     }
 
@@ -225,9 +235,12 @@ impl TimePicker {
             }
         };
 
-        let display_color = if self.value.is_none() && !self.is_range {
-            text_placeholder
-        } else if self.is_range && self.start_value.is_none() {
+        let is_empty = if self.is_range {
+            self.start_value.is_none()
+        } else {
+            self.value.is_none()
+        };
+        let display_color = if is_empty {
             text_placeholder
         } else {
             text_primary

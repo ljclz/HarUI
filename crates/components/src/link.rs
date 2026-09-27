@@ -163,14 +163,15 @@ impl Link {
             .spacing(0)
             .align_y(iced::Alignment::Center);
 
-        let mut btn = button(content)
-            .padding(Padding::from([2u16, 4u16]))
-            .style(move |_t, _status| iced::widget::button::Style {
-                background: None,
-                text_color,
-                border: iced::Border::default(),
-                shadow: iced::Shadow::default(),
-            });
+        let mut btn =
+            button(content)
+                .padding(Padding::from([2u16, 4u16]))
+                .style(move |_t, _status| iced::widget::button::Style {
+                    background: None,
+                    text_color,
+                    border: iced::Border::default(),
+                    shadow: iced::Shadow::default(),
+                });
         if !self.disabled {
             btn = btn.on_press(on_click);
         }

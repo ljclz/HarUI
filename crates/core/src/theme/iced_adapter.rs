@@ -44,7 +44,11 @@ pub fn to_iced_theme(theme: &Theme) -> iced::Theme {
         danger: Color::from(theme.danger.base),
     };
 
-    let name = if theme.is_dark { "HarUI Dark" } else { "HarUI Light" };
+    let name = if theme.is_dark {
+        "HarUI Dark"
+    } else {
+        "HarUI Light"
+    };
 
     iced::Theme::custom(name.to_string(), palette)
 }

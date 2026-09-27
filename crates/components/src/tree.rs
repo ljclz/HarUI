@@ -2,8 +2,8 @@
 //!
 //! 支持：基础树/展开折叠/复选框/父子联动/半选/过滤/懒加载/自定义节点数据/1000 节点性能。
 
-use std::collections::HashSet;
 use std::collections::HashMap;
+use std::collections::HashSet;
 
 use har_ui_core::theme::Theme;
 use iced::widget::{button, container, text};
@@ -368,11 +368,7 @@ impl Tree {
 
         // 展开/折叠指示器
         let indicator_str = if node.is_leaf() {
-            if node.lazy {
-                "…"
-            } else {
-                "•"
-            }
+            if node.lazy { "…" } else { "•" }
         } else if is_expanded {
             "▼"
         } else {
@@ -381,9 +377,8 @@ impl Tree {
 
         let mut row_children: Vec<Element<'a, Message>> = Vec::new();
         if depth > 0 {
-            row_children.push(
-                iced::widget::Space::with_width(Length::Fixed(depth as f32 * 16.0)).into(),
-            );
+            row_children
+                .push(iced::widget::Space::with_width(Length::Fixed(depth as f32 * 16.0)).into());
         }
 
         // 指示器按钮（点击切换展开/折叠）
@@ -444,12 +439,7 @@ impl Tree {
 }
 
 /// 递归收集可见节点（考虑展开状态和过滤）
-fn collect_visible<'a>(
-    node: &'a TreeNode,
-    tree: &Tree,
-    filter: &str,
-    out: &mut Vec<&'a TreeNode>,
-) {
+fn collect_visible<'a>(node: &'a TreeNode, tree: &Tree, filter: &str, out: &mut Vec<&'a TreeNode>) {
     let filter_match = if filter.is_empty() {
         true
     } else {
@@ -497,7 +487,7 @@ fn any_descendant_matches(node: &TreeNode, filter: &str) -> bool {
 }
 
 /// 可变查找节点
-fn find_node_mut<'a>(nodes: &'a mut Vec<TreeNode>, id: &str) -> Option<&'a mut TreeNode> {
+fn find_node_mut<'a>(nodes: &'a mut [TreeNode], id: &str) -> Option<&'a mut TreeNode> {
     for n in nodes.iter_mut() {
         if n.id == id {
             return Some(n);

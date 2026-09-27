@@ -68,7 +68,9 @@ fn main() -> iced::Result {
         .window_size(iced::Size::new(800.0, 700.0))
         .run_with(|| {
             let inputs = vec![
-                Input::new().with_placeholder("Enter text").with_clearable(true),
+                Input::new()
+                    .with_placeholder("Enter text")
+                    .with_clearable(true),
                 Input::new()
                     .with_mode(InputMode::Password)
                     .with_placeholder("Password"),

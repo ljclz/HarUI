@@ -106,16 +106,14 @@ fn test_select_choose_nonexistent_ignored() {
 
 #[test]
 fn test_select_choose_disabled_ignored() {
-    let mut s = Select::new()
-        .with_option(SelectOption::new("a", "A").set_disabled(true));
+    let mut s = Select::new().with_option(SelectOption::new("a", "A").set_disabled(true));
     s.handle(SelectMessage::Choose("a".to_string()));
     assert_eq!(s.value(), None);
 }
 
 #[test]
 fn test_select_choose_closes_dropdown() {
-    let mut s = Select::new()
-        .with_option(SelectOption::new("a", "A"));
+    let mut s = Select::new().with_option(SelectOption::new("a", "A"));
     s.handle(SelectMessage::Open);
     s.handle(SelectMessage::Choose("a".to_string()));
     assert_eq!(s.state(), SelectState::Closed);
@@ -199,8 +197,7 @@ fn test_select_filter_options() {
 
 #[test]
 fn test_select_filter_case_insensitive() {
-    let s = Select::new()
-        .with_option(SelectOption::new("apple", "Apple"));
+    let s = Select::new().with_option(SelectOption::new("apple", "Apple"));
     let filtered = s.filter("APP");
     assert_eq!(filtered.len(), 1);
 }
@@ -220,7 +217,10 @@ fn test_select_filter_empty_query_returns_all() {
 fn test_select_1000_options_filter_fast() {
     let mut s = Select::new();
     for i in 0..1000 {
-        s = s.with_option(SelectOption::new(format!("opt{}", i), format!("Option {}", i)));
+        s = s.with_option(SelectOption::new(
+            format!("opt{}", i),
+            format!("Option {}", i),
+        ));
     }
     assert_eq!(s.options().len(), 1000);
     // 搜索应能精确定位

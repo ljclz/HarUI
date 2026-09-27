@@ -2,7 +2,7 @@
 
 use har_ui_components::dialog::{Dialog, DialogMessage};
 use har_ui_core::Theme;
-use iced::widget::{button, column, container, text, Row};
+use iced::widget::{Row, button, column, container, text};
 use iced::{Color, Element, Length, Padding, Task};
 
 pub struct State {
@@ -70,8 +70,8 @@ fn view(state: &State) -> Element<'_, Message> {
         .align_y(iced::Alignment::Center)
         .padding(Padding::from([12u16, 16u16]));
 
-    let body_text = text(state.dialog.content().to_string())
-        .color(Color::from(theme.neutral.text_regular));
+    let body_text =
+        text(state.dialog.content().to_string()).color(Color::from(theme.neutral.text_regular));
     let body = container(body_text)
         .width(Length::Fill)
         .padding(Padding::from(16u16));
@@ -90,19 +90,27 @@ fn view(state: &State) -> Element<'_, Message> {
         .padding(Padding::from([12u16, 16u16]));
 
     let dialog_box = container(
-        iced::widget::Column::new().push(header).push(body).push(footer),
+        iced::widget::Column::new()
+            .push(header)
+            .push(body)
+            .push(footer),
     )
     .max_width(500.0)
     .style(move |_t| iced::widget::container::Style {
         text_color: Some(Color::from(theme.neutral.text_primary)),
-        background: Some(iced::Background::Color(Color::from(theme.neutral.bg_overlay))),
+        background: Some(iced::Background::Color(Color::from(
+            theme.neutral.bg_overlay,
+        ))),
         border: iced::Border {
             color: Color::from(theme.neutral.border_lighter),
             width: 1.0,
             radius: iced::border::radius(4.0),
         },
         shadow: iced::Shadow {
-            color: Color { a: 0.3, ..Color::BLACK },
+            color: Color {
+                a: 0.3,
+                ..Color::BLACK
+            },
             offset: iced::Vector::new(0.0, 4.0),
             blur_radius: 16.0,
         },
@@ -119,7 +127,10 @@ fn view(state: &State) -> Element<'_, Message> {
     .height(Length::Fill)
     .style(move |_t| iced::widget::container::Style {
         text_color: None,
-        background: Some(iced::Background::Color(Color { a: 0.5, ..Color::BLACK })),
+        background: Some(iced::Background::Color(Color {
+            a: 0.5,
+            ..Color::BLACK
+        })),
         border: iced::Border::default(),
         shadow: iced::Shadow::default(),
     });

@@ -55,8 +55,12 @@ fn test_date_picker_view_daterange_with_range_renders() {
     let mut dp = DatePicker::new()
         .with_type(DatePickerType::DateRange)
         .with_today(SimpleDate::new(2026, 7, 19));
-    dp.handle(DatePickerMessage::SelectRangeStart(SimpleDate::new(2026, 7, 10)));
-    dp.handle(DatePickerMessage::SelectRangeEnd(SimpleDate::new(2026, 7, 20)));
+    dp.handle(DatePickerMessage::SelectRangeStart(SimpleDate::new(
+        2026, 7, 10,
+    )));
+    dp.handle(DatePickerMessage::SelectRangeEnd(SimpleDate::new(
+        2026, 7, 20,
+    )));
     dp.handle(DatePickerMessage::Open);
     let _element = dp.view(&theme, |_| ());
 }
@@ -113,5 +117,5 @@ fn test_date_picker_view_with_custom_message_type() {
     enum AppMsg {
         Pick(String),
     }
-    let _element = dp.view(&theme, |s| AppMsg::Pick(s));
+    let _element = dp.view(&theme, AppMsg::Pick);
 }

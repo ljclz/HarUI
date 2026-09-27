@@ -4,8 +4,8 @@ use har_ui_components::tooltip::{
     Tooltip, TooltipEffect, TooltipMessage, TooltipPlacement, TooltipTrigger,
 };
 use har_ui_core::theme::Theme;
-use iced::widget::text;
 use iced::Element;
+use iced::widget::text;
 
 fn make_content<'a>() -> Element<'a, ()> {
     text("Hover me").into()

@@ -1,8 +1,8 @@
 //! 工具函数测试 — 颜色 / 动画 / 键盘
 
 use har_ui_core::utils::{
-    color_utils::{mix_colors, luminance, is_light, darken, lighten, with_alpha},
-    animation::{easing, interpolate, AnimationCurve},
+    animation::{AnimationCurve, easing, interpolate},
+    color_utils::{darken, is_light, lighten, luminance, mix_colors, with_alpha},
     keyboard::{KeyModifiers, Shortcut, ShortcutRegistry},
 };
 
@@ -143,7 +143,7 @@ fn test_interpolate_with_curve() {
     // 使用 ease-in 曲线插值
     let v = interpolate(0.0, 100.0, 0.5);
     // linear 时为 50，使用曲线时值不同
-    assert!(v >= 0.0 && v <= 100.0);
+    assert!((0.0..=100.0).contains(&v));
 }
 
 // ====================== 键盘工具 ======================
@@ -171,47 +171,166 @@ fn test_key_modifiers_builder() {
 
 #[test]
 fn test_shortcut_equality() {
-    let s1 = Shortcut::new('A', KeyModifiers { ctrl: true, shift: false, alt: false, meta: false });
-    let s2 = Shortcut::new('A', KeyModifiers { ctrl: true, shift: false, alt: false, meta: false });
+    let s1 = Shortcut::new(
+        'A',
+        KeyModifiers {
+            ctrl: true,
+            shift: false,
+            alt: false,
+            meta: false,
+        },
+    );
+    let s2 = Shortcut::new(
+        'A',
+        KeyModifiers {
+            ctrl: true,
+            shift: false,
+            alt: false,
+            meta: false,
+        },
+    );
     assert_eq!(s1, s2);
 }
 
 #[test]
 fn test_shortcut_inequality() {
-    let s1 = Shortcut::new('A', KeyModifiers { ctrl: true, shift: false, alt: false, meta: false });
-    let s2 = Shortcut::new('B', KeyModifiers { ctrl: true, shift: false, alt: false, meta: false });
+    let s1 = Shortcut::new(
+        'A',
+        KeyModifiers {
+            ctrl: true,
+            shift: false,
+            alt: false,
+            meta: false,
+        },
+    );
+    let s2 = Shortcut::new(
+        'B',
+        KeyModifiers {
+            ctrl: true,
+            shift: false,
+            alt: false,
+            meta: false,
+        },
+    );
     assert_ne!(s1, s2);
 }
 
 #[test]
 fn test_shortcut_registry_register_and_match() {
     let mut registry = ShortcutRegistry::new();
-    registry.register("save", Shortcut::new('S', KeyModifiers { ctrl: true, shift: false, alt: false, meta: false }));
-    registry.register("copy", Shortcut::new('C', KeyModifiers { ctrl: true, shift: false, alt: false, meta: false }));
-    
-    let test = Shortcut::new('S', KeyModifiers { ctrl: true, shift: false, alt: false, meta: false });
+    registry.register(
+        "save",
+        Shortcut::new(
+            'S',
+            KeyModifiers {
+                ctrl: true,
+                shift: false,
+                alt: false,
+                meta: false,
+            },
+        ),
+    );
+    registry.register(
+        "copy",
+        Shortcut::new(
+            'C',
+            KeyModifiers {
+                ctrl: true,
+                shift: false,
+                alt: false,
+                meta: false,
+            },
+        ),
+    );
+
+    let test = Shortcut::new(
+        'S',
+        KeyModifiers {
+            ctrl: true,
+            shift: false,
+            alt: false,
+            meta: false,
+        },
+    );
     assert_eq!(registry.match_shortcut(&test), Some("save"));
-    
-    let test = Shortcut::new('C', KeyModifiers { ctrl: true, shift: false, alt: false, meta: false });
+
+    let test = Shortcut::new(
+        'C',
+        KeyModifiers {
+            ctrl: true,
+            shift: false,
+            alt: false,
+            meta: false,
+        },
+    );
     assert_eq!(registry.match_shortcut(&test), Some("copy"));
 }
 
 #[test]
 fn test_shortcut_registry_no_match() {
     let mut registry = ShortcutRegistry::new();
-    registry.register("save", Shortcut::new('S', KeyModifiers { ctrl: true, shift: false, alt: false, meta: false }));
-    
-    let test = Shortcut::new('X', KeyModifiers { ctrl: true, shift: false, alt: false, meta: false });
+    registry.register(
+        "save",
+        Shortcut::new(
+            'S',
+            KeyModifiers {
+                ctrl: true,
+                shift: false,
+                alt: false,
+                meta: false,
+            },
+        ),
+    );
+
+    let test = Shortcut::new(
+        'X',
+        KeyModifiers {
+            ctrl: true,
+            shift: false,
+            alt: false,
+            meta: false,
+        },
+    );
     assert_eq!(registry.match_shortcut(&test), None);
 }
 
 #[test]
 fn test_shortcut_registry_overwrite() {
     let mut registry = ShortcutRegistry::new();
-    registry.register("action1", Shortcut::new('A', KeyModifiers { ctrl: true, shift: false, alt: false, meta: false }));
+    registry.register(
+        "action1",
+        Shortcut::new(
+            'A',
+            KeyModifiers {
+                ctrl: true,
+                shift: false,
+                alt: false,
+                meta: false,
+            },
+        ),
+    );
     // 覆盖同名快捷键
-    registry.register("action2", Shortcut::new('A', KeyModifiers { ctrl: true, shift: false, alt: false, meta: false }));
-    
-    let test = Shortcut::new('A', KeyModifiers { ctrl: true, shift: false, alt: false, meta: false });
+    registry.register(
+        "action2",
+        Shortcut::new(
+            'A',
+            KeyModifiers {
+                ctrl: true,
+                shift: false,
+                alt: false,
+                meta: false,
+            },
+        ),
+    );
+
+    let test = Shortcut::new(
+        'A',
+        KeyModifiers {
+            ctrl: true,
+            shift: false,
+            alt: false,
+            meta: false,
+        },
+    );
     assert_eq!(registry.match_shortcut(&test), Some("action2"));
 }

@@ -153,7 +153,7 @@ impl MenuState {
             }
             None
         }
-        find(&self.items, id).map_or(false, |i| i.disabled)
+        find(&self.items, id).is_some_and(|i| i.disabled)
     }
 
     /// 处理消息
@@ -229,9 +229,7 @@ impl MenuState {
             .collect();
 
         match self.mode {
-            MenuMode::Horizontal => iced::widget::Row::with_children(children)
-                .spacing(0)
-                .into(),
+            MenuMode::Horizontal => iced::widget::Row::with_children(children).spacing(0).into(),
             MenuMode::Vertical => iced::widget::Column::with_children(children)
                 .spacing(0)
                 .into(),
@@ -275,15 +273,19 @@ impl MenuState {
         let mut row_children: Vec<Element<'a, Message>> = Vec::new();
         // 缩进
         if depth > 0 {
-            row_children.push(
-                iced::widget::Space::with_width(Length::Fixed(depth as f32 * 16.0)).into(),
-            );
+            row_children
+                .push(iced::widget::Space::with_width(Length::Fixed(depth as f32 * 16.0)).into());
         }
         if !indicator_str.is_empty() {
             row_children.push(text(indicator_str).color(label_color).size(12.0).into());
             row_children.push(iced::widget::Space::with_width(Length::Fixed(6.0)).into());
         }
-        row_children.push(text(item.label.clone()).color(label_color).size(14.0).into());
+        row_children.push(
+            text(item.label.clone())
+                .color(label_color)
+                .size(14.0)
+                .into(),
+        );
 
         let content = iced::widget::Row::with_children(row_children)
             .align_y(iced::Alignment::Center)

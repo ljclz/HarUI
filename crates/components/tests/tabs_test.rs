@@ -47,7 +47,10 @@ fn test_tabs_with_position() {
 
 #[test]
 fn test_tabs_with_closable_addable_lazy() {
-    let t = Tabs::new().with_closable(true).with_addable(true).with_lazy(true);
+    let t = Tabs::new()
+        .with_closable(true)
+        .with_addable(true)
+        .with_lazy(true);
     assert!(t.closable());
     assert!(t.addable());
     assert!(t.lazy());

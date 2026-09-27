@@ -3,7 +3,7 @@
 //! 验证 compositionstart/update/end 三阶段状态机，
 //! 以及 Digit/Price 模式下对非数字字符的过滤行为。
 
-use har_ui_core::utils::ime::{ImeState, ImeEvent, InputMode, ImeProcessor, ProcessResult};
+use har_ui_core::utils::ime::{ImeEvent, ImeProcessor, ImeState, InputMode, ProcessResult};
 
 #[test]
 fn test_default_state_is_idle() {

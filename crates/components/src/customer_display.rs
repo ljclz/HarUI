@@ -148,14 +148,10 @@ impl CustomerDisplay {
             CustomerDisplayState::Idle => text("等待交易...".to_string())
                 .color(text_placeholder)
                 .size(20.0),
-            CustomerDisplayState::Welcome => text("欢迎光临".to_string())
-                .color(primary)
-                .size(32.0),
-            CustomerDisplayState::ShowingAmount => {
-                text(format!("¥ {}", self.formatted_amount()))
-                    .color(warning)
-                    .size(40.0)
-            }
+            CustomerDisplayState::Welcome => text("欢迎光临".to_string()).color(primary).size(32.0),
+            CustomerDisplayState::ShowingAmount => text(format!("¥ {}", self.formatted_amount()))
+                .color(warning)
+                .size(40.0),
             CustomerDisplayState::ShowingQrCode => {
                 let method = self.payment_method.clone().unwrap_or_default();
                 text(format!("扫码支付 · {}", method))
@@ -166,9 +162,7 @@ impl CustomerDisplay {
                 let msg = self.custom_message.clone().unwrap_or_default();
                 text(msg).color(text_primary).size(20.0)
             }
-            CustomerDisplayState::Success => {
-                text("支付成功".to_string()).color(success).size(32.0)
-            }
+            CustomerDisplayState::Success => text("支付成功".to_string()).color(success).size(32.0),
         };
         let body = container(body_text)
             .width(Length::Fill)
@@ -228,7 +222,10 @@ mod internal_tests {
     fn test_reset_clears_all_fields() {
         let mut d = CustomerDisplay::new();
         d.handle(CustomerDisplayMessage::ShowAmount(50.0));
-        d.handle(CustomerDisplayMessage::ShowQrCode("url".to_string(), "WeChat".to_string()));
+        d.handle(CustomerDisplayMessage::ShowQrCode(
+            "url".to_string(),
+            "WeChat".to_string(),
+        ));
         d.handle(CustomerDisplayMessage::Reset);
         assert_eq!(d.amount(), 0.0);
         assert_eq!(d.payment_method(), None);

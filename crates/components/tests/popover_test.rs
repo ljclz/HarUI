@@ -238,9 +238,7 @@ fn test_popover_set_visible_runtime() {
 
 #[test]
 fn test_popover_empty_title_content_safe() {
-    let p = Popover::new()
-        .with_title("")
-        .with_content("");
+    let p = Popover::new().with_title("").with_content("");
     assert_eq!(p.title(), Some(""));
     assert_eq!(p.content(), Some(""));
 }

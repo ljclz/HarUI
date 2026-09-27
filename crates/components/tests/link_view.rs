@@ -43,36 +43,28 @@ fn test_link_view_success_type_renders() {
 #[test]
 fn test_link_view_danger_type_renders() {
     let theme = Theme::element_light();
-    let l = Link::new()
-        .with_text("Danger")
-        .with_type(LinkType::Danger);
+    let l = Link::new().with_text("Danger").with_type(LinkType::Danger);
     let _element = l.view(&theme, ());
 }
 
 #[test]
 fn test_link_view_disabled_renders() {
     let theme = Theme::element_light();
-    let l = Link::new()
-        .with_text("Disabled")
-        .with_disabled(true);
+    let l = Link::new().with_text("Disabled").with_disabled(true);
     let _element = l.view(&theme, ());
 }
 
 #[test]
 fn test_link_view_underline_false_renders() {
     let theme = Theme::element_light();
-    let l = Link::new()
-        .with_text("No underline")
-        .with_underline(false);
+    let l = Link::new().with_text("No underline").with_underline(false);
     let _element = l.view(&theme, ());
 }
 
 #[test]
 fn test_link_view_with_icon_renders() {
     let theme = Theme::element_light();
-    let l = Link::new()
-        .with_text("With icon")
-        .with_icon("🔗");
+    let l = Link::new().with_text("With icon").with_icon("🔗");
     let _element = l.view(&theme, ());
 }
 
@@ -105,9 +97,7 @@ fn test_link_view_disabled_with_underline_renders() {
 #[test]
 fn test_link_view_info_warning_types_renders() {
     let theme = Theme::element_light();
-    let l1 = Link::new()
-        .with_text("Info")
-        .with_type(LinkType::Info);
+    let l1 = Link::new().with_text("Info").with_type(LinkType::Info);
     let l2 = Link::new()
         .with_text("Warning")
         .with_type(LinkType::Warning);

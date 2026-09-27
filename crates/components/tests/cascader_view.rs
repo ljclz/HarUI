@@ -98,9 +98,11 @@ fn test_cascader_view_hover_trigger_renders() {
 #[test]
 fn test_cascader_view_disabled_node_renders() {
     let theme = Theme::element_light();
-    let opts = vec![CascaderNode::new("a", "A")
-        .with_disabled(true)
-        .with_children(vec![CascaderNode::new("a1", "A1")])];
+    let opts = vec![
+        CascaderNode::new("a", "A")
+            .with_disabled(true)
+            .with_children(vec![CascaderNode::new("a1", "A1")]),
+    ];
     let c = Cascader::new().with_options(opts);
     let _element = c.view(&theme, |_| ());
 }
@@ -122,5 +124,5 @@ fn test_cascader_view_with_custom_message_type() {
     enum AppMsg {
         Select(Vec<String>),
     }
-    let _element = c.view(&theme, |p| AppMsg::Select(p));
+    let _element = c.view(&theme, AppMsg::Select);
 }

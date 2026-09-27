@@ -15,7 +15,9 @@ fn test_result_default() {
 
 #[test]
 fn test_result_success_type() {
-    let r = ResultPage::new().with_type(ResultType::Success).with_title("操作成功");
+    let r = ResultPage::new()
+        .with_type(ResultType::Success)
+        .with_title("操作成功");
     assert_eq!(r.result_type(), ResultType::Success);
     assert_eq!(r.title(), "操作成功");
 }
@@ -28,7 +30,9 @@ fn test_result_warning_type() {
 
 #[test]
 fn test_result_error_type() {
-    let r = ResultPage::new().with_type(ResultType::Error).with_title("提交失败");
+    let r = ResultPage::new()
+        .with_type(ResultType::Error)
+        .with_title("提交失败");
     assert_eq!(r.result_type(), ResultType::Error);
     assert_eq!(r.title(), "提交失败");
 }

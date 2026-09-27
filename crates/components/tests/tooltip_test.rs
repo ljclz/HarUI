@@ -1,6 +1,8 @@
 //! Tooltip 文字提示组件 — 参考 Element Plus `<el-tooltip>`。
 
-use har_ui_components::tooltip::{Tooltip, TooltipEffect, TooltipMessage, TooltipPlacement, TooltipTrigger};
+use har_ui_components::tooltip::{
+    Tooltip, TooltipEffect, TooltipMessage, TooltipPlacement, TooltipTrigger,
+};
 
 // ---------- 基础构造 ----------
 
@@ -33,8 +35,20 @@ fn test_tooltip_with_empty_content() {
 #[test]
 fn test_tooltip_with_placement() {
     use TooltipPlacement::*;
-    let cases = [Top, TopStart, TopEnd, Bottom, BottomStart, BottomEnd,
-                 Left, LeftStart, LeftEnd, Right, RightStart, RightEnd];
+    let cases = [
+        Top,
+        TopStart,
+        TopEnd,
+        Bottom,
+        BottomStart,
+        BottomEnd,
+        Left,
+        LeftStart,
+        LeftEnd,
+        Right,
+        RightStart,
+        RightEnd,
+    ];
     for placement in cases.iter() {
         let t = Tooltip::new("x").with_placement(*placement);
         assert_eq!(t.placement(), *placement);

@@ -67,8 +67,7 @@ fn test_dropdown_select_item() {
 
 #[test]
 fn test_dropdown_select_disabled_item_ignored() {
-    let mut d = Dropdown::new()
-        .with_item(DropdownItem::new("a", "A").with_disabled(true));
+    let mut d = Dropdown::new().with_item(DropdownItem::new("a", "A").with_disabled(true));
     d.handle(DropdownMessage::Select(0));
     assert_eq!(d.last_command(), None);
 }

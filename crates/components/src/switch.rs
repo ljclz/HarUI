@@ -268,7 +268,11 @@ impl Switch {
         let active_color = Self::parse_color(&self.active_color, primary);
         let inactive_color = Self::parse_color(&self.inactive_color, border_base);
         let track_color = if is_on { active_color } else { inactive_color };
-        let text_color = if self.disabled { text_disabled } else { text_regular };
+        let text_color = if self.disabled {
+            text_disabled
+        } else {
+            text_regular
+        };
 
         // 滑块：ON 状态在右侧（●----），OFF 在左侧（----●）
         // 用 Unicode 字符可视化：开=[●  ] 关=[  ●]
@@ -298,14 +302,15 @@ impl Switch {
             row = row.push(text("⟳").color(text_color).size(14));
         }
 
-        let mut btn = button(row)
-            .padding(Padding::from([6u16, 10u16]))
-            .style(move |_t, _status| iced::widget::button::Style {
-                background: None,
-                text_color,
-                border: iced::Border::default(),
-                shadow: iced::Shadow::default(),
-            });
+        let mut btn =
+            button(row)
+                .padding(Padding::from([6u16, 10u16]))
+                .style(move |_t, _status| iced::widget::button::Style {
+                    background: None,
+                    text_color,
+                    border: iced::Border::default(),
+                    shadow: iced::Shadow::default(),
+                });
 
         if self.can_toggle() {
             btn = btn.on_press(on_toggle);

@@ -230,8 +230,8 @@ impl Upload {
         let border_lighter = Color::from(theme.neutral.border_lighter);
         let primary = Color::from(theme.primary.base);
         let bg_overlay = Color::from(theme.neutral.bg_overlay);
-        let success_color = Color::from_rgb8(103, 194, 58);
-        let error_color = Color::from_rgb8(245, 108, 108);
+        let success_color = Color::from(theme.success.base);
+        let error_color = Color::from(theme.danger.base);
 
         // 触发按钮
         let trigger_text = text("点击上传").color(iced::Color::WHITE).size(14.0);

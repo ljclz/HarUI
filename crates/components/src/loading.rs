@@ -139,13 +139,12 @@ impl Loading {
 
         let primary = Color::from(theme.primary.base);
         let text_color = Color::from(theme.neutral.text_primary);
-        let overlay_bg = Color::from_rgba(1.0, 1.0, 1.0, if self.fullscreen { 0.9 } else { 0.7 });
-        let dark_overlay_bg = Color::from_rgba(0.0, 0.0, 0.0, 0.5);
-        let mask = if theme.is_dark {
-            dark_overlay_bg
-        } else {
-            overlay_bg
-        };
+        // 遮罩取主题 bg_overlay（light #FFFFFF / dark #141414）加透明度，随主题自动切换
+        let mask_alpha = if self.fullscreen { 0.9 } else { 0.7 };
+        let mask = Color::from(har_ui_core::utils::color_utils::with_alpha(
+            theme.neutral.bg_overlay,
+            mask_alpha,
+        ));
 
         // 旋转字符（按当前 rotation 取近似符号）
         let spinner = match (self.rotation / 90.0) as u32 % 4 {

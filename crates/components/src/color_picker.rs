@@ -166,7 +166,7 @@ impl ColorPicker {
         let current_color = if has_color {
             parse_hex_color(&self.color, self.alpha)
         } else {
-            Color::from_rgb8(238, 238, 238)
+            Color::from_rgb8(238, 238, 238) // HARUI-EXCEPTION: 取色器默认灰底（#EEEEEE），功能性色板非主题令牌
         };
 
         let swatch_border_color = if self.disabled {
@@ -271,10 +271,11 @@ impl ColorPicker {
 /// 解析 hex 颜色字符串为 iced::Color
 /// 支持 #RGB / #RRGGBB / #RRGGBBAA；无效或空字符串返回 (0,0,0) 黑色
 /// alpha 参数为 u8（0-255），内部转为 f32（0.0-1.0）
+// HARUI-EXCEPTION: 本函数将用户输入的十六进制色值解析为 iced 颜色，属动态转换非硬编码令牌
 fn parse_hex_color(s: &str, alpha: u8) -> Color {
     let alpha_f = alpha as f32 / 255.0;
     if s.is_empty() {
-        return Color::from_rgba8(0, 0, 0, alpha_f);
+        return Color::from_rgba8(0, 0, 0, alpha_f); // HARUI-EXCEPTION: 空输入回退黑，动态转换
     }
     let s = s.strip_prefix('#').unwrap_or(s);
     let (r, g, b, a) = match s.len() {
@@ -297,9 +298,9 @@ fn parse_hex_color(s: &str, alpha: u8) -> Color {
             let a_byte = u8::from_str_radix(&s[6..8], 16).unwrap_or(alpha);
             (r, g, b, a_byte as f32 / 255.0)
         }
-        _ => return Color::from_rgba8(0, 0, 0, alpha_f),
+        _ => return Color::from_rgba8(0, 0, 0, alpha_f), // HARUI-EXCEPTION: 非法格式回退黑，动态转换
     };
-    Color::from_rgba8(r, g, b, a)
+    Color::from_rgba8(r, g, b, a) // HARUI-EXCEPTION: 用户色值动态转换
 }
 
 /// 验证 hex 颜色字符串

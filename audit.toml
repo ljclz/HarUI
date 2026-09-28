@@ -1,0 +1,29 @@
+# cargo-audit 配置 — 已接受风险登记
+#
+# 原则：仅当漏洞为 iced 0.13 生态的传递依赖且无 semver 兼容补丁、
+# 且暴露面不构成实际威胁时才允许 ignore。升级 iced 到 0.14+ 后应重新评估并清空本文件。
+#
+# 暴露面评估基准：HarUI 是本地桌面收银台 UI 库，quick-xml/lru 仅用于
+# 自带 SVG 图标渲染与字形缓存，不解析攻击者可控的 XML 输入。
+
+[advisories]
+version = 2
+ignore = [
+    # quick-xml 0.39.4 — DoS 类（二次复杂度/无界内存），由 iced svg 渲染链引入，
+    # 仅解析内置图标 SVG，非攻击面。补丁版 0.42 与 iced 0.13 的依赖约束不兼容。
+    "RUSTSEC-2026-0194",
+    "RUSTSEC-2026-0195",
+
+    # lru 0.12.5 — unsound（Stacked Borrows / panic safety），由 iced_glyphon 0.6
+    # 钉死，字形缓存内部使用，无外部输入路径。
+    "RUSTSEC-2026-0002",
+    "RUSTSEC-2026-0253",
+
+    # unmaintained 警告（非漏洞）：iced 0.13 生态的字体/计时依赖，
+    # 等待 iced 0.14+ 统一替换。
+    "RUSTSEC-2024-0384", # instant
+    "RUSTSEC-2024-0436", # paste
+    "RUSTSEC-2026-0206", # rustybuzz
+    "RUSTSEC-2026-0192", # ttf-parser
+    "RUSTSEC-2026-0221", # event-listener
+]

@@ -301,11 +301,7 @@ impl Popover {
                     width: 1.0,
                     radius: iced::border::radius(4.0),
                 },
-                shadow: iced::Shadow {
-                    color: Color::from_rgba(0.0, 0.0, 0.0, 0.12),
-                    offset: iced::Vector::new(0.0, 2.0),
-                    blur_radius: 8.0,
-                },
+                shadow: har_ui_core::theme::style_sheets::iced_shadow(&theme.shadow.light),
             });
 
         iced::widget::Column::new()

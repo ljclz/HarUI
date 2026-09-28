@@ -314,11 +314,7 @@ impl Tooltip {
                     width: 0.0,
                     radius: iced::border::radius(4.0),
                 },
-                shadow: iced::Shadow {
-                    color: Color::from_rgba(0.0, 0.0, 0.0, 0.15),
-                    offset: iced::Vector::new(0.0, 2.0),
-                    blur_radius: 6.0,
-                },
+                shadow: har_ui_core::theme::style_sheets::iced_shadow(&theme.shadow.lighter),
             });
 
         let arrow = if self.show_arrow {

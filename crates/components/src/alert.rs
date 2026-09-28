@@ -158,6 +158,12 @@ impl Alert {
             return container(text("")).into();
         }
 
+        let accent_token = match self.alert_type {
+            AlertType::Success => theme.success.base,
+            AlertType::Warning => theme.warning.base,
+            AlertType::Error => theme.danger.base,
+            AlertType::Info => theme.info.base,
+        };
         let (icon_str, accent) = match self.alert_type {
             AlertType::Success => ("✓", Color::from(theme.success.base)),
             AlertType::Warning => ("⚠", Color::from(theme.warning.base)),
@@ -170,13 +176,12 @@ impl Alert {
         let bg = if theme.is_dark {
             Color::from(theme.neutral.bg_overlay)
         } else {
-            // 浅色：accent 10% 与白色 90% 混合
-            iced::Color::from_rgba(
-                accent.r * 0.1 + 1.0 * 0.9,
-                accent.g * 0.1 + 1.0 * 0.9,
-                accent.b * 0.1 + 1.0 * 0.9,
-                1.0,
-            )
+            // 浅色：Element Plus 公式 — accent 10% 混白色 90%
+            Color::from(har_ui_core::utils::color_utils::mix_colors(
+                accent_token,
+                har_ui_core::theme::color::ThemeColor::from_rgb(255, 255, 255), // HARUI-EXCEPTION: EP 规范字面白（SCSS $color-white），混色公式常量
+                0.1,
+            ))
         };
 
         let mut row_children: Vec<Element<'a, Message>> = Vec::new();

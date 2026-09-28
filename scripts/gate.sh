@@ -40,7 +40,38 @@ run_gate "check 编译检查" "cargo check --workspace --all-targets" 2 || { [ $
 run_gate "clippy 静态分析" "cargo clippy --workspace --all-targets -- -D warnings" 3 || { [ $FAST -eq 1 ] && exit $EXIT_CODE; }
 run_gate "test 单元测试" "cargo test --workspace" 4 || true
 run_gate "doc 文档构建" "cargo doc --workspace --no-deps --all-features" 5 || true
-run_gate "audit 安全审计" "cargo audit" 6 || true
+
+# 关卡 6: 安全审计
+# 豁免清单与 audit.toml 保持同步（cargo-audit 0.22 不支持配置文件自动发现，
+# 故以 CLI 参数为准；升级依赖或 iced 后应清空豁免并重审）。
+# 网络受限环境请预先设置 https_proxy，或依赖 ~/.cargo/advisory-db 缓存回退。
+AUDIT_ARGS=(
+  --ignore RUSTSEC-2026-0194  # quick-xml DoS，iced svg 链传递依赖，仅解析内置图标
+  --ignore RUSTSEC-2026-0195  # quick-xml DoS，同上
+  --ignore RUSTSEC-2026-0002  # lru unsound，iced_glyphon 0.6 钉死，无外部输入
+  --ignore RUSTSEC-2026-0253  # lru unsound，同上
+  --ignore RUSTSEC-2024-0384  # instant unmaintained，等 iced 0.14+ 替换
+  --ignore RUSTSEC-2024-0436  # paste unmaintained，同上
+  --ignore RUSTSEC-2026-0206  # rustybuzz unmaintained，同上
+  --ignore RUSTSEC-2026-0192  # ttf-parser unmaintained，同上
+  --ignore RUSTSEC-2026-0221  # event-listener unsound，同上
+)
+set +e
+cargo audit "${AUDIT_ARGS[@]}"
+AUDIT_RC=$?
+AUDIT_DB_DIR="${CARGO_HOME:-$HOME/.cargo}/advisory-db"
+if [ $AUDIT_RC -ne 0 ] && [ -d "$AUDIT_DB_DIR" ]; then
+  echo "  [info] 直接审计失败（可能网络受限），使用本地缓存 advisory-db 重试 (--no-fetch)"
+  cargo audit --no-fetch "${AUDIT_ARGS[@]}"
+  AUDIT_RC=$?
+fi
+set -e
+if [ $AUDIT_RC -ne 0 ]; then
+  echo "[FAIL] 关卡 6 (audit 安全审计) 未通过"
+  EXIT_CODE=6
+else
+  echo "[OK] 关卡 6 (audit 安全审计) 通过"
+fi
 
 # 关卡 7: example 可运行验证（examples 为独立 workspace package，用 -p 构建）
 echo ""

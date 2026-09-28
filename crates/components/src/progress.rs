@@ -247,7 +247,7 @@ fn parse_hex(hex: &str) -> Option<Color> {
         let r = u8::from_str_radix(&hex[0..2], 16).ok()?;
         let g = u8::from_str_radix(&hex[2..4], 16).ok()?;
         let b = u8::from_str_radix(&hex[4..6], 16).ok()?;
-        return Some(Color::from_rgb8(r, g, b));
+        return Some(Color::from_rgb8(r, g, b)); // HARUI-EXCEPTION: 用户自定义进度色动态转换
     }
     None
 }

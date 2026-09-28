@@ -233,3 +233,16 @@ pub fn container_dialog_mask_style(_theme: &Theme) -> container::Style {
 pub fn container_default_style(_theme: &Theme) -> container::Style {
     container::Style::default()
 }
+
+/// ShadowSpec → iced::Shadow 通用映射（气泡/弹层组件共用）
+///
+/// 供 popconfirm/popover/tooltip 等组件从 [`Theme`] 的阴影令牌
+/// （base/light/lighter/dark 四档，对应 Element Plus box-shadow 变量）
+/// 生成 iced 阴影，替代各组件散落的硬编码阴影。
+pub fn iced_shadow(spec: &crate::theme::shadow::ShadowSpec) -> Shadow {
+    Shadow {
+        color: Color::from(spec.color),
+        offset: iced::Vector::new(spec.offset_x, spec.offset_y),
+        blur_radius: spec.blur,
+    }
+}

@@ -243,7 +243,7 @@ impl Switch {
             let g = u8::from_str_radix(&hex[2..4], 16).ok();
             let b = u8::from_str_radix(&hex[4..6], 16).ok();
             if let (Some(r), Some(g), Some(b)) = (r, g, b) {
-                return Color::from_rgb8(r, g, b);
+                return Color::from_rgb8(r, g, b); // HARUI-EXCEPTION: 用户自定义开关色动态转换
             }
         }
         fallback

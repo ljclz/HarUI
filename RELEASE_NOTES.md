@@ -8,8 +8,8 @@
 
 ### Upgrade
 ```toml
-har-ui-core = { git = "https://github.com/szzmj1980/HarUI", tag = "v1.2.0" }
-har-ui-components = { git = "https://github.com/szzmj1980/HarUI", tag = "v1.2.0" }
+har-ui-core = { git = "https://github.com/ljclz/HarUI", tag = "v1.2.0" }
+har-ui-components = { git = "https://github.com/ljclz/HarUI", tag = "v1.2.0" }
 iced = "0.14"
 ```
 v1.1.0 → v1.2.0 对下游零 API 破坏（HarUI 自身未改公开 API；下游需同步升 iced 0.14）。
@@ -30,8 +30,8 @@ v1.1.0 → v1.2.0 对下游零 API 破坏（HarUI 自身未改公开 API；下�
 
 ### Upgrade
 ```toml
-har-ui-core = { git = "https://github.com/szzmj1980/HarUI", tag = "v1.1.0" }
-har-ui-components = { git = "https://github.com/szzmj1980/HarUI", tag = "v1.1.0" }
+har-ui-core = { git = "https://github.com/ljclz/HarUI", tag = "v1.1.0" }
+har-ui-components = { git = "https://github.com/ljclz/HarUI", tag = "v1.1.0" }
 ```
 v1.0.0 → v1.1.0 零破坏性变更；新增 API 详见 CHANGELOG.md。
 
@@ -52,8 +52,8 @@ v1.0.0 → v1.1.0 零破坏性变更；新增 API 详见 CHANGELOG.md。
 ### Quick Start
 ```toml
 [dependencies]
-har-ui-core = { git = "https://github.com/szzmj1980/HarUI", tag = "v1.0.0" }
-har-ui-components = { git = "https://github.com/szzmj1980/HarUI", tag = "v1.0.0" }
+har-ui-core = { git = "https://github.com/ljclz/HarUI", tag = "v1.0.0" }
+har-ui-components = { git = "https://github.com/ljclz/HarUI", tag = "v1.0.0" }
 iced = "0.13"
 ```
 

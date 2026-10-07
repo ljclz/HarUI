@@ -31,7 +31,7 @@ iced 0.14.0 升级专项（W8 触发器命中，评估见 docs/iced-0.14-upgrade
 - `text_input::Status::Focused` 结构体变体（3 处）、`Palette.warning` 字段（1 处）、
   `Pixels: From<u16>` 移除（3 处）
 
-[v1.2.0]: https://github.com/szzmj1980/HarUI/compare/v1.1.0...v1.2.0
+[v1.2.0]: https://github.com/ljclz/HarUI/compare/v1.1.0...v1.2.0
 
 ## [v1.1.0] — 2026-09-30
 
@@ -101,6 +101,6 @@ GPUI Kit 调研吸收后的首个特性版本（路线图 M-A/M-B，ADR-008/009�
 - T1-T5 验证管线：1243 测试通过
 - 工程文档：技术实现方案、设计规范（2064 行）、实施进度、ADR 规范
 
-[v1.1.0]: https://github.com/szzmj1980/HarUI/compare/v1.0.0...v1.1.0
-[v1.0.0]: https://github.com/szzmj1980/HarUI/compare/v0.1.0...v1.0.0
-[v0.1.0]: https://github.com/szzmj1980/HarUI/releases/tag/v0.1.0
+[v1.1.0]: https://github.com/ljclz/HarUI/compare/v1.0.0...v1.1.0
+[v1.0.0]: https://github.com/ljclz/HarUI/compare/v0.1.0...v1.0.0
+[v0.1.0]: https://github.com/ljclz/HarUI/releases/tag/v0.1.0

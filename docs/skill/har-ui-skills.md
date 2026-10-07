@@ -11,8 +11,8 @@
 - 引用方式：
   ```toml
   [dependencies]
-  har-ui-core = { git = "https://github.com/szzmj1980/HarUI", tag = "v1.2.0" }
-  har-ui-components = { git = "https://github.com/szzmj1980/HarUI", tag = "v1.2.0" }
+  har-ui-core = { git = "https://github.com/ljclz/HarUI", tag = "v1.2.0" }
+  har-ui-components = { git = "https://github.com/ljclz/HarUI", tag = "v1.2.0" }
   iced = "0.14"
   ```
 

@@ -149,6 +149,17 @@ impl DatePicker {
         self.visible
     }
 
+    /// 计算日历面板在给定锚点/视窗下的解析矩形（委托 core 行为层，ADR-009）：
+    /// 默认锚点下方展开，下方空间不足自动翻转到上方（Element Plus date-picker 语义）
+    pub fn resolved_rect(
+        &self,
+        anchor: har_ui_core::behavior::overlay::Rect,
+        panel: har_ui_core::behavior::overlay::Size,
+        viewport: har_ui_core::behavior::overlay::Rect,
+    ) -> har_ui_core::behavior::overlay::ResolvedRect {
+        har_ui_core::behavior::overlay::dropdown_placement(anchor, panel, viewport, 4.0)
+    }
+
     pub fn disabled(&self) -> bool {
         self.disabled
     }

@@ -33,6 +33,29 @@ pub enum PopconfirmPlacement {
     RightEnd,
 }
 
+/// 气泡与锚点的默认间距（与 tooltip/popover 家族一致）
+pub const POPCONFIRM_GAP: f32 = 12.0;
+
+impl From<PopconfirmPlacement> for har_ui_core::behavior::overlay::Placement {
+    fn from(p: PopconfirmPlacement) -> Self {
+        use har_ui_core::behavior::overlay::Placement as P;
+        match p {
+            PopconfirmPlacement::Top => P::Top,
+            PopconfirmPlacement::TopStart => P::TopStart,
+            PopconfirmPlacement::TopEnd => P::TopEnd,
+            PopconfirmPlacement::Bottom => P::Bottom,
+            PopconfirmPlacement::BottomStart => P::BottomStart,
+            PopconfirmPlacement::BottomEnd => P::BottomEnd,
+            PopconfirmPlacement::Left => P::Left,
+            PopconfirmPlacement::LeftStart => P::LeftStart,
+            PopconfirmPlacement::LeftEnd => P::LeftEnd,
+            PopconfirmPlacement::Right => P::Right,
+            PopconfirmPlacement::RightStart => P::RightStart,
+            PopconfirmPlacement::RightEnd => P::RightEnd,
+        }
+    }
+}
+
 /// Popconfirm 用户动作
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum PopconfirmAction {
@@ -154,6 +177,27 @@ impl Popconfirm {
 
     pub fn placement(&self) -> PopconfirmPlacement {
         self.placement
+    }
+
+    /// 计算气泡在给定锚点/视窗下的解析矩形（委托 core 行为层定位引擎，ADR-009；
+    /// 碰撞策略 FlipThenShift，间距 [`POPCONFIRM_GAP`]）
+    pub fn resolved_rect(
+        &self,
+        anchor: har_ui_core::behavior::overlay::Rect,
+        content: har_ui_core::behavior::overlay::Size,
+        viewport: har_ui_core::behavior::overlay::Rect,
+    ) -> har_ui_core::behavior::overlay::ResolvedRect {
+        use har_ui_core::behavior::overlay::{self, CollisionPolicy, PlacementOptions};
+        overlay::compute_placement(
+            anchor,
+            content,
+            viewport,
+            PlacementOptions {
+                placement: self.placement.into(),
+                offset: POPCONFIRM_GAP,
+                collision: CollisionPolicy::FlipThenShift,
+            },
+        )
     }
 
     pub fn width(&self) -> Option<u32> {
@@ -382,5 +426,39 @@ mod internal_tests {
         // disabled 状态下 Confirm 也被阻塞
         assert!(!p.visible, "未显示");
         // 但如果之前已经显示了再 disabled，仍可被 Confirm 关闭（这里测未显示情况）
+    }
+
+    // ============ 定位引擎接入（ADR-009） ============
+
+    use har_ui_core::behavior::overlay::{Placement, Rect, Size};
+
+    const VP: Rect = Rect {
+        x: 0.0,
+        y: 0.0,
+        width: 800.0,
+        height: 600.0,
+    };
+
+    #[test]
+    fn test_popconfirm_resolved_rect_above_anchor_with_gap() {
+        let p = Popconfirm::new("确认删除？");
+        let r = p.resolved_rect(
+            Rect::new(380.0, 300.0, 40.0, 20.0),
+            Size::new(180.0, 60.0),
+            VP,
+        );
+        assert_eq!(r.effective_placement, Placement::Top);
+        assert_eq!(r.rect.y, 300.0 - 60.0 - POPCONFIRM_GAP);
+    }
+
+    #[test]
+    fn test_popconfirm_resolved_rect_flips_near_top_edge() {
+        let p = Popconfirm::new("确认删除？");
+        let r = p.resolved_rect(
+            Rect::new(380.0, 10.0, 40.0, 20.0),
+            Size::new(180.0, 60.0),
+            VP,
+        );
+        assert_eq!(r.effective_placement, Placement::Bottom);
     }
 }

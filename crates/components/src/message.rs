@@ -170,14 +170,19 @@ impl MessageManager {
     }
 
     /// 计算每条消息的垂直 offset
+    ///
+    /// 实现委托 core 行为层 `behavior::stack`（ADR-009）：
+    /// 首条附加偏移 DEFAULT_OFFSET，其余每条贡献 DEFAULT_ITEM_HEIGHT，间距 DEFAULT_GAP，
+    /// 与原实现逐值等价。
     pub fn offsets(&self) -> Vec<u32> {
-        let mut result = Vec::with_capacity(self.items.len());
-        let mut acc = DEFAULT_OFFSET;
-        for (_, _) in &self.items {
-            result.push(acc);
-            acc += DEFAULT_ITEM_HEIGHT + DEFAULT_GAP;
+        let n = self.items.len();
+        if n == 0 {
+            return Vec::new();
         }
-        result
+        let mut extras = Vec::with_capacity(n);
+        extras.push(DEFAULT_OFFSET);
+        extras.resize(n, DEFAULT_ITEM_HEIGHT);
+        har_ui_core::behavior::stack::stacked_offsets(&extras, DEFAULT_GAP)
     }
 }
 

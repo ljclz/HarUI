@@ -127,6 +127,17 @@ impl Select {
         &self.options
     }
 
+    /// 计算下拉面板在给定锚点/视窗下的解析矩形（委托 core 行为层，ADR-009）：
+    /// 默认锚点下方展开，下方空间不足自动翻转到上方（Element Plus select 面板语义）
+    pub fn resolved_rect(
+        &self,
+        anchor: har_ui_core::behavior::overlay::Rect,
+        panel: har_ui_core::behavior::overlay::Size,
+        viewport: har_ui_core::behavior::overlay::Rect,
+    ) -> har_ui_core::behavior::overlay::ResolvedRect {
+        har_ui_core::behavior::overlay::dropdown_placement(anchor, panel, viewport, 4.0)
+    }
+
     pub fn value(&self) -> Option<&String> {
         self.value.as_ref()
     }
@@ -460,5 +471,37 @@ mod internal_tests {
         let mut s = Select::new().with_option(SelectOption::new("a", "A").set_disabled(true));
         s.handle(SelectMessage::Choose("a".to_string()));
         assert_eq!(s.value(), None);
+    }
+
+    // ============ 定位引擎接入（ADR-009） ============
+
+    use har_ui_core::behavior::overlay::{Placement, Rect, Size};
+
+    const VP: Rect = Rect {
+        x: 0.0,
+        y: 0.0,
+        width: 800.0,
+        height: 600.0,
+    };
+
+    #[test]
+    fn test_select_resolved_rect_below_then_flip_up() {
+        let s = Select::new();
+        // 下方空间充足 → 面板在锚点下方
+        let below = s.resolved_rect(
+            Rect::new(380.0, 300.0, 200.0, 32.0),
+            Size::new(200.0, 240.0),
+            VP,
+        );
+        assert_eq!(below.effective_placement, Placement::Bottom);
+        assert_eq!(below.rect.y, 332.0 + 4.0);
+        // 锚点贴底：下方空间不足 → 翻转到上方
+        let up = s.resolved_rect(
+            Rect::new(380.0, 500.0, 200.0, 32.0),
+            Size::new(200.0, 240.0),
+            VP,
+        );
+        assert_eq!(up.effective_placement, Placement::Top);
+        assert_eq!(up.rect.bottom(), 500.0 - 4.0);
     }
 }

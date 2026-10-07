@@ -269,6 +269,31 @@ fn is_forward_direction(p: Placement) -> bool {
     )
 }
 
+/// 下拉面板定位便利构造：默认锚点下方，下方空间不足自动翻转到上方
+/// （Element Plus select/datepicker 面板的 bottom + flip 语义）
+pub fn dropdown_placement(anchor: Rect, panel: Size, viewport: Rect, offset: f32) -> ResolvedRect {
+    compute_placement(
+        anchor,
+        panel,
+        viewport,
+        PlacementOptions {
+            placement: Placement::Bottom,
+            offset,
+            collision: CollisionPolicy::Flip,
+        },
+    )
+}
+
+/// 视窗居中定位便利构造（Element Plus dialog 默认语义）：
+/// 内容矩形在视窗内水平垂直居中；内容超出视窗时钳到视窗起点
+pub fn centered(viewport: Rect, content: Size) -> Rect {
+    let max_x = (viewport.x + viewport.width - content.width).max(viewport.x);
+    let max_y = (viewport.y + viewport.height - content.height).max(viewport.y);
+    let x = (viewport.x + (viewport.width - content.width) / 2.0).clamp(viewport.x, max_x);
+    let y = (viewport.y + (viewport.height - content.height) / 2.0).clamp(viewport.y, max_y);
+    Rect::new(x, y, content.width, content.height)
+}
+
 impl Size {
     /// 该尺寸在指定轴上（true=垂直）的占用量
     fn needed_axis_size(self, vertical: bool) -> f32 {
@@ -437,5 +462,33 @@ mod tests {
         let r = compute_placement(anchor, Size::new(0.0, 0.0), VIEW, opts(Placement::Top));
         assert_eq!(r.rect.width, 0.0);
         assert_eq!(r.rect.height, 0.0);
+    }
+
+    #[test]
+    fn test_dropdown_placement_below_and_flip_up() {
+        let anchor = Rect::new(380.0, 300.0, 120.0, 32.0);
+        // 下方空间充足 → 面板在锚点下方
+        let below = dropdown_placement(anchor, Size::new(160.0, 200.0), VIEW, 4.0);
+        assert_eq!(below.effective_placement, Placement::Bottom);
+        assert_eq!(below.rect.y, 332.0 + 4.0);
+        // 锚点贴近底部：下方空间不足 → 翻转到上方
+        let near_bottom = Rect::new(380.0, 500.0, 120.0, 32.0);
+        let up = dropdown_placement(near_bottom, Size::new(160.0, 200.0), VIEW, 4.0);
+        assert_eq!(up.effective_placement, Placement::Top);
+        assert_eq!(up.rect.bottom(), 500.0 - 4.0);
+    }
+
+    #[test]
+    fn test_centered_in_viewport() {
+        let r = centered(VIEW, Size::new(400.0, 300.0));
+        assert_eq!(r.x, 200.0);
+        assert_eq!(r.y, 150.0);
+        // 内容超视窗 → 钳到视窗起点
+        let big = centered(VIEW, Size::new(900.0, 700.0));
+        assert_eq!((big.x, big.y), (0.0, 0.0));
+        // 偏移视窗（非零原点）下仍居中
+        let off = Rect::new(100.0, 50.0, 800.0, 600.0);
+        let r2 = centered(off, Size::new(400.0, 300.0));
+        assert_eq!((r2.x, r2.y), (300.0, 200.0));
     }
 }

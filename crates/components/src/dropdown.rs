@@ -129,6 +129,17 @@ impl Dropdown {
         self.visible
     }
 
+    /// 计算下拉菜单在给定锚点/视窗下的解析矩形（委托 core 行为层，ADR-009）：
+    /// 默认锚点下方展开，下方空间不足自动翻转到上方（Element Plus dropdown 语义）
+    pub fn resolved_rect(
+        &self,
+        anchor: har_ui_core::behavior::overlay::Rect,
+        menu: har_ui_core::behavior::overlay::Size,
+        viewport: har_ui_core::behavior::overlay::Rect,
+    ) -> har_ui_core::behavior::overlay::ResolvedRect {
+        har_ui_core::behavior::overlay::dropdown_placement(anchor, menu, viewport, 4.0)
+    }
+
     pub fn last_command(&self) -> Option<&str> {
         self.last_command.as_deref()
     }
@@ -296,5 +307,29 @@ mod internal_tests {
         let d = Dropdown::new();
         assert!(d.hide_on_click);
         assert_eq!(d.trigger(), DropdownTrigger::Hover);
+    }
+
+    // ============ 定位引擎接入（ADR-009） ============
+
+    use har_ui_core::behavior::overlay::{Placement, Rect, Size};
+
+    const VP: Rect = Rect {
+        x: 0.0,
+        y: 0.0,
+        width: 800.0,
+        height: 600.0,
+    };
+
+    #[test]
+    fn test_dropdown_resolved_rect_flip_up_near_bottom() {
+        let d = Dropdown::new();
+        let up = d.resolved_rect(
+            Rect::new(380.0, 540.0, 100.0, 32.0),
+            Size::new(160.0, 120.0),
+            VP,
+        );
+        // 锚点贴底：下方空间不足 → 翻转到上方，菜单底缘距锚点顶缘 4px
+        assert_eq!(up.effective_placement, Placement::Top);
+        assert_eq!(up.rect.bottom(), 540.0 - 4.0);
     }
 }

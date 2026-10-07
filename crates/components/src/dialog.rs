@@ -140,6 +140,16 @@ impl Dialog {
         self.position
     }
 
+    /// 计算对话框的默认居中矩形（委托 core 行为层 `overlay::centered`，ADR-009；
+    /// Element Plus dialog 默认语义：视窗水平垂直居中，内容超出视窗时钳到起点）
+    pub fn centered_rect(
+        &self,
+        viewport: har_ui_core::behavior::overlay::Rect,
+        content: har_ui_core::behavior::overlay::Size,
+    ) -> har_ui_core::behavior::overlay::Rect {
+        har_ui_core::behavior::overlay::centered(viewport, content)
+    }
+
     /// 渲染对话框为 iced::Element
     ///
     /// # 参数
@@ -303,5 +313,23 @@ mod internal_tests {
         assert!(!p.close_on_press_escape);
         assert!(p.fullscreen);
         assert!(p.draggable);
+    }
+
+    // ============ 定位引擎接入（ADR-009） ============
+
+    #[test]
+    fn test_dialog_centered_rect_in_viewport() {
+        let d = Dialog::new("标题", "内容");
+        let r = d.centered_rect(
+            har_ui_core::behavior::overlay::Rect {
+                x: 0.0,
+                y: 0.0,
+                width: 800.0,
+                height: 600.0,
+            },
+            har_ui_core::behavior::overlay::Size::new(400.0, 300.0),
+        );
+        assert_eq!(r.x, 200.0);
+        assert_eq!(r.y, 150.0);
     }
 }

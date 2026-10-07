@@ -53,6 +53,29 @@ impl PopoverPlacement {
     }
 }
 
+/// 气泡与锚点的默认间距（与 tooltip/popconfirm 家族一致）
+pub const POPOVER_GAP: f32 = 12.0;
+
+impl From<PopoverPlacement> for har_ui_core::behavior::overlay::Placement {
+    fn from(p: PopoverPlacement) -> Self {
+        use har_ui_core::behavior::overlay::Placement as P;
+        match p {
+            PopoverPlacement::Top => P::Top,
+            PopoverPlacement::TopStart => P::TopStart,
+            PopoverPlacement::TopEnd => P::TopEnd,
+            PopoverPlacement::Bottom => P::Bottom,
+            PopoverPlacement::BottomStart => P::BottomStart,
+            PopoverPlacement::BottomEnd => P::BottomEnd,
+            PopoverPlacement::Left => P::Left,
+            PopoverPlacement::LeftStart => P::LeftStart,
+            PopoverPlacement::LeftEnd => P::LeftEnd,
+            PopoverPlacement::Right => P::Right,
+            PopoverPlacement::RightStart => P::RightStart,
+            PopoverPlacement::RightEnd => P::RightEnd,
+        }
+    }
+}
+
 /// Popover 消息
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum PopoverMessage {
@@ -169,6 +192,27 @@ impl Popover {
 
     pub fn placement(&self) -> PopoverPlacement {
         self.placement
+    }
+
+    /// 计算气泡在给定锚点/视窗下的解析矩形（委托 core 行为层定位引擎，ADR-009；
+    /// 碰撞策略 FlipThenShift，间距 [`POPOVER_GAP`]）
+    pub fn resolved_rect(
+        &self,
+        anchor: har_ui_core::behavior::overlay::Rect,
+        content: har_ui_core::behavior::overlay::Size,
+        viewport: har_ui_core::behavior::overlay::Rect,
+    ) -> har_ui_core::behavior::overlay::ResolvedRect {
+        use har_ui_core::behavior::overlay::{self, CollisionPolicy, PlacementOptions};
+        overlay::compute_placement(
+            anchor,
+            content,
+            viewport,
+            PlacementOptions {
+                placement: self.placement.into(),
+                offset: POPOVER_GAP,
+                collision: CollisionPolicy::FlipThenShift,
+            },
+        )
     }
 
     pub fn title(&self) -> Option<&str> {
@@ -344,5 +388,41 @@ mod internal_tests {
         assert!(!p.visible);
         p.handle(PopoverMessage::Show);
         assert!(!p.visible);
+    }
+
+    // ============ 定位引擎接入（ADR-009） ============
+
+    use har_ui_core::behavior::overlay::{Placement, Rect, Size};
+
+    const VP: Rect = Rect {
+        x: 0.0,
+        y: 0.0,
+        width: 800.0,
+        height: 600.0,
+    };
+
+    #[test]
+    fn test_popover_resolved_rect_below_anchor_with_gap() {
+        let p = Popover::new();
+        let r = p.resolved_rect(
+            Rect::new(380.0, 300.0, 40.0, 20.0),
+            Size::new(200.0, 80.0),
+            VP,
+        );
+        // popover 默认 Bottom：锚点下方 + gap 12
+        assert_eq!(r.effective_placement, Placement::Bottom);
+        assert_eq!(r.rect.y, 320.0 + POPOVER_GAP);
+    }
+
+    #[test]
+    fn test_popover_resolved_rect_flips_near_bottom_edge() {
+        let p = Popover::new();
+        let r = p.resolved_rect(
+            Rect::new(380.0, 540.0, 40.0, 20.0),
+            Size::new(200.0, 80.0),
+            VP,
+        );
+        // 锚点贴底：下方空间不足 → 翻转到上方
+        assert_eq!(r.effective_placement, Placement::Top);
     }
 }

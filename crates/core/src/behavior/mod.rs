@@ -4,10 +4,12 @@
 //! - `overlay`: 弹层 12 方位定位引擎（碰撞翻转/钳制）
 //! - `virtual_list`: 等高行虚拟滚动度量
 //! - `stack`: 浮层同侧堆叠偏移
+//! - `focus`: 焦点环 / Tab 序管理（环绕、跳过禁用项）
 //!
 //! 硬约束：本模块树禁止 `use iced`，坐标一律用自有 `f32` 类型，
 //! 保证可被 proptest 全空间覆盖并可在任何 Rust GUI 栈中复用。
 
+pub mod focus;
 pub mod overlay;
 pub mod stack;
 pub mod virtual_list;

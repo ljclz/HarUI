@@ -58,7 +58,7 @@
 
 ## 三、工作项明细
 
-### W1：core 行为层（headless）抽离 🔶 **P0，架构级（第一批 2026-09-30 完成，ADR-009）**
+### W1：core 行为层（headless）抽离 🔶 **P0，架构级（第一/二批 2026-09-30 完成，ADR-009）**
 
 **现状证据**：
 - `crates/core/src/utils/keyboard.rs` 已有 `Shortcut/ShortcutRegistry/KeyEvent/subscription()`（行为层的雏形，仅键盘）
@@ -94,6 +94,18 @@
 - 核心测试：core lib 27 + overlay_fuzz 1000 cases；组件侧 tooltip 6/6、table 23/23 不回归。
 - 余下（下一批）：focus.rs 焦点环、popconfirm→popover→select→dropdown→date_picker→
   dialog→notification/message 定位全量接入 overlay。
+
+**实施记录（第二批，2026-09-30）**：
+- `focus.rs` 焦点环落地：Tab 序注册 / `focus_next`·`focus_prev` 环绕跳过禁用项 /
+  动态增删与焦点让出；命名避开 `Iterator::next` 混淆（clippy should_implement_trait）。
+- overlay 引擎补两个便利构造：`dropdown_placement`（Bottom + Flip，select/dropdown/
+  date_picker 面板语义）、`centered`（dialog 居中语义，内容超视窗钳到起点）。
+- 弹层组件定位全量接入（8/8）：popconfirm / popover（From 映射 + resolved_rect，
+  FlipThenShift）；select / dropdown / date_picker（resolved_rect → dropdown_placement）；
+  dialog（centered_rect）；notification（上批）与 message（offsets 委托 stack，
+  首条 extra=DEFAULT_OFFSET 口径逐值等价）。
+- 组件测试 +10：popconfirm/popover/select/dropdown/dialog 各 1-2 个定位单测；
+  core lib 36 个（+focus 7、+便利构造 2）。
 
 ---
 

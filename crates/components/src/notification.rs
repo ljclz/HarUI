@@ -284,17 +284,11 @@ impl NotificationList {
     }
 
     /// 计算每个通知堆叠后的实际 offset
-    /// gap: 通知之间的间距
+    /// gap: 通知之间的间距（实现委托 core 行为层 `behavior::stack`，ADR-009；
+    /// 各项附加 offset 并入累加位，通知高度折算进 gap，与既有口径一致）
     pub fn stacked_offsets(&self, gap: u32) -> Vec<u32> {
-        let mut offsets = Vec::with_capacity(self.items.len());
-        let mut acc = 0u32;
-        for n in &self.items {
-            let cur = acc + n.offset();
-            offsets.push(cur);
-            // 累加：当前 offset + 通知高度（这里用 gap 近似）+ gap
-            acc = cur + gap;
-        }
-        offsets
+        let extras: Vec<u32> = self.items.iter().map(|n| n.offset()).collect();
+        har_ui_core::behavior::stack::stacked_offsets(&extras, gap)
     }
 }
 

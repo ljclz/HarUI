@@ -33,6 +33,29 @@ pub enum TooltipPlacement {
     RightEnd,
 }
 
+/// 气泡与锚点的默认间距（Element Plus el-tooltip offset 规范值）
+pub const TOOLTIP_GAP: f32 = 12.0;
+
+impl From<TooltipPlacement> for har_ui_core::behavior::overlay::Placement {
+    fn from(p: TooltipPlacement) -> Self {
+        use har_ui_core::behavior::overlay::Placement as P;
+        match p {
+            TooltipPlacement::Top => P::Top,
+            TooltipPlacement::TopStart => P::TopStart,
+            TooltipPlacement::TopEnd => P::TopEnd,
+            TooltipPlacement::Bottom => P::Bottom,
+            TooltipPlacement::BottomStart => P::BottomStart,
+            TooltipPlacement::BottomEnd => P::BottomEnd,
+            TooltipPlacement::Left => P::Left,
+            TooltipPlacement::LeftStart => P::LeftStart,
+            TooltipPlacement::LeftEnd => P::LeftEnd,
+            TooltipPlacement::Right => P::Right,
+            TooltipPlacement::RightStart => P::RightStart,
+            TooltipPlacement::RightEnd => P::RightEnd,
+        }
+    }
+}
+
 /// Tooltip 主题效果
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum TooltipEffect {
@@ -159,6 +182,29 @@ impl Tooltip {
 
     pub fn placement(&self) -> TooltipPlacement {
         self.placement
+    }
+
+    /// 计算气泡在给定锚点/视窗下的解析矩形（委托 core 行为层定位引擎，ADR-009）
+    ///
+    /// iced 0.13 无绝对定位 widget，本 API 供应用层手工定位、弹出方向动画判定与测试断言；
+    /// 碰撞策略 FlipThenShift（空间不足先翻转对侧，仍越界则钳回视窗）。
+    pub fn resolved_rect(
+        &self,
+        anchor: har_ui_core::behavior::overlay::Rect,
+        content: har_ui_core::behavior::overlay::Size,
+        viewport: har_ui_core::behavior::overlay::Rect,
+    ) -> har_ui_core::behavior::overlay::ResolvedRect {
+        use har_ui_core::behavior::overlay::{self, CollisionPolicy, PlacementOptions};
+        overlay::compute_placement(
+            anchor,
+            content,
+            viewport,
+            PlacementOptions {
+                placement: self.placement.into(),
+                offset: TOOLTIP_GAP,
+                collision: CollisionPolicy::FlipThenShift,
+            },
+        )
     }
 
     pub fn effect(&self) -> TooltipEffect {
@@ -371,5 +417,60 @@ mod internal_tests {
         t.handle(TooltipMessage::EnterTooltip);
         t.handle(TooltipMessage::MouseLeave);
         assert!(t.visible, "在气泡内时 MouseLeave 不应隐藏");
+    }
+
+    // ============ 定位引擎接入（ADR-009） ============
+
+    use har_ui_core::behavior::overlay::{Rect, Size};
+
+    const VP: Rect = Rect {
+        x: 0.0,
+        y: 0.0,
+        width: 800.0,
+        height: 600.0,
+    };
+
+    #[test]
+    fn test_tooltip_resolved_rect_delegates_placement() {
+        let t = Tooltip::new("x").with_placement(TooltipPlacement::Bottom);
+        let r = t.resolved_rect(
+            Rect::new(380.0, 300.0, 40.0, 20.0),
+            Size::new(100.0, 30.0),
+            VP,
+        );
+        // Bottom：锚点下方 + gap 12
+        assert_eq!(
+            r.effective_placement,
+            har_ui_core::behavior::overlay::Placement::Bottom
+        );
+        assert_eq!(r.rect.y, 320.0 + TOOLTIP_GAP);
+    }
+
+    #[test]
+    fn test_tooltip_resolved_rect_flips_near_top_edge() {
+        // 锚点贴顶：上方空间 < 需求 → 翻转到下方
+        let t = Tooltip::new("x"); // 默认 Top
+        let r = t.resolved_rect(
+            Rect::new(380.0, 10.0, 40.0, 20.0),
+            Size::new(100.0, 30.0),
+            VP,
+        );
+        assert_eq!(
+            r.effective_placement,
+            har_ui_core::behavior::overlay::Placement::Bottom
+        );
+    }
+
+    #[test]
+    fn test_tooltip_resolved_rect_clamped_into_viewport() {
+        // 超宽气泡 + 角落锚点：FlipThenShift 钳回视窗
+        let t = Tooltip::new("x");
+        let r = t.resolved_rect(
+            Rect::new(10.0, 10.0, 40.0, 20.0),
+            Size::new(600.0, 30.0),
+            VP,
+        );
+        assert!(r.rect.x >= 0.0 && r.rect.right() <= VP.right());
+        assert!(r.rect.bottom() <= VP.bottom());
     }
 }

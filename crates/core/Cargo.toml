@@ -10,3 +10,4 @@ iced = { workspace = true }
 
 [dev-dependencies]
 iced = { workspace = true }
+proptest = "1.11"

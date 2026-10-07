@@ -1526,6 +1526,7 @@ name = "har-ui-core"
 version = "1.0.0"
 dependencies = [
  "iced",
+ "proptest",
 ]
 
 [[package]]

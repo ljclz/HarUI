@@ -58,7 +58,7 @@
 
 ## 三、工作项明细
 
-### W1：core 行为层（headless）抽离 🔶 **P0，架构级**
+### W1：core 行为层（headless）抽离 🔶 **P0，架构级（第一批 2026-09-30 完成，ADR-009）**
 
 **现状证据**：
 - `crates/core/src/utils/keyboard.rs` 已有 `Shortcut/ShortcutRegistry/KeyEvent/subscription()`（行为层的雏形，仅键盘）
@@ -81,6 +81,19 @@
 - [ ] `cargo clippy -D warnings` / fmt / 2047+ 测试全通过
 
 **规模**：L（分 2-3 个会话）｜ **ADR 要求**：ADR-009（headless 行为层与渲染层分离）
+
+**实施记录（第一批，2026-09-30）**：
+- `behavior/` 三模块落地：`overlay.rs`（12 方位 + CollisionPolicy{None,Flip,FlipThenShift} +
+  compute_placement，纯 f32 零 iced 类型）、`virtual_list.rs`（VirtualList 上收，table.rs 以
+  `pub type VirtualScroll` 别名保持 API，23 测试原样通过）、`stack.rs`（stacked_offsets 泛化，
+  notification 委托）。
+- tooltip 首个接入：`From<TooltipPlacement> for overlay::Placement` + `resolved_rect(anchor,
+  content, viewport)`（FlipThenShift），新增 3 个定位单测；notification 堆叠委托 stack。
+- 开发中修复两处自引入缺陷：① 翻转判定与几何计算脱节（翻转后仍按原方位算坐标）；
+  ② axis_space 主轴映射方向颠倒。proptest `overlay_fuzz`（1000 轮 × 4 不变式）守住。
+- 核心测试：core lib 27 + overlay_fuzz 1000 cases；组件侧 tooltip 6/6、table 23/23 不回归。
+- 余下（下一批）：focus.rs 焦点环、popconfirm→popover→select→dropdown→date_picker→
+  dialog→notification/message 定位全量接入 overlay。
 
 ---
 

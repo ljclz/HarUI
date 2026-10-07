@@ -153,68 +153,10 @@ pub enum TableMessage {
 
 /// 虚拟滚动配置
 ///
+/// 实现已上收至 core 行为层 [`har_ui_core::behavior::virtual_list::VirtualList`]（ADR-009），
+/// 本别名保持原路径 / 原名 / 原方法，数学逐行等价。
 /// 当行数超过阈值时启用，仅渲染可见区域的行。
-/// 视窗逻辑：visible_start = floor(scroll_offset / row_height)
-///          visible_count = ceil(viewport_height / row_height) + 1（缓冲）
-#[derive(Debug, Clone)]
-pub struct VirtualScroll {
-    /// 单行高度（像素）
-    pub row_height: f32,
-    /// 视窗高度（像素）
-    pub viewport_height: f32,
-    /// 当前滚动偏移（像素）
-    pub scroll_offset: f32,
-    /// 启用阈值：行数超过此值才启用虚拟滚动
-    pub threshold: usize,
-}
-
-impl VirtualScroll {
-    pub fn new(row_height: f32, viewport_height: f32) -> Self {
-        Self {
-            row_height: row_height.max(1.0),
-            viewport_height: viewport_height.max(1.0),
-            scroll_offset: 0.0,
-            threshold: 100,
-        }
-    }
-
-    pub fn with_threshold(mut self, t: usize) -> Self {
-        self.threshold = t;
-        self
-    }
-
-    /// 是否启用虚拟滚动
-    pub fn should_enable(&self, total_rows: usize) -> bool {
-        total_rows > self.threshold
-    }
-
-    /// 计算可见行索引区间 [start, end)
-    pub fn visible_range(&self, total_rows: usize) -> (usize, usize) {
-        if total_rows == 0 || self.row_height <= 0.0 {
-            return (0, 0);
-        }
-        let start = ((self.scroll_offset / self.row_height).floor() as usize).saturating_sub(0);
-        let visible_count = ((self.viewport_height / self.row_height).ceil() as usize) + 1;
-        let end = (start.saturating_add(visible_count)).min(total_rows);
-        (start.min(total_rows), end)
-    }
-
-    /// 总滚动高度
-    pub fn total_height(&self, total_rows: usize) -> f32 {
-        total_rows as f32 * self.row_height
-    }
-
-    /// 钳制 scroll_offset 到 [0, max_offset]
-    pub fn clamp_offset(&mut self, total_rows: usize) {
-        let max = (total_rows as f32 * self.row_height - self.viewport_height).max(0.0);
-        if self.scroll_offset < 0.0 {
-            self.scroll_offset = 0.0;
-        }
-        if self.scroll_offset > max {
-            self.scroll_offset = max;
-        }
-    }
-}
+pub type VirtualScroll = har_ui_core::behavior::virtual_list::VirtualList;
 
 /// 行数据 — 简化实现，仅用 BTreeMap 存储字段
 pub type TableRow = BTreeMap<String, String>;

@@ -251,6 +251,14 @@ impl Form {
     pub fn validate_field(&mut self, field: &str) -> Option<ValidationError> {
         let item = self.items.iter().find(|i| i.field() == field)?;
         let value = self.values.get(field).cloned().unwrap_or_default();
+        // 项级 required 标记独立生效（Element Plus 语义：el-form-item required 属性
+        // 即强制必填）。此前该标记仅用于渲染星号、校验被忽略 —— replay 回放测试发现
+        if item.required() && value.is_empty() {
+            return Some(ValidationError {
+                field: field.to_string(),
+                message: format!("{} is required", field),
+            });
+        }
         for rule in item.rules() {
             if rule.required && value.is_empty() {
                 return Some(ValidationError {

@@ -335,6 +335,82 @@ fn bench_table_frozen_state(c: &mut Criterion) {
     group.finish();
 }
 
+// ===================== Overlay / Focus（W1 行为层，ADR-009） =====================
+
+/// 弹层定位引擎：compute_placement 在 12 方位 × 3 碰撞策略下的成本
+fn bench_overlay_compute_placement(c: &mut Criterion) {
+    use har_ui_core::behavior::overlay::{
+        CollisionPolicy, Placement, PlacementOptions, Rect, Size, compute_placement,
+    };
+    let anchor = Rect::new(380.0, 300.0, 120.0, 32.0);
+    let content = Size::new(200.0, 100.0);
+    let viewport = Rect::new(0.0, 0.0, 800.0, 600.0);
+    let placements = [
+        Placement::Top,
+        Placement::TopStart,
+        Placement::TopEnd,
+        Placement::Bottom,
+        Placement::BottomStart,
+        Placement::BottomEnd,
+        Placement::Left,
+        Placement::LeftStart,
+        Placement::LeftEnd,
+        Placement::Right,
+        Placement::RightStart,
+        Placement::RightEnd,
+    ];
+    let policies = [
+        CollisionPolicy::None,
+        CollisionPolicy::Flip,
+        CollisionPolicy::FlipThenShift,
+    ];
+
+    let mut group = c.benchmark_group("overlay/compute_placement");
+    group.bench_function("12placements_x_3policies", |b| {
+        b.iter(|| {
+            for &p in &placements {
+                for &cp in &policies {
+                    let r = compute_placement(
+                        anchor,
+                        content,
+                        viewport,
+                        PlacementOptions {
+                            placement: p,
+                            offset: 12.0,
+                            collision: cp,
+                        },
+                    );
+                    black_box((r.rect.x, r.rect.y, r.effective_placement));
+                }
+            }
+        });
+    });
+    group.finish();
+}
+
+/// 焦点环：200 项环上连续 Tab 前进（含禁用项穿插）
+fn bench_focus_ring_next(c: &mut Criterion) {
+    use har_ui_core::behavior::focus::FocusRing;
+    let mut ring = FocusRing::new();
+    for i in 0..200 {
+        ring.register(format!("field{}", i));
+        // 每 10 项禁用一个
+        if i % 10 == 5 {
+            ring.set_enabled(&format!("field{}", i), false);
+        }
+    }
+
+    let mut group = c.benchmark_group("focus/ring");
+    group.bench_function("next_x1000_200items", |b| {
+        b.iter(|| {
+            for _ in 0..1000 {
+                black_box(ring.focus_next());
+            }
+        });
+    });
+    group.finish();
+}
+
 criterion_group!(
     benches,
     bench_slider_handle_single,
@@ -348,5 +424,7 @@ criterion_group!(
     bench_upload_add_remove_batch,
     bench_table_virtual_scroll,
     bench_table_frozen_state,
+    bench_overlay_compute_placement,
+    bench_focus_ring_next,
 );
 criterion_main!(benches);

@@ -264,8 +264,9 @@
 ### M-B：v1.1.0（headless + 测试分发体系）
 - [x] ADR-009 完成（2026-09-30）
 - [x] W1：behavior 模块 + 8 个弹层组件接入 + proptest（overlay_fuzz 1000 cases）
-- [ ] W4：replay_test 四条业务流
-- [ ] W3(完整)：overlay bench
+- [x] W4：replay_test 四条业务流（扫码收银 / 挂单生命周期 / 表单提交 / 弹层表单流）——
+  并抓出并修复 Form `set_required` 标记未参与校验的缺陷（2026-09-30）
+- [x] W3(完整)：overlay/focus bench 追加（定位 ~6.4ns/次、Tab 步进 ~6.2ns），基线落 perf_baseline.md
 - [ ] W5：画廊化 + FPS overlay
 - [ ] W6：AI 技能包文档
 - [ ] 全量门禁 12 关通过；tag `v1.1.0` 并推送

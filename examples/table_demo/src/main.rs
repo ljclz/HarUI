@@ -1,7 +1,12 @@
-//! HarUI Table 示例
+//! HarUI Table 示例 — 虚拟滚动 + 冻结列 + 列宽拖拽（ADR-008 / W2）
+//!
+//! - 垂直虚拟滚动：Scroll Up/Down 按钮驱动 `TableMessage::Scroll`（消息驱动模式）
+//! - 冻结列：ID 列固定在左、操作列固定在右，中段横向滚动时保持原位
+//! - 列宽拖拽：Name / Value / Qty 列表头右缘有拖拽条（`view_msg` 交互接线）
+//! - 行点击：`RowClicked` → 选中行展示
 
 use har_ui_components::table::{
-    Table, TableColumn, TableMessage, TableProps, TableRow, VirtualScroll,
+    FixedSide, Table, TableColumn, TableMessage, TableProps, TableRow, VirtualScroll,
 };
 use har_ui_core::Theme;
 use iced::widget::{Row, column, container, text};
@@ -9,10 +14,13 @@ use iced::{Element, Length, Task};
 
 const ROW_HEIGHT: f32 = 30.0;
 const VIEWPORT_HEIGHT: f32 = 300.0;
+/// 横向视窗 = 800 窗口 - 左右 padding 40×2 - 余量
+const H_VIEWPORT_WIDTH: f32 = 680.0;
 
 pub struct State {
     theme: Theme,
     table: Table<TableRow>,
+    clicked_row: Option<String>,
 }
 
 #[derive(Debug, Clone)]
@@ -39,6 +47,13 @@ fn update(state: &mut State, message: Message) -> Task<Message> {
             Task::none()
         }
         Message::TableMsg(msg) => {
+            if let TableMessage::RowClicked(idx) = &msg {
+                state.clicked_row = state
+                    .table
+                    .rows()
+                    .get(*idx)
+                    .and_then(|r| r.get("name").cloned());
+            }
             state.table.handle(msg);
             Task::none()
         }
@@ -49,10 +64,15 @@ fn view(state: &State) -> Element<'_, Message> {
     let theme = &state.theme;
     let (vstart, vend) = state.table.visible_range();
     let total = state.table.rows().len();
+    let sel = state.clicked_row.clone().unwrap_or_else(|| "-".to_string());
 
     let info = text(format!(
-        "Total rows: {} | Visible: [{}, {}) | Use Scroll Up/Down buttons to change view",
-        total, vstart, vend
+        "Total: {} | Visible: [{}, {}) | Selected: {} | ScrollX: {:.0}（拖拽表头分隔条可调列宽）",
+        total,
+        vstart,
+        vend,
+        sel,
+        state.table.scroll_x()
     ))
     .size(14);
 
@@ -60,10 +80,11 @@ fn view(state: &State) -> Element<'_, Message> {
     let scroll_down = iced::widget::button("Scroll Down").on_press(Message::ScrollDown);
     let controls = Row::new().push(scroll_up).push(scroll_down).spacing(8);
 
-    let table_elem = state.table.view(
+    // 交互模式：横向滚动 / 列宽拖拽 / 行点击统一经 Message::TableMsg 接线
+    let table_elem = state.table.view_msg(
         theme,
         |row, prop| row.get(prop).cloned().unwrap_or_default(),
-        |idx| Message::TableMsg(TableMessage::RowClicked(idx)),
+        Message::TableMsg,
     );
 
     let content = column![
@@ -87,9 +108,21 @@ fn main() -> iced::Result {
         .window_size(iced::Size::new(800.0, 600.0))
         .run_with(|| {
             let columns = vec![
-                TableColumn::new("id", "ID").with_width(80.0),
-                TableColumn::new("name", "Name").with_width(200.0),
-                TableColumn::new("value", "Value").with_width(120.0),
+                TableColumn::new("id", "ID")
+                    .with_width(60.0)
+                    .with_fixed(FixedSide::Left),
+                TableColumn::new("name", "Name")
+                    .with_width(200.0)
+                    .with_resize_bounds(100.0, 400.0),
+                TableColumn::new("value", "Value")
+                    .with_width(120.0)
+                    .with_resize_bounds(80.0, 300.0),
+                TableColumn::new("qty", "Qty")
+                    .with_width(80.0)
+                    .with_resize_bounds(50.0, 200.0),
+                TableColumn::new("op", "Op")
+                    .with_width(100.0)
+                    .with_fixed(FixedSide::Right),
             ];
 
             let rows: Vec<TableRow> = (0..1000)
@@ -98,6 +131,8 @@ fn main() -> iced::Result {
                     row.insert("id".to_string(), i.to_string());
                     row.insert("name".to_string(), format!("Item {}", i));
                     row.insert("value".to_string(), format!("{}", i * 10));
+                    row.insert("qty".to_string(), format!("{}", i % 100));
+                    row.insert("op".to_string(), "详情".to_string());
                     row
                 })
                 .collect();
@@ -106,11 +141,13 @@ fn main() -> iced::Result {
                 .with_columns(columns)
                 .with_rows(rows)
                 .with_props(TableProps::new().with_stripe(true).with_border(true))
-                .with_virtual_scroll(VirtualScroll::new(ROW_HEIGHT, VIEWPORT_HEIGHT));
+                .with_virtual_scroll(VirtualScroll::new(ROW_HEIGHT, VIEWPORT_HEIGHT))
+                .with_horizontal_viewport(H_VIEWPORT_WIDTH);
 
             let state = State {
                 theme: Theme::element_light(),
                 table,
+                clicked_row: None,
             };
             (state, Task::none())
         })

@@ -5,7 +5,7 @@
 //! 2. 大批量事件序列吞吐稳定
 //! 3. 大规模数据（1000+ items / 1000+ 节点）下无性能塌方
 //!
-//! 覆盖组件：Slider、Cascader、Collapse、Steps、Upload、Rate、Progress
+//! 覆盖组件：Slider、Cascader、Collapse、Steps、Upload、Rate、Progress、Table
 
 use criterion::{BenchmarkId, Criterion, Throughput, black_box, criterion_group, criterion_main};
 use har_ui_components::cascader::{Cascader, CascaderMessage, CascaderNode};
@@ -14,6 +14,7 @@ use har_ui_components::progress::{Progress, ProgressMessage};
 use har_ui_components::rate::{Rate, RateMessage};
 use har_ui_components::slider::{Slider, SliderMessage};
 use har_ui_components::steps::{Step, Steps, StepsMessage};
+use har_ui_components::table::{FixedSide, Table, TableColumn, TableMessage, VirtualScroll};
 use har_ui_components::upload::{Upload, UploadFile, UploadMessage};
 
 // ===================== Slider =====================
@@ -263,6 +264,77 @@ fn bench_upload_add_remove_batch(c: &mut Criterion) {
     group.finish();
 }
 
+// ===================== Table（W2/W3 — 虚拟滚动与冻结列状态层，ADR-008） =====================
+
+/// 虚拟滚动核心计算：visible_range + clamp_offset 在不同行数量级下的成本。
+/// 预算：滚动帧内布局计算 < 1ms（60FPS 帧预算 16.6ms 的 6%，见 docs/perf_baseline.md）
+fn bench_table_virtual_scroll(c: &mut Criterion) {
+    let mut group = c.benchmark_group("table/virtual_scroll");
+    for rows in [1_000usize, 10_000, 100_000] {
+        group.throughput(Throughput::Elements(rows as u64));
+        group.bench_with_input(BenchmarkId::from_parameter(rows), &rows, |b, &total| {
+            let mut vs = VirtualScroll::new(30.0, 300.0);
+            b.iter(|| {
+                // 模拟一帧内的滚动推进 + 钳制 + 可见区间计算 ×100 次
+                for i in 0..100u32 {
+                    vs.scroll_offset = (i as f32) * 30.0 * 7.0;
+                    vs.clamp_offset(total);
+                    let (s, e) = vs.visible_range(total);
+                    black_box((s, e));
+                }
+            });
+        });
+    }
+    group.finish();
+}
+
+/// 冻结列状态层：三段划分 + 宽度解析 + 列宽拖拽（8 列，首尾冻结）
+fn bench_table_frozen_state(c: &mut Criterion) {
+    let cols = (0..8)
+        .map(|i| {
+            let mut col =
+                TableColumn::new(format!("col{}", i), format!("列{}", i)).with_width(120.0);
+            if i == 0 {
+                col = col.with_fixed(FixedSide::Left);
+            }
+            if i == 7 {
+                col = col.with_fixed(FixedSide::Right);
+            }
+            if i == 3 {
+                col = col.with_resize_bounds(80.0, 300.0);
+            }
+            col
+        })
+        .collect();
+    let mut table: Table<String> = Table::new()
+        .with_columns(cols)
+        .with_horizontal_viewport(800.0);
+
+    let mut group = c.benchmark_group("table/frozen_state");
+    group.bench_function("partition_widths_8cols", |b| {
+        b.iter(|| {
+            let (l, m, r) = table.fixed_partition();
+            black_box(&l);
+            black_box(&m);
+            black_box(&r);
+            for i in 0..8 {
+                black_box(table.resolved_width(i));
+            }
+            black_box(table.frozen_total_width());
+        });
+    });
+    group.bench_function("resize_1000x", |b| {
+        b.iter(|| {
+            for i in 0..1000 {
+                let delta = if i % 2 == 0 { 5.0 } else { -5.0 };
+                table.handle(TableMessage::ResizeColumn(3, delta));
+            }
+            black_box(table.resolved_width(3));
+        });
+    });
+    group.finish();
+}
+
 criterion_group!(
     benches,
     bench_slider_handle_single,
@@ -274,5 +346,7 @@ criterion_group!(
     bench_collapse_toggle_batch,
     bench_steps_nav_batch,
     bench_upload_add_remove_batch,
+    bench_table_virtual_scroll,
+    bench_table_frozen_state,
 );
 criterion_main!(benches);

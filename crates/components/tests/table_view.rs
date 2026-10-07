@@ -32,6 +32,13 @@ fn make_columns() -> Vec<TableColumn> {
     ]
 }
 
+/// 交互模式测试用的应用消息（模块级）
+#[derive(Clone, Debug)]
+#[allow(dead_code)]
+enum AppMsg {
+    Table(TableMessage),
+}
+
 // ============== R.2.P0.4.a view() 基础渲染 ==============
 
 #[test]
@@ -199,4 +206,84 @@ fn test_table_view_many_columns_renders() {
     row.insert("e".to_string(), "5".to_string());
     let table = Table::new().with_columns(cols).with_rows(vec![row]);
     let _element = table.view(&theme, field_extractor, |_| ());
+}
+
+// ============== 冻结列布局渲染（ADR-008 / W2）==============
+
+fn frozen_render_columns() -> Vec<TableColumn> {
+    vec![
+        TableColumn::new("id", "ID")
+            .with_width(60.0)
+            .with_fixed(har_ui_components::table::FixedSide::Left),
+        TableColumn::new("name", "Name").with_width(120.0),
+        TableColumn::new("age", "Age")
+            .with_width(60.0)
+            .with_resize_bounds(40.0, 200.0),
+        TableColumn::new("op", "Op")
+            .with_width(80.0)
+            .with_fixed(har_ui_components::table::FixedSide::Right),
+    ]
+}
+
+#[test]
+fn test_table_frozen_layout_renders_both_themes() {
+    for theme in [Theme::element_light(), Theme::element_dark()] {
+        let rows = vec![make_row("1", "Alice", "30"), make_row("2", "Bob", "25")];
+        let table = Table::new()
+            .with_columns(frozen_render_columns())
+            .with_rows(rows)
+            .with_horizontal_viewport(400.0);
+        assert!(table.is_frozen_layout());
+        // 渲染模式（不接线事件）
+        let _element = table.view(&theme, field_extractor, |_| ());
+        // 横向滚动后冻结段渲染仍成功
+        let mut scrolled = table.clone();
+        scrolled.handle(TableMessage::ScrollX(50.0));
+        let _element = scrolled.view(&theme, field_extractor, |_| ());
+    }
+}
+
+#[test]
+fn test_table_view_msg_interactive_renders() {
+    for theme in [Theme::element_light(), Theme::element_dark()] {
+        let rows = vec![make_row("1", "Alice", "30")];
+        let table = Table::new()
+            .with_columns(frozen_render_columns())
+            .with_rows(rows)
+            .with_horizontal_viewport(400.0);
+        // 交互模式：横向滚动 / 拖拽条 / 行点击均经由 AppMsg::Table
+        let _element = table.view_msg(&theme, field_extractor, AppMsg::Table);
+    }
+}
+
+#[test]
+fn test_table_view_msg_legacy_layout_renders() {
+    // 非冻结布局 + view_msg：仅接线行点击，布局与 view() 一致
+    let theme = Theme::element_light();
+    let rows = vec![make_row("1", "Alice", "30")];
+    let table = Table::new().with_columns(make_columns()).with_rows(rows);
+    let _element = table.view_msg(&theme, field_extractor, AppMsg::Table);
+}
+
+#[test]
+fn test_table_frozen_empty_renders() {
+    let theme = Theme::element_light();
+    let table = Table::new()
+        .with_columns(frozen_render_columns())
+        .with_horizontal_viewport(400.0);
+    let _element = table.view(&theme, field_extractor, |_| ());
+}
+
+#[test]
+fn test_table_frozen_resized_state_renders() {
+    // 拖拽后（运行时宽度覆盖生效）渲染仍成功
+    let theme = Theme::element_light();
+    let rows = vec![make_row("1", "Alice", "30")];
+    let mut table = Table::new()
+        .with_columns(frozen_render_columns())
+        .with_rows(rows)
+        .with_horizontal_viewport(400.0);
+    table.handle(TableMessage::ResizeColumn(2, 60.0));
+    assert_eq!(table.resolved_width(2), Some(120.0));
+    let _element = table.view_msg(&theme, field_extractor, AppMsg::Table);
 }

@@ -84,7 +84,7 @@
 
 ---
 
-### W2：Table 固定列渲染 + 列宽拖拽 ⬜ **P0，v1.0.1**
+### W2：Table 固定列渲染 + 列宽拖拽 ✅ **P0，v1.0.1（2026-09-30 完成，ADR-008）**
 
 **现状证据**：
 - `table.rs:37` `FixedSide` 枚举、`:49` `fixed: Option<FixedSide>` 字段、`:73` `with_fixed()` 构建器、`:552-557` 仅测试字段存储
@@ -105,9 +105,24 @@
 
 **规模**：M ｜ **ADR 要求**：ADR-008（Table 渲染分层与冻结列布局）
 
+**实施记录（2026-09-30）**：
+- 三处设计细化（详见 ADR-008）：① 不引入 `ColWidth` 枚举破坏 `width` 字段类型，改用
+  `width`（默认宽）+ `resizable: Option<(min,max)>`（拖拽边界）两字段表达同语义，v1.0.1 零 API 破坏；
+  ② 现状核查修正：垂直虚拟滚动的"消息驱动"是设计而非缺陷（demo 按钮驱动即既定模式），
+  渲染层仅渲染 `visible_rows()`；③ iced 0.13 scrollable 有"内容不得填充滚动轴"构造期断言，
+  拖拽条须用固定高（32px = 表头文本 16 + 上下 padding 8×2），不可 Fill。
+- 新增交互入口 `view_msg(on_msg)`（横向滚动 ScrollX / 列宽拖拽 ResizeStart·Move·End /
+  行点击 RowClicked 统一接线），`view()` 签名与行为保持 v1.0.0 完全一致。
+- Fuzzer 抓到并修复 1 个真缺陷：resize 收缩列宽后 `scroll_x` 未回钳（`resize_column`
+  末尾补 `clamp_scroll_x()`）。
+- 交付测试：T1 内部 12 个新增（累计 23）+ T4 `table_fuzz.rs` 2 个 proptest（各 1000 cases）
+  + 渲染 smoke 6 个新增（table_view.rs 累计 17）。
+- W3 基线数字落 `docs/perf_baseline.md`：10 万行滚动计算 ~10.5ns/次（与 1 千行同价），
+  拖拽步进 ~386ns，均低于预算 3 个数量级以上。
+
 ---
 
-### W3：T5 性能基线扩展 ⬜ **P0(基础) / P1(完整)**
+### W3：T5 性能基线扩展 🔶 **P0(基础 ✅ 2026-09-30) / P1(完整)**
 
 **现状证据**：`crates/components/benches/component_bench.rs` 覆盖 slider/rate/progress/cascader/collapse 的 handle 类 bench，**完全没有 Table**。
 
@@ -215,9 +230,9 @@
 ## 六、里程碑验收清单
 
 ### M-A：v1.0.1（Table 增强 + 基线）
-- [ ] ADR-008 完成
-- [ ] W2：固定列渲染 + 列宽拖拽 + 全部验收项
-- [ ] W3(基础)：Table bench 建立 + 预算文档
+- [x] ADR-008 完成（2026-09-30）
+- [x] W2：固定列渲染 + 列宽拖拽 + 全部验收项（T1 23/23、T4 2×1000 cases、渲染 smoke 17/17）
+- [x] W3(基础)：Table bench 建立 + 预算文档（docs/perf_baseline.md）
 - [ ] 全量门禁 12 关通过；tag `v1.0.1` 并推送
 
 ### M-B：v1.1.0（headless + 测试分发体系）

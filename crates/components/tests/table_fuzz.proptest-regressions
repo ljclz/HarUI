@@ -1,0 +1,9 @@
+# Seeds for failure cases proptest has generated in the past. It is
+# automatically read and these particular cases re-run before any
+# novel cases are generated.
+#
+# It is recommended to check this file in to source control so that
+# everyone who runs the test benefits from these saved cases.
+cc 112f4bbf5b376fbb623fd8f0a637250ee403c4a77b2db28113dccc7dd4f9e2a6 # shrinks to bounds = (20.0, 417.09994599840974), base_w = 60.0, moves = [0.0, 68.34044610424458]
+cc a5d65fc6783c5814709d58b7e45b438c24ba4bd1cbd6c656f02cf58237c6bbc8 # shrinks to cols = [TableColumn { prop: "col0", label: "列", width: Some(40.0), sortable: false, fixed: None, resizable: None }, TableColumn { prop: "col1", label: "列", width: Some(40.0), sortable: false, fixed: None, resizable: None }], h_viewport = None, msgs = [ResizeColumn(1, 399.15573), ScrollX(1729.3755), ResizeColumn(1, -171.15889)]
+cc 92f41c9aa9c4554c6443d42f040f97f06858b34f59e934020db0d883244f29ed # shrinks to cols = [TableColumn { prop: "col0", label: "列", width: Some(40.0), sortable: false, fixed: None, resizable: Some((42.348595, 80.0)) }], h_viewport = None, msgs = [ResizeStart(0)]

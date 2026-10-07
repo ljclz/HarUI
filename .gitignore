@@ -23,3 +23,6 @@ target/criterion/
 # Build artifacts
 *.pdb
 *.exe
+
+# cargo-mutants 输出
+mutants-out/

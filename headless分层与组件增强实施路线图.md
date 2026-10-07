@@ -234,6 +234,12 @@
 | 项 | 触发条件 | 内容 |
 |---|---|---|
 | iced 0.14+ 升级 | iced 发布稳定版 | audit 豁免 9 条清零重审；IME workaround 是否可移除；profile 性能对比 |
+
+> **W8 触发状态（2026-09-30 复核）**：iced 0.14.0 已发布——**iced 升级触发器命中**。
+> 评估完成（见 `docs/iced-0.14-upgrade-evaluation.md`）：IME 原生支持/headless+E2E 测试/
+> audit 豁免预期清零三大收益确认；主风险为布局 Shrink/Fill 语义变化（#3045）需全组件回归。
+> **建议立项 v1.2.0 升级专项**（2-3 会话），本仓库 v1.1.0 先行发布。其余触发器（WASM/
+> Dock/无障碍）未命中。
 | WASM 画廊 | iced 支持 WASM 后 | 画廊部署到网页，上手门槛归零 |
 | Dock 多面板 | 后台管理端需求出现 | 参考_gpui-kit 的 dock 基础设施做 iced 版 |
 | AccessKit 无障碍 | 收银机无障碍合规要求 | 对标 gpui-kit 的 AccessKit 集成 |
@@ -246,6 +252,10 @@
 2. **门禁自动生效**：所有新代码过 12 关门禁 + pre-commit 钩子。headless 层不产生颜色（关卡 10 天然合规）、不建 Message 枚举的纯计算模块不受关卡 9 约束。
 3. **测试金字塔映射**：W1→T1+T4；W2→T1+T4+T3；W3→T5；W4→T2（业务集成层）；W5→人工验收 + T3。
 4. **执行环境提醒**：本机存在多会话共用 `CARGO_HOME`/`CARGO_TARGET_DIR` 的情况（2026-09-30 实测教训）。**跑门禁/测试前必须确认无其他 cargo 进程**（`ps -W | grep cargo`），否则出现锁等待与门禁误报。
+5. **cargo-mutants 规程**（2026-09-30 实测教训）：必须用独立构建目录
+   `CARGO_TARGET_DIR=F:/cargo-target-mutants cargo mutants ...`——其临时副本若共享
+   工作树的 `CARGO_TARGET_DIR`，被 kill 后会污染指纹缓存（症状：未改动的测试假失败，
+   `cargo clean -p <pkg>` 可恢复）。
 
 ---
 

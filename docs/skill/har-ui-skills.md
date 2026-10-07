@@ -1,7 +1,7 @@
 # HarUI AI 技能包（LLM-Friendly Reference）
 
 > 面向 AI 编码助手（Cursor / Claude Code 等）与人类新人的单文件参考。
-> 生成日期：2026-09-30 ｜ 对应版本：v1.2.0 分支 feat/iced-0.14（iced 0.14）
+> 生成日期：2026-09-30 ｜ 对应版本：v1.2.0（tag，iced 0.14）
 > API 速查段由 `python scripts/gen_skill_doc.py` 从源码自动生成——**发现与代码不符时重跑脚本，勿手改**。
 
 ## 一、项目定位与架构
@@ -11,8 +11,8 @@
 - 引用方式：
   ```toml
   [dependencies]
-  har-ui-core = { git = "https://github.com/szzmj1980/HarUI", tag = "v1.1.0" }
-  har-ui-components = { git = "https://github.com/szzmj1980/HarUI", tag = "v1.1.0" }
+  har-ui-core = { git = "https://github.com/szzmj1980/HarUI", tag = "v1.2.0" }
+  har-ui-components = { git = "https://github.com/szzmj1980/HarUI", tag = "v1.2.0" }
   iced = "0.14"
   ```
 

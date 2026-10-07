@@ -1,3 +1,21 @@
+## v1.2.0 — 2026-09-30（iced 0.14 升级版）
+
+### Highlights
+- **升级 iced 0.13.1 → 0.14.0**：渲染性能（primitive culling / SDF quad / lazy Compositor）、
+  Reactive 渲染可选路径、devtools 基建
+- **audit 豁免 9 → 3**：6 条 RUSTSEC 条目随依赖树升级自然清零
+- 2113 测试 0 失败，12 关门禁 PASS
+
+### Upgrade
+```toml
+har-ui-core = { git = "https://github.com/szzmj1980/HarUI", tag = "v1.2.0" }
+har-ui-components = { git = "https://github.com/szzmj1980/HarUI", tag = "v1.2.0" }
+iced = "0.14"
+```
+v1.1.0 → v1.2.0 对下游零 API 破坏（HarUI 自身未改公开 API；下游需同步升 iced 0.14）。
+
+---
+
 ## v1.1.0 — 2026-09-30（GPUI Kit 吸收特性版）
 
 ### Highlights

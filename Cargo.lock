@@ -337,7 +337,7 @@ checksum = "72f5acc6cb2ba439de613abc23857ec3d78374d8ed5ac84e9d11336e87da8649"
 
 [[package]]
 name = "button_demo"
-version = "1.0.0"
+version = "1.2.0"
 dependencies = [
  "har-ui-components",
  "har-ui-core",
@@ -422,7 +422,7 @@ dependencies = [
 
 [[package]]
 name = "card_demo"
-version = "1.0.0"
+version = "1.2.0"
 dependencies = [
  "har-ui-components",
  "har-ui-core",
@@ -431,7 +431,7 @@ dependencies = [
 
 [[package]]
 name = "cascader_demo"
-version = "1.0.0"
+version = "1.2.0"
 dependencies = [
  "har-ui-components",
  "har-ui-core",
@@ -780,7 +780,7 @@ checksum = "f27ae1dd37df86211c42e150270f82743308803d90a6f6e6651cd730d5e1732f"
 
 [[package]]
 name = "date_picker_demo"
-version = "1.0.0"
+version = "1.2.0"
 dependencies = [
  "har-ui-components",
  "har-ui-core",
@@ -789,7 +789,7 @@ dependencies = [
 
 [[package]]
 name = "dialog_demo"
-version = "1.0.0"
+version = "1.2.0"
 dependencies = [
  "har-ui-components",
  "har-ui-core",
@@ -856,7 +856,7 @@ checksum = "0e9c71c2167ca323c882b99918929403426e2373ea17242ff5653e0d5e1058be"
 
 [[package]]
 name = "empty-window"
-version = "1.0.0"
+version = "1.2.0"
 dependencies = [
  "har-ui-core",
  "iced",
@@ -1050,7 +1050,7 @@ checksum = "aa9a19cbb55df58761df49b23516a86d432839add4af60fc256da840f66ed35b"
 
 [[package]]
 name = "form_demo"
-version = "1.0.0"
+version = "1.2.0"
 dependencies = [
  "har-ui-components",
  "har-ui-core",
@@ -1315,7 +1315,7 @@ dependencies = [
 
 [[package]]
 name = "har-ui-components"
-version = "1.0.0"
+version = "1.2.0"
 dependencies = [
  "criterion",
  "har-ui-core",
@@ -1326,7 +1326,7 @@ dependencies = [
 
 [[package]]
 name = "har-ui-core"
-version = "1.0.0"
+version = "1.2.0"
 dependencies = [
  "iced",
  "proptest",
@@ -1584,7 +1584,7 @@ dependencies = [
 
 [[package]]
 name = "input_demo"
-version = "1.0.0"
+version = "1.2.0"
 dependencies = [
  "har-ui-components",
  "har-ui-core",
@@ -2383,7 +2383,7 @@ dependencies = [
 
 [[package]]
 name = "pagination_demo"
-version = "1.0.0"
+version = "1.2.0"
 dependencies = [
  "har-ui-components",
  "har-ui-core",
@@ -2921,7 +2921,7 @@ checksum = "94143f37725109f92c262ed2cf5e59bce7498c01bcc1502d7b9afe439a4e9f49"
 
 [[package]]
 name = "screenshot_test"
-version = "1.0.0"
+version = "1.2.0"
 dependencies = [
  "har-ui-components",
  "har-ui-core",
@@ -2943,7 +2943,7 @@ dependencies = [
 
 [[package]]
 name = "select_demo"
-version = "1.0.0"
+version = "1.2.0"
 dependencies = [
  "har-ui-components",
  "har-ui-core",
@@ -3024,7 +3024,7 @@ checksum = "f8fadd59c855ef2080decdef8ff161eb6661b86933c9d82e5ba29dc602a55aba"
 
 [[package]]
 name = "showcase"
-version = "1.0.0"
+version = "1.2.0"
 dependencies = [
  "har-ui-components",
  "har-ui-core",
@@ -3272,7 +3272,7 @@ dependencies = [
 
 [[package]]
 name = "table_demo"
-version = "1.0.0"
+version = "1.2.0"
 dependencies = [
  "har-ui-components",
  "har-ui-core",
@@ -3281,7 +3281,7 @@ dependencies = [
 
 [[package]]
 name = "tabs_demo"
-version = "1.0.0"
+version = "1.2.0"
 dependencies = [
  "har-ui-components",
  "har-ui-core",
@@ -3539,7 +3539,7 @@ checksum = "b4ac048d71ede7ee76d585517add45da530660ef4390e49b098733c6e897f254"
 
 [[package]]
 name = "upload_demo"
-version = "1.0.0"
+version = "1.2.0"
 dependencies = [
  "har-ui-components",
  "har-ui-core",

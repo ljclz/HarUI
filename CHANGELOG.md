@@ -3,6 +3,36 @@
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 格式与
 [SemVer](https://semver.org/lang/zh-CN/) 语义化版本。
 
+## [v1.2.0] — 2026-09-30
+
+iced 0.14.0 升级专项（W8 触发器命中，评估见 docs/iced-0.14-upgrade-evaluation.md）。
+
+### Changed
+
+- **升级 iced 0.13.1 → 0.14.0**（rustc 要求 1.88，本项目 1.90.0 满足）
+- Style 新增 `snap` 像素吸附字段（131 处字面量，保守取 `false` 保持既有渲染行为，
+  可逐组件开启评估锐度）
+- Application 构造改为 0.14 范式：boot 闭包（首参）+ `.title()` builder + `.run()` 收尾
+  （15 个示例全部迁移）
+
+### Added
+
+- 依赖树收益兑现：audit 豁免 **9 → 3**（quick-xml ×2 / instant / rustybuzz /
+  event-listener / lru 旧档共 6 条清零；保留 paste / ttf-parser / lru unsound，
+  0.14 仍传递依赖）
+- 迁移工具脚本入库：`scripts/migrate_014.py`（括号匹配迁移）、`fix_snap.py`
+  （E0063 自动补齐）、`normalize_chain.py`（builder 链归一化）
+
+### Fixed
+
+- `keyboard::on_key_press` 在 0.14 移除 → `keyboard::listen` 过滤 KeyPressed
+  （screenshot_test）
+- `Space::with_width/height` 移除 → `Space::new().width/height`（44 处）
+- `text_input::Status::Focused` 结构体变体（3 处）、`Palette.warning` 字段（1 处）、
+  `Pixels: From<u16>` 移除（3 处）
+
+[v1.2.0]: https://github.com/szzmj1980/HarUI/compare/v1.1.0...v1.2.0
+
 ## [v1.1.0] — 2026-09-30
 
 GPUI Kit 调研吸收后的首个特性版本（路线图 M-A/M-B，ADR-008/009）。

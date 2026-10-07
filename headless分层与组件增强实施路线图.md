@@ -212,11 +212,20 @@
 
 ---
 
-### W7：发布节奏与 CHANGELOG ⬜ **P2（持续）**
+### W7：发布节奏与 CHANGELOG ✅ **P2（首批 2026-09-30 完成，持续执行）**
 
 **改造内容**：建立 `CHANGELOG.md`（Keep a Changelog 格式，回填 v0.1.0→v1.0.0 关键节点）；patch 版只收 bugfix；tag 规范 `vX.Y.Z` + 发布 checklist（对应 6.4 节 G 阶段流程）。
 
 **规模**：S（持续）｜ **ADR**：无需
+
+**实施记录（2026-09-30）**：
+- `CHANGELOG.md` 建立（v0.1.0 / v1.0.0 / v1.1.0 三版回填，Added/Fixed/Changed 分类）
+- `docs/release-checklist.md` 发布清单（SemVer 判定 → 门禁 → 文档同步 → tag/推送 → CI 验证 → 业务方接入）
+- README/RELEASE_NOTES 更新至 v1.1.0（61 组件、2100+ 测试、行为层/冻结列/FPS/技能包要点）
+- **事故记录**：W6 收尾时 3 个 md（README/skill 文档/RELEASE_NOTES）被"open('w') 未 write"
+  的补丁脚本清空，其中 README 与 skill 文档以空内容进入 W6 提交——已从 git 历史恢复重建
+  并 amend 修正（tag 未推送，历史修正合法）。教训：**md 批量补丁一律用
+  `pathlib.write_text` 并在写后 grep 断言关键内容**。
 
 ---
 

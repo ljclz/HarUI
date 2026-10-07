@@ -48,9 +48,8 @@ fn view(state: &State) -> Element<'_, Message> {
 }
 
 fn main() -> iced::Result {
-    iced::application("HarUI — Upload Demo", update, view)
-        .window_size(iced::Size::new(800.0, 600.0))
-        .run_with(|| {
+    iced::application(
+        || {
             let upload = Upload::new().with_multiple(true).with_limit(5);
             let state = State {
                 theme: Theme::element_light(),
@@ -58,5 +57,11 @@ fn main() -> iced::Result {
                 trigger_count: 0,
             };
             (state, Task::none())
-        })
+        },
+        update,
+        view,
+    )
+    .title(|_state: &State| String::from("HarUI — Upload Demo"))
+    .window_size(iced::Size::new(800.0, 600.0))
+    .run()
 }

@@ -206,6 +206,7 @@ impl Skeleton {
                     radius: iced::border::radius(radius),
                 },
                 shadow: iced::Shadow::default(),
+                snap: false,
             })
             .into()
     }

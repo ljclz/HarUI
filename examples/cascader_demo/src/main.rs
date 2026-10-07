@@ -102,14 +102,19 @@ fn build_options() -> Vec<CascaderNode> {
 }
 
 fn main() -> iced::Result {
-    iced::application("HarUI — Cascader Demo", update, view)
-        .window_size(iced::Size::new(900.0, 600.0))
-        .run_with(|| {
+    iced::application(
+        || {
             let cascader = Cascader::new().with_options(build_options());
             let state = State {
                 theme: Theme::element_light(),
                 cascader,
             };
             (state, Task::none())
-        })
+        },
+        update,
+        view,
+    )
+    .title(|_state: &State| String::from("HarUI — Cascader Demo"))
+    .window_size(iced::Size::new(900.0, 600.0))
+    .run()
 }

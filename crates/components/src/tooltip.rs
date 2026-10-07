@@ -361,6 +361,7 @@ impl Tooltip {
                     radius: iced::border::radius(4.0),
                 },
                 shadow: har_ui_core::theme::style_sheets::iced_shadow(&theme.shadow.lighter),
+                snap: false,
             });
 
         let arrow = if self.show_arrow {
@@ -378,7 +379,7 @@ impl Tooltip {
 
         let col: Element<'a, Message> = iced::widget::Column::new()
             .push(content)
-            .push(iced::widget::Space::with_height(Length::Fixed(4.0)))
+            .push(iced::widget::Space::new().height(Length::Fixed(4.0)))
             .push(tip_col)
             .into();
         col

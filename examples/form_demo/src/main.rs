@@ -86,9 +86,8 @@ fn view(state: &State) -> Element<'_, Message> {
 }
 
 fn main() -> iced::Result {
-    iced::application("HarUI — Form Demo", update, view)
-        .window_size(iced::Size::new(600.0, 500.0))
-        .run_with(|| {
+    iced::application(
+        || {
             let form = Form::new()
                 .with_label_width(100)
                 .with_item(
@@ -111,5 +110,11 @@ fn main() -> iced::Result {
                 form,
             };
             (state, Task::none())
-        })
+        },
+        update,
+        view,
+    )
+    .title(|_state: &State| String::from("HarUI — Form Demo"))
+    .window_size(iced::Size::new(600.0, 500.0))
+    .run()
 }

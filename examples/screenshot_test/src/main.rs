@@ -24,7 +24,7 @@ use har_ui_components::tabs::{TabItem, Tabs};
 use har_ui_components::upload::Upload;
 use har_ui_core::Theme;
 use iced::keyboard::key::Named;
-use iced::keyboard::{Key, on_key_press};
+use iced::keyboard::{self, Key};
 use iced::time::every;
 use iced::widget::{Space, button, column, container, row, scrollable, text, text_input};
 use iced::{Color, Element, Length, Padding, Subscription, Task};
@@ -197,19 +197,20 @@ fn subscription(state: &State) -> Subscription<Message> {
         subs.push(timer);
     }
 
-    let keys = on_key_press(|key, _modifiers| match key {
-        Key::Character(c) => {
-            let lower = c.to_lowercase();
-            match lower.as_str() {
-                "s" => Some(Message::SaveScreenshot),
-                "n" => Some(Message::NextComponent),
-                "t" => Some(Message::ToggleTheme),
-                "r" => Some(Message::ToggleRecording),
-                _ => None,
-            }
-        }
-        Key::Named(Named::Escape) => Some(Message::Exit),
-        _ => None,
+    // 0.14 移除 on_key_press，改用 keyboard::listen 过滤按键按下事件
+    let keys = keyboard::listen().map(|event| match event {
+        keyboard::Event::KeyPressed { key, .. } => match key {
+            Key::Character(c) => match c.to_lowercase().as_str() {
+                "s" => Message::SaveScreenshot,
+                "n" => Message::NextComponent,
+                "t" => Message::ToggleTheme,
+                "r" => Message::ToggleRecording,
+                _ => Message::Noop,
+            },
+            Key::Named(Named::Escape) => Message::Exit,
+            _ => Message::Noop,
+        },
+        _ => Message::Noop,
     });
     subs.push(keys);
 
@@ -309,7 +310,7 @@ fn build_footer(theme: &Theme, is_dark: bool) -> Element<'_, Message> {
     let toggle = button(if is_dark { "Light" } else { "Dark" })
         .on_press(Message::ToggleTheme)
         .padding(Padding::from([4u16, 12u16]));
-    let bar = row![hint, Space::with_width(Length::Fill), toggle]
+    let bar = row![hint, Space::new().width(Length::Fill), toggle]
         .spacing(8)
         .align_y(iced::Alignment::Center)
         .padding(Padding::from([8u16, 16u16]));
@@ -594,10 +595,8 @@ fn theme_label(theme: &Theme) -> &'static str {
 }
 
 fn main() -> iced::Result {
-    iced::application("HarUI Screenshot Test", update, view)
-        .window_size(iced::Size::new(1024.0, 768.0))
-        .subscription(subscription)
-        .run_with(|| {
+    iced::application(
+        || {
             let type_buttons = vec![
                 Button::new("Default"),
                 Button::new("Primary").with_type(ButtonType::Primary),
@@ -665,5 +664,12 @@ fn main() -> iced::Result {
                 upload,
             };
             (state, Task::none())
-        })
+        },
+        update,
+        view,
+    )
+    .title(|_state: &State| String::from("HarUI Screenshot Test"))
+    .window_size(iced::Size::new(1024.0, 768.0))
+    .subscription(subscription)
+    .run()
 }

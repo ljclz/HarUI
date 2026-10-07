@@ -180,6 +180,7 @@ impl Rate {
                     text_color: star_color,
                     border: iced::Border::default(),
                     shadow: iced::Shadow::default(),
+                    snap: false,
                 });
             if !self.disabled {
                 star_btn = star_btn.on_press(on_change(value_to_set));
@@ -213,7 +214,7 @@ impl Rate {
             };
             iced::widget::Row::new()
                 .push(stars_row)
-                .push(iced::widget::Space::with_width(Length::Fixed(8.0)))
+                .push(iced::widget::Space::new().width(Length::Fixed(8.0)))
                 .push(text(label).color(label_color).size(14.0))
                 .align_y(iced::Alignment::Center)
                 .into()
@@ -229,6 +230,7 @@ impl Rate {
                 background: Some(iced::Background::Color(bg_overlay)),
                 border: iced::Border::default(),
                 shadow: iced::Shadow::default(),
+                snap: false,
             })
             .into()
     }

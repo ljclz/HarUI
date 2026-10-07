@@ -226,7 +226,7 @@ impl Cascader {
         let arrow = if self.panel_visible { "▲" } else { "▼" };
         let trigger_content = iced::widget::Row::new()
             .push(text(path_text).color(display_color))
-            .push(iced::widget::Space::with_width(Length::Fill))
+            .push(iced::widget::Space::new().width(Length::Fill))
             .push(text(arrow).color(text_regular));
 
         let trigger_btn = button(trigger_content)
@@ -241,6 +241,7 @@ impl Cascader {
                     radius: iced::border::radius(4.0),
                 },
                 shadow: iced::Shadow::default(),
+                snap: false,
             })
             .on_press(on_select(vec!["__toggle__".to_string()]));
 
@@ -305,6 +306,7 @@ impl Cascader {
                             text_color: node_color,
                             border: iced::Border::default(),
                             shadow: iced::Shadow::default(),
+                            snap: false,
                         });
                     if !is_disabled {
                         btn = btn.on_press(on_select(path_for_node));
@@ -327,6 +329,7 @@ impl Cascader {
                     radius: iced::border::radius(0.0),
                 },
                 shadow: iced::Shadow::default(),
+                snap: false,
             });
             columns.push(col.into());
         }
@@ -342,6 +345,7 @@ impl Cascader {
                     radius: iced::border::radius(4.0),
                 },
                 shadow: iced::Shadow::default(),
+                snap: false,
             }
         });
 

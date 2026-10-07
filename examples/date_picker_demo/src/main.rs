@@ -83,13 +83,18 @@ fn view(state: &State) -> Element<'_, Message> {
 }
 
 fn main() -> iced::Result {
-    iced::application("HarUI — DatePicker Demo", update, view)
-        .window_size(iced::Size::new(800.0, 600.0))
-        .run_with(|| {
+    iced::application(
+        || {
             let state = State {
                 theme: Theme::element_light(),
                 picker: DatePicker::new(),
             };
             (state, Task::none())
-        })
+        },
+        update,
+        view,
+    )
+    .title(|_state: &State| String::from("HarUI — DatePicker Demo"))
+    .window_size(iced::Size::new(800.0, 600.0))
+    .run()
 }

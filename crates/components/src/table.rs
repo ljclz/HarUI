@@ -560,6 +560,7 @@ impl<R: Clone> Table<R> {
                             radius: iced::border::Radius::default(),
                         },
                         shadow: iced::Shadow::default(),
+                        snap: false,
                     });
                 cell.into()
             })
@@ -611,6 +612,7 @@ impl<R: Clone> Table<R> {
                                     radius: iced::border::Radius::default(),
                                 },
                                 shadow: iced::Shadow::default(),
+                                snap: false,
                             })
                             .into()
                     })
@@ -627,6 +629,7 @@ impl<R: Clone> Table<R> {
                             radius: iced::border::Radius::default(),
                         },
                         shadow: iced::Shadow::default(),
+                        snap: false,
                     });
                 // view_msg 模式：行点击接线（渲染模式保持原行为不接线）
                 let row_elem: Element<'a, Message> = match &table_msg {
@@ -727,6 +730,7 @@ impl<R: Clone> Table<R> {
                         radius: iced::border::Radius::default(),
                     },
                     shadow: iced::Shadow::default(),
+                    snap: false,
                 });
             match (table_msg, col.resizable) {
                 (Some(rc), Some(_)) => {
@@ -745,6 +749,7 @@ impl<R: Clone> Table<R> {
                                 background: Some(iced::Background::Color(border_color)),
                                 border: iced::Border::default(),
                                 shadow: iced::Shadow::default(),
+                                snap: false,
                             }),
                     )
                     .on_press(rc_press(TableMessage::ResizeStart(idx)))
@@ -780,6 +785,7 @@ impl<R: Clone> Table<R> {
                         radius: iced::border::Radius::default(),
                     },
                     shadow: iced::Shadow::default(),
+                    snap: false,
                 })
                 .into()
         };
@@ -806,6 +812,7 @@ impl<R: Clone> Table<R> {
                         radius: iced::border::Radius::default(),
                     },
                     shadow: iced::Shadow::default(),
+                    snap: false,
                 });
             match table_msg {
                 Some(rc) => {

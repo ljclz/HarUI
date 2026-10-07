@@ -59,9 +59,8 @@ fn view(state: &State) -> Element<'_, Message> {
 }
 
 fn main() -> iced::Result {
-    iced::application("HarUI — Button Demo", update, view)
-        .window_size(iced::Size::new(900.0, 500.0))
-        .run_with(|| {
+    iced::application(
+        || {
             let type_buttons = vec![
                 Button::new("Default"),
                 Button::new("Primary").with_type(ButtonType::Primary),
@@ -98,5 +97,11 @@ fn main() -> iced::Result {
                 click_count: 0,
             };
             (state, Task::none())
-        })
+        },
+        update,
+        view,
+    )
+    .title(|_state: &State| String::from("HarUI — Button Demo"))
+    .window_size(iced::Size::new(900.0, 500.0))
+    .run()
 }

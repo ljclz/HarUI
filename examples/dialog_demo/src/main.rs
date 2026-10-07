@@ -65,7 +65,7 @@ fn view(state: &State) -> Element<'_, Message> {
         .on_press(Message::Cancel);
     let header = Row::new()
         .push(title_text)
-        .push(iced::widget::Space::with_width(Length::Fill))
+        .push(iced::widget::Space::new().width(Length::Fill))
         .push(close_btn)
         .align_y(iced::Alignment::Center)
         .padding(Padding::from([12u16, 16u16]));
@@ -83,7 +83,7 @@ fn view(state: &State) -> Element<'_, Message> {
         .on_press(Message::Cancel)
         .padding(Padding::from([6u16, 16u16]));
     let footer = Row::new()
-        .push(iced::widget::Space::with_width(Length::Fill))
+        .push(iced::widget::Space::new().width(Length::Fill))
         .push(cancel_btn)
         .push(confirm_btn)
         .spacing(8)
@@ -114,6 +114,7 @@ fn view(state: &State) -> Element<'_, Message> {
             offset: iced::Vector::new(0.0, 4.0),
             blur_radius: 16.0,
         },
+        snap: false,
     });
 
     let overlay = container(
@@ -133,20 +134,26 @@ fn view(state: &State) -> Element<'_, Message> {
         })),
         border: iced::Border::default(),
         shadow: iced::Shadow::default(),
+        snap: false,
     });
 
     overlay.into()
 }
 
 fn main() -> iced::Result {
-    iced::application("HarUI — Dialog Demo", update, view)
-        .window_size(iced::Size::new(800.0, 600.0))
-        .run_with(|| {
+    iced::application(
+        || {
             let state = State {
                 theme: Theme::element_light(),
                 dialog: Dialog::new("Confirm Action", "Are you sure you want to proceed?"),
                 last_action: "None".to_string(),
             };
             (state, Task::none())
-        })
+        },
+        update,
+        view,
+    )
+    .title(|_state: &State| String::from("HarUI — Dialog Demo"))
+    .window_size(iced::Size::new(800.0, 600.0))
+    .run()
 }

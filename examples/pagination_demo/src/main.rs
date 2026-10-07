@@ -55,13 +55,18 @@ fn view(state: &State) -> Element<'_, Message> {
 }
 
 fn main() -> iced::Result {
-    iced::application("HarUI — Pagination Demo", update, view)
-        .window_size(iced::Size::new(700.0, 400.0))
-        .run_with(|| {
+    iced::application(
+        || {
             let state = State {
                 theme: Theme::element_light(),
                 pagination: Pagination::new(100, 10),
             };
             (state, Task::none())
-        })
+        },
+        update,
+        view,
+    )
+    .title(|_state: &State| String::from("HarUI — Pagination Demo"))
+    .window_size(iced::Size::new(700.0, 400.0))
+    .run()
 }

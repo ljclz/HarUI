@@ -96,7 +96,7 @@ impl MessageItem {
 
         let row = iced::widget::Row::new()
             .push(text(icon).color(accent).size(16.0))
-            .push(iced::widget::Space::with_width(Length::Fixed(8.0)))
+            .push(iced::widget::Space::new().width(Length::Fixed(8.0)))
             .push(text(self.text.clone()).color(text_color).size(14.0))
             .align_y(iced::Alignment::Center)
             .padding(Padding::from([10u16, 16u16]));
@@ -112,6 +112,7 @@ impl MessageItem {
                     radius: iced::border::radius(4.0),
                 },
                 shadow: iced::Shadow::default(),
+                snap: false,
             })
             .into()
     }

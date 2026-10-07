@@ -310,6 +310,7 @@ impl Popover {
                 text_color: title_color,
                 border: iced::Border::default(),
                 shadow: iced::Shadow::default(),
+                snap: false,
             })
             .on_press(on_trigger());
 
@@ -346,11 +347,12 @@ impl Popover {
                     radius: iced::border::radius(4.0),
                 },
                 shadow: har_ui_core::theme::style_sheets::iced_shadow(&theme.shadow.light),
+                snap: false,
             });
 
         iced::widget::Column::new()
             .push(trigger_btn)
-            .push(iced::widget::Space::with_height(Length::Fixed(4.0)))
+            .push(iced::widget::Space::new().height(Length::Fixed(4.0)))
             .push(pop)
             .into()
     }

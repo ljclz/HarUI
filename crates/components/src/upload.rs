@@ -247,6 +247,7 @@ impl Upload {
                     radius: iced::border::radius(4.0),
                 },
                 shadow: iced::Shadow::default(),
+                snap: false,
             });
 
         let mut col_children: Vec<Element<'a, Message>> = Vec::new();
@@ -283,9 +284,9 @@ impl Upload {
 
             let file_row = iced::widget::Row::new()
                 .push(name_text)
-                .push(iced::widget::Space::with_width(Length::Fixed(6.0)))
+                .push(iced::widget::Space::new().width(Length::Fixed(6.0)))
                 .push(size_label)
-                .push(iced::widget::Space::with_width(Length::Fixed(6.0)))
+                .push(iced::widget::Space::new().width(Length::Fixed(6.0)))
                 .push(status_label)
                 .align_y(iced::Alignment::Center);
 
@@ -301,6 +302,7 @@ impl Upload {
                         radius: iced::border::radius(2.0),
                     },
                     shadow: iced::Shadow::default(),
+                    snap: false,
                 });
             col_children.push(file_wrap.into());
         }

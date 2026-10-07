@@ -183,6 +183,7 @@ impl Progress {
                         background: Some(iced::Background::Color(main_color)),
                         border: iced::Border::default(),
                         shadow: iced::Shadow::default(),
+                        snap: false,
                     });
 
                 let track = container(fill)
@@ -197,13 +198,14 @@ impl Progress {
                             radius: iced::border::radius(track_height / 2.0),
                         },
                         shadow: iced::Shadow::default(),
+                        snap: false,
                     });
 
                 if self.show_text {
                     let label = text(self.formatted_text()).color(text_color).size(14);
                     iced::widget::Row::new()
                         .push(track)
-                        .push(iced::widget::Space::with_width(Length::Fixed(8.0)))
+                        .push(iced::widget::Space::new().width(Length::Fixed(8.0)))
                         .push(label)
                         .align_y(iced::Alignment::Center)
                         .into()
@@ -233,6 +235,7 @@ impl Progress {
                             radius: iced::border::radius(40.0),
                         },
                         shadow: iced::Shadow::default(),
+                        snap: false,
                     })
                     .into()
             }

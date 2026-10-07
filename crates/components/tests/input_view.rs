@@ -51,7 +51,7 @@ fn test_input_compute_style_active() {
 fn test_input_compute_style_focused() {
     let theme = Theme::element_light();
     let inp = Input::new();
-    let style = inp.compute_style(&theme, text_input::Status::Focused);
+    let style = inp.compute_style(&theme, text_input::Status::Focused { is_hovered: false });
     // Focused 态边框 = primary
     assert_eq!(style.border.color, iced::Color::from(theme.primary.base));
 }

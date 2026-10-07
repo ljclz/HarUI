@@ -261,7 +261,8 @@ fn test_input_style_active() {
 #[test]
 fn test_input_style_focused() {
     let theme = Theme::element_light();
-    let style = style_sheets::input_style(&theme, text_input::Status::Focused);
+    let style =
+        style_sheets::input_style(&theme, text_input::Status::Focused { is_hovered: false });
     // Focused 态：边框色 = primary
     assert_eq!(style.border.color, Color::from(theme.primary.base));
     assert!(style.border.width >= 1.0);

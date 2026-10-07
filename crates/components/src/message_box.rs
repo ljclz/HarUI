@@ -291,7 +291,7 @@ impl MessageBox {
         let title_text = text(self.title.clone()).color(title_color).size(16.0);
         let mut header_row_children: Vec<Element<'a, Message>> = Vec::new();
         header_row_children.push(title_text.into());
-        header_row_children.push(iced::widget::Space::with_width(Length::Fill).into());
+        header_row_children.push(iced::widget::Space::new().width(Length::Fill).into());
         if self.show_close {
             let close_msg = on_action("close".to_string());
             let close_btn = button(text("×").color(content_color).size(16.0))
@@ -302,6 +302,7 @@ impl MessageBox {
                     text_color: content_color,
                     border: iced::Border::default(),
                     shadow: iced::Shadow::default(),
+                    snap: false,
                 });
             header_row_children.push(close_btn.into());
         }
@@ -332,15 +333,16 @@ impl MessageBox {
                     radius: iced::border::radius(4.0),
                 },
                 shadow: iced::Shadow::default(),
+                snap: false,
             });
-            body_children.push(iced::widget::Space::with_height(Length::Fixed(8.0)).into());
+            body_children.push(iced::widget::Space::new().height(Length::Fixed(8.0)).into());
             body_children.push(input_box.into());
         }
         let body = iced::widget::Column::with_children(body_children).spacing(0);
 
         // 按钮组
         let mut btn_row_children: Vec<Element<'a, Message>> = Vec::new();
-        btn_row_children.push(iced::widget::Space::with_width(Length::Fill).into());
+        btn_row_children.push(iced::widget::Space::new().width(Length::Fill).into());
         if self.show_cancel {
             let cancel_msg = on_action("cancel".to_string());
             let cancel_btn = button(
@@ -359,9 +361,10 @@ impl MessageBox {
                     radius: iced::border::radius(4.0),
                 },
                 shadow: iced::Shadow::default(),
+                snap: false,
             });
             btn_row_children.push(cancel_btn.into());
-            btn_row_children.push(iced::widget::Space::with_width(Length::Fixed(8.0)).into());
+            btn_row_children.push(iced::widget::Space::new().width(Length::Fixed(8.0)).into());
         }
         if self.show_confirm {
             let confirm_msg = on_action("confirm".to_string());
@@ -381,6 +384,7 @@ impl MessageBox {
                     radius: iced::border::radius(4.0),
                 },
                 shadow: iced::Shadow::default(),
+                snap: false,
             });
             btn_row_children.push(confirm_btn.into());
         }
@@ -391,9 +395,9 @@ impl MessageBox {
         // 对话框主体
         let dialog_inner = iced::widget::Column::new()
             .push(header)
-            .push(iced::widget::Space::with_height(Length::Fixed(12.0)))
+            .push(iced::widget::Space::new().height(Length::Fixed(12.0)))
             .push(body)
-            .push(iced::widget::Space::with_height(Length::Fixed(16.0)))
+            .push(iced::widget::Space::new().height(Length::Fixed(16.0)))
             .push(btn_row);
         let dialog_box = container(dialog_inner)
             .max_width(420.0)
@@ -414,6 +418,7 @@ impl MessageBox {
                     offset: iced::Vector::new(0.0, 4.0),
                     blur_radius: 16.0,
                 },
+                snap: false,
             });
 
         let centered = container(dialog_box)
@@ -430,6 +435,7 @@ impl MessageBox {
                 background: Some(iced::Background::Color(mask)),
                 border: iced::Border::default(),
                 shadow: iced::Shadow::default(),
+                snap: false,
             })
             .into()
     }

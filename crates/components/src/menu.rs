@@ -273,12 +273,15 @@ impl MenuState {
         let mut row_children: Vec<Element<'a, Message>> = Vec::new();
         // 缩进
         if depth > 0 {
-            row_children
-                .push(iced::widget::Space::with_width(Length::Fixed(depth as f32 * 16.0)).into());
+            row_children.push(
+                iced::widget::Space::new()
+                    .width(Length::Fixed(depth as f32 * 16.0))
+                    .into(),
+            );
         }
         if !indicator_str.is_empty() {
             row_children.push(text(indicator_str).color(label_color).size(12.0).into());
-            row_children.push(iced::widget::Space::with_width(Length::Fixed(6.0)).into());
+            row_children.push(iced::widget::Space::new().width(Length::Fixed(6.0)).into());
         }
         row_children.push(
             text(item.label.clone())
@@ -303,6 +306,7 @@ impl MenuState {
                 text_color: label_color,
                 border: iced::Border::default(),
                 shadow: iced::Shadow::default(),
+                snap: false,
             });
 
         if !is_disabled {
@@ -332,6 +336,7 @@ impl MenuState {
                     radius: iced::border::radius(0.0),
                 },
                 shadow: iced::Shadow::default(),
+                snap: false,
             })
             .into()
     }

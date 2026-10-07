@@ -139,6 +139,7 @@ impl Card {
                         radius: iced::border::radius(0.0),
                     },
                     shadow: iced::Shadow::default(),
+                    snap: false,
                 });
             // header 下加分割线
             let divider = container(text(""))
@@ -149,6 +150,7 @@ impl Card {
                     background: Some(iced::Background::Color(border_lighter)),
                     border: iced::Border::default(),
                     shadow: iced::Shadow::default(),
+                    snap: false,
                 });
             col_children.push(header.into());
             col_children.push(divider.into());
@@ -171,6 +173,7 @@ impl Card {
                     background: Some(iced::Background::Color(border_lighter)),
                     border: iced::Border::default(),
                     shadow: iced::Shadow::default(),
+                    snap: false,
                 });
             let footer_text = text(f.clone()).color(text_regular).size(14);
             let footer = container(footer_text)

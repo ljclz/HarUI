@@ -240,11 +240,12 @@ impl Calendar {
                         text_color: text_regular,
                         border: iced::Border::default(),
                         shadow: iced::Shadow::default(),
+                        snap: false,
                     }),
             )
-            .push(iced::widget::Space::with_width(Length::Fixed(8.0)))
+            .push(iced::widget::Space::new().width(Length::Fixed(8.0)))
             .push(month_text)
-            .push(iced::widget::Space::with_width(Length::Fixed(8.0)))
+            .push(iced::widget::Space::new().width(Length::Fixed(8.0)))
             .push(
                 button(text(">").color(text_regular).size(14.0))
                     .padding(Padding::from([4u16, 8u16]))
@@ -253,6 +254,7 @@ impl Calendar {
                         text_color: text_regular,
                         border: iced::Border::default(),
                         shadow: iced::Shadow::default(),
+                        snap: false,
                     }),
             )
             .align_y(iced::Alignment::Center)
@@ -275,6 +277,7 @@ impl Calendar {
                             radius: iced::border::radius(0.0),
                         },
                         shadow: iced::Shadow::default(),
+                        snap: false,
                     });
                 cell.into()
             })
@@ -329,6 +332,7 @@ impl Calendar {
                             radius: iced::border::radius(0.0),
                         },
                         shadow: iced::Shadow::default(),
+                        snap: false,
                     });
                 row_children.push(date_btn.into());
             }
@@ -339,7 +343,7 @@ impl Calendar {
 
         let outer = iced::widget::Column::new()
             .push(header)
-            .push(iced::widget::Space::with_height(Length::Fixed(8.0)))
+            .push(iced::widget::Space::new().height(Length::Fixed(8.0)))
             .push(weekday_row)
             .push(grid_col)
             .spacing(0);
@@ -358,6 +362,7 @@ impl Calendar {
                     radius: iced::border::radius(4.0),
                 },
                 shadow: iced::Shadow::default(),
+                snap: false,
             })
             .into()
     }

@@ -183,7 +183,7 @@ impl Dialog {
             });
         let header = iced::widget::Row::new()
             .push(title_text)
-            .push(iced::widget::Space::with_width(Length::Fill))
+            .push(iced::widget::Space::new().width(Length::Fill))
             .push(close_btn)
             .align_y(iced::Alignment::Center)
             .padding(Padding::from([12u16, 16u16]));
@@ -220,6 +220,7 @@ impl Dialog {
                     offset: iced::Vector::new(0.0, 4.0),
                     blur_radius: 16.0,
                 },
+                snap: false,
             });
 
         // 注：position 偏移在 iced 中需要绝对定位支持，此处简化为中心对齐

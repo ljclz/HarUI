@@ -238,6 +238,7 @@ impl Timeline {
                     radius: iced::border::radius(node_size / 2.0),
                 },
                 shadow: iced::Shadow::default(),
+                snap: false,
             });
 
         // 时间戳 + 内容
@@ -250,14 +251,14 @@ impl Timeline {
 
         let text_col = iced::widget::Column::new()
             .push(timestamp_text)
-            .push(iced::widget::Space::with_height(Length::Fixed(2.0)))
+            .push(iced::widget::Space::new().height(Length::Fixed(2.0)))
             .push(content_text)
             .spacing(0);
 
         // 整行：节点 + 文本
         let row = iced::widget::Row::new()
             .push(node_indicator)
-            .push(iced::widget::Space::with_width(Length::Fixed(12.0)))
+            .push(iced::widget::Space::new().width(Length::Fixed(12.0)))
             .push(text_col)
             .align_y(iced::alignment::Vertical::Center)
             .spacing(0);

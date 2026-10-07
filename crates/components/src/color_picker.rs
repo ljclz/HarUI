@@ -186,6 +186,7 @@ impl ColorPicker {
                     radius: iced::border::radius(4.0),
                 },
                 shadow: iced::Shadow::default(),
+                snap: false,
             });
 
         let arrow_color = if self.disabled {
@@ -195,7 +196,7 @@ impl ColorPicker {
         };
         let trigger = iced::widget::Row::new()
             .push(swatch)
-            .push(iced::widget::Space::with_width(Length::Fixed(6.0)))
+            .push(iced::widget::Space::new().width(Length::Fixed(6.0)))
             .push(text("▼").color(arrow_color).size(12.0))
             .align_y(iced::Alignment::Center);
 
@@ -216,6 +217,7 @@ impl ColorPicker {
                     radius: iced::border::radius(4.0),
                 },
                 shadow: iced::Shadow::default(),
+                snap: false,
             });
 
         let mut outer_children: Vec<Element<'a, ()>> = Vec::new();
@@ -238,6 +240,7 @@ impl ColorPicker {
                             radius: iced::border::radius(3.0),
                         },
                         shadow: iced::Shadow::default(),
+                        snap: false,
                     });
                 grid_children.push(cell.into());
             }
@@ -256,6 +259,7 @@ impl ColorPicker {
                         radius: iced::border::radius(4.0),
                     },
                     shadow: iced::Shadow::default(),
+                    snap: false,
                 });
             outer_children.push(panel.into());
         }

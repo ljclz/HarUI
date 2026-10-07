@@ -198,7 +198,7 @@ impl Payment {
             .size(28.0);
         let total_row = iced::widget::Row::new()
             .push(total_label)
-            .push(iced::widget::Space::with_width(Length::Fixed(8.0)))
+            .push(iced::widget::Space::new().width(Length::Fixed(8.0)))
             .push(total_value)
             .align_y(iced::Alignment::Center);
         col_children.push(
@@ -212,7 +212,7 @@ impl Payment {
         if self.method.is_cash() && self.received > 0.0 {
             let received_row = iced::widget::Row::new()
                 .push(text("实收".to_string()).color(text_secondary).size(12.0))
-                .push(iced::widget::Space::with_width(Length::Fixed(8.0)))
+                .push(iced::widget::Space::new().width(Length::Fixed(8.0)))
                 .push(
                     text(format!("¥ {:.2}", self.received))
                         .color(text_primary)
@@ -221,7 +221,7 @@ impl Payment {
                 .align_y(iced::Alignment::Center);
             let change_row = iced::widget::Row::new()
                 .push(text("找零".to_string()).color(text_secondary).size(12.0))
-                .push(iced::widget::Space::with_width(Length::Fixed(8.0)))
+                .push(iced::widget::Space::new().width(Length::Fixed(8.0)))
                 .push(
                     text(format!("¥ {:.2}", self.change()))
                         .color(primary)
@@ -271,6 +271,7 @@ impl Payment {
                         radius: iced::border::radius(4.0),
                     },
                     shadow: iced::Shadow::default(),
+                    snap: false,
                 });
             method_row = method_row.push(btn);
         }
@@ -309,6 +310,7 @@ impl Payment {
                     radius: iced::border::radius(4.0),
                 },
                 shadow: iced::Shadow::default(),
+                snap: false,
             });
         col_children.push(
             container(cancel_btn)
@@ -329,6 +331,7 @@ impl Payment {
                     radius: iced::border::radius(4.0),
                 },
                 shadow: iced::Shadow::default(),
+                snap: false,
             })
             .into()
     }

@@ -285,20 +285,20 @@ impl Switch {
         // 左侧文本（仅 inactive 状态显示 inactive_text，或者左侧始终显示 inactive_text）
         if let Some(t) = &self.inactive_text {
             row = row.push(text(t.clone()).color(text_color).size(14));
-            row = row.push(iced::widget::Space::with_width(Length::Fixed(6.0)));
+            row = row.push(iced::widget::Space::new().width(Length::Fixed(6.0)));
         }
 
         row = row.push(slider_text);
 
         // 右侧文本
         if let Some(t) = &self.active_text {
-            row = row.push(iced::widget::Space::with_width(Length::Fixed(6.0)));
+            row = row.push(iced::widget::Space::new().width(Length::Fixed(6.0)));
             row = row.push(text(t.clone()).color(text_color).size(14));
         }
 
         // loading 时显示加载指示
         if self.loading {
-            row = row.push(iced::widget::Space::with_width(Length::Fixed(6.0)));
+            row = row.push(iced::widget::Space::new().width(Length::Fixed(6.0)));
             row = row.push(text("⟳").color(text_color).size(14));
         }
 
@@ -310,6 +310,7 @@ impl Switch {
                     text_color,
                     border: iced::Border::default(),
                     shadow: iced::Shadow::default(),
+                    snap: false,
                 });
 
         if self.can_toggle() {

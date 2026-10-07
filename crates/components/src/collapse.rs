@@ -217,7 +217,7 @@ impl Collapse {
 
             let header_content = iced::widget::Row::new()
                 .push(text(indicator_str).color(indicator_color).size(14.0))
-                .push(iced::widget::Space::with_width(Length::Fixed(8.0)))
+                .push(iced::widget::Space::new().width(Length::Fixed(8.0)))
                 .push(text(item.title.clone()).color(title_color).size(14.0))
                 .align_y(iced::Alignment::Center);
 
@@ -228,6 +228,7 @@ impl Collapse {
                     text_color: title_color,
                     border: iced::Border::default(),
                     shadow: iced::Shadow::default(),
+                    snap: false,
                 });
             if !is_disabled {
                 header_btn = header_btn.on_press(on_toggle(item.name.clone()));
@@ -245,6 +246,7 @@ impl Collapse {
                         radius: iced::border::radius(0.0),
                     },
                     shadow: iced::Shadow::default(),
+                    snap: false,
                 }
             });
             item_children.push(header_wrap.into());
@@ -267,6 +269,7 @@ impl Collapse {
                         radius: iced::border::radius(0.0),
                     },
                     shadow: iced::Shadow::default(),
+                    snap: false,
                 });
                 item_children.push(content.into());
             }

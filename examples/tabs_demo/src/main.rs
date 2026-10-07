@@ -54,9 +54,8 @@ fn view(state: &State) -> Element<'_, Message> {
 }
 
 fn main() -> iced::Result {
-    iced::application("HarUI — Tabs Demo", update, view)
-        .window_size(iced::Size::new(800.0, 600.0))
-        .run_with(|| {
+    iced::application(
+        || {
             let tabs = Tabs::new()
                 .with_item(TabItem::new("user", "用户"))
                 .with_item(TabItem::new("role", "角色"))
@@ -67,5 +66,11 @@ fn main() -> iced::Result {
                 tabs,
             };
             (state, Task::none())
-        })
+        },
+        update,
+        view,
+    )
+    .title(|_state: &State| String::from("HarUI — Tabs Demo"))
+    .window_size(iced::Size::new(800.0, 600.0))
+    .run()
 }

@@ -130,6 +130,7 @@ impl HangOrder {
                     radius: iced::border::radius(4.0),
                 },
                 shadow: iced::Shadow::default(),
+                snap: false,
             })
             .into();
         }
@@ -152,6 +153,7 @@ impl HangOrder {
                     radius: iced::border::radius(4.0),
                 },
                 shadow: iced::Shadow::default(),
+                snap: false,
             })
             .into()
     }
@@ -170,7 +172,7 @@ impl HangOrder {
 
         let header = iced::widget::Row::new()
             .push(text(format!("#{}", item.id)).color(primary).size(14.0))
-            .push(iced::widget::Space::with_width(Length::Fill))
+            .push(iced::widget::Space::new().width(Length::Fill))
             .push(
                 text(format!("{} 件", item.item_count))
                     .color(text_secondary)
@@ -180,15 +182,15 @@ impl HangOrder {
 
         let body = iced::widget::Row::new()
             .push(text("客户".to_string()).color(text_secondary).size(12.0))
-            .push(iced::widget::Space::with_width(Length::Fixed(4.0)))
+            .push(iced::widget::Space::new().width(Length::Fixed(4.0)))
             .push(
                 text(item.customer_name.clone())
                     .color(text_primary)
                     .size(13.0),
             )
-            .push(iced::widget::Space::with_width(Length::Fixed(12.0)))
+            .push(iced::widget::Space::new().width(Length::Fixed(12.0)))
             .push(text("金额".to_string()).color(text_secondary).size(12.0))
-            .push(iced::widget::Space::with_width(Length::Fixed(4.0)))
+            .push(iced::widget::Space::new().width(Length::Fixed(4.0)))
             .push(
                 text(format!("¥ {:.2}", item.total))
                     .color(primary)
@@ -212,9 +214,10 @@ impl HangOrder {
                             radius: iced::border::radius(4.0),
                         },
                         shadow: iced::Shadow::default(),
+                        snap: false,
                     }),
             )
-            .push(iced::widget::Space::with_width(Length::Fixed(4.0)))
+            .push(iced::widget::Space::new().width(Length::Fixed(4.0)))
             .push(
                 button(text("删除".to_string()).color(danger).size(12.0))
                     .padding(Padding::from([4u16, 8u16]))
@@ -228,15 +231,16 @@ impl HangOrder {
                             radius: iced::border::radius(4.0),
                         },
                         shadow: iced::Shadow::default(),
+                        snap: false,
                     }),
             )
             .spacing(0);
 
         let inner = iced::widget::Column::new()
             .push(header)
-            .push(iced::widget::Space::with_height(Length::Fixed(4.0)))
+            .push(iced::widget::Space::new().height(Length::Fixed(4.0)))
             .push(body)
-            .push(iced::widget::Space::with_height(Length::Fixed(4.0)))
+            .push(iced::widget::Space::new().height(Length::Fixed(4.0)))
             .push(actions);
 
         container(inner)
@@ -251,6 +255,7 @@ impl HangOrder {
                     radius: iced::border::radius(4.0),
                 },
                 shadow: iced::Shadow::default(),
+                snap: false,
             })
             .into()
     }

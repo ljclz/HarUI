@@ -152,6 +152,7 @@ impl Badge {
                         radius: iced::border::radius(4.0),
                     },
                     shadow: iced::Shadow::default(),
+                    snap: false,
                 })
                 .into();
         }
@@ -184,6 +185,7 @@ impl Badge {
                     radius: iced::border::radius(10.0),
                 },
                 shadow: iced::Shadow::default(),
+                snap: false,
             })
             .into()
     }

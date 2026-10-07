@@ -12,10 +12,17 @@
 //! #     Task::none()
 //! # }
 //! # fn main() -> iced::Result {
-//! # let state = State { fps: FpsMeter::new() };
-//! iced::application("Demo", update, view)
-//!     .subscription(|state| iced::window::frames().map(Message::Frame))
-//!     .run_with(move || (state, Task::none()))
+//! iced::application(
+//!     || {
+//!         let state = State { fps: FpsMeter::new() };
+//!         (state, Task::none())
+//!     },
+//!     update,
+//!     view,
+//! )
+//! .title(|_state: &State| String::from("Demo"))
+//! .subscription(|_state| iced::window::frames().map(Message::Frame))
+//! .run()
 //! # }
 //! ```
 

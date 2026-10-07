@@ -213,7 +213,7 @@ impl Dropdown {
 
         let trigger_content = iced::widget::Row::new()
             .push(text(trigger_label).color(text_primary).size(14.0))
-            .push(iced::widget::Space::with_width(Length::Fixed(6.0)))
+            .push(iced::widget::Space::new().width(Length::Fixed(6.0)))
             .push(text(arrow).color(text_regular).size(12.0))
             .align_y(iced::Alignment::Center);
 
@@ -228,6 +228,7 @@ impl Dropdown {
                     radius: iced::border::radius(4.0),
                 },
                 shadow: iced::Shadow::default(),
+                snap: false,
             });
         // hover 模式不需要点击触发
         if !matches!(self.trigger, DropdownTrigger::Hover) {
@@ -250,6 +251,7 @@ impl Dropdown {
                             background: Some(iced::Background::Color(border_light)),
                             border: iced::Border::default(),
                             shadow: iced::Shadow::default(),
+                            snap: false,
                         });
                     menu_children.push(divider.into());
                 }
@@ -268,6 +270,7 @@ impl Dropdown {
                         background: None,
                         border: iced::Border::default(),
                         shadow: iced::Shadow::default(),
+                        snap: false,
                     });
                 menu_children.push(item_wrap.into());
             }
@@ -286,9 +289,10 @@ impl Dropdown {
                         radius: iced::border::radius(4.0),
                     },
                     shadow: iced::Shadow::default(),
+                    snap: false,
                 });
 
-            outer_children.push(iced::widget::Space::with_height(Length::Fixed(4.0)).into());
+            outer_children.push(iced::widget::Space::new().height(Length::Fixed(4.0)).into());
             outer_children.push(menu_wrap.into());
         }
 

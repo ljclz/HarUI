@@ -306,7 +306,7 @@ impl Select {
         };
         let trigger_content = iced::widget::Row::new()
             .push(text(trigger_text).color(trigger_text_color))
-            .push(iced::widget::Space::with_width(Length::Fill))
+            .push(iced::widget::Space::new().width(Length::Fill))
             .push(text(arrow).color(text_color));
 
         let mut trigger_btn = button(trigger_content)
@@ -433,6 +433,7 @@ impl Select {
                     offset: iced::Vector::new(0.0, 2.0),
                     blur_radius: 8.0,
                 },
+                snap: false,
             });
 
         container(

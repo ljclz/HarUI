@@ -74,6 +74,7 @@ fn colored(
                 radius: iced::border::Radius::default(),
             },
             shadow: Shadow::default(),
+            snap: false,
         };
     }
     if disabled {
@@ -85,6 +86,7 @@ fn colored(
             },
             border: Border::default(),
             shadow: Shadow::default(),
+            snap: false,
         };
     }
     let bg = match status {
@@ -97,6 +99,7 @@ fn colored(
         text_color: Color::WHITE,
         border: Border::default(),
         shadow: Shadow::default(),
+        snap: false,
     }
 }
 
@@ -133,6 +136,7 @@ fn default_button(theme: &Theme, status: button::Status, disabled: bool) -> butt
             radius: iced::border::Radius::default(),
         },
         shadow: Shadow::default(),
+        snap: false,
     }
 }
 
@@ -151,6 +155,7 @@ fn text_button(theme: &Theme, status: button::Status, disabled: bool) -> button:
         },
         border: Border::default(),
         shadow: Shadow::default(),
+        snap: false,
     }
 }
 
@@ -165,7 +170,7 @@ fn link_button(theme: &Theme, status: button::Status, disabled: bool) -> button:
 /// - Disabled：bg_base 背景，border_light 边框
 pub fn input_style(theme: &Theme, status: text_input::Status) -> text_input::Style {
     let (bg, border_color, border_width) = match status {
-        text_input::Status::Focused => (
+        text_input::Status::Focused { .. } => (
             Color::from(theme.neutral.bg_overlay),
             Color::from(theme.primary.base),
             1.0,
@@ -213,6 +218,7 @@ pub fn container_card_style(theme: &Theme) -> container::Style {
             offset: iced::Vector::new(0.0, 2.0),
             blur_radius: 8.0,
         },
+        snap: false,
     }
 }
 
@@ -226,6 +232,7 @@ pub fn container_dialog_mask_style(_theme: &Theme) -> container::Style {
         })),
         border: Border::default(),
         shadow: Shadow::default(),
+        snap: false,
     }
 }
 

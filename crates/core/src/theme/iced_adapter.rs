@@ -41,6 +41,7 @@ pub fn to_iced_theme(theme: &Theme) -> iced::Theme {
         text: Color::from(theme.neutral.text_primary),
         primary: Color::from(theme.primary.base),
         success: Color::from(theme.success.base),
+        warning: Color::from(theme.warning.base),
         danger: Color::from(theme.danger.base),
     };
 

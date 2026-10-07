@@ -264,7 +264,7 @@ impl Drawer {
         } else {
             header_children.push(text("").into());
         }
-        header_children.push(iced::widget::Space::with_width(Length::Fill).into());
+        header_children.push(iced::widget::Space::new().width(Length::Fill).into());
         if self.show_close {
             let close_btn = button(text("×").color(content_color).size(18.0))
                 .padding(Padding::from([2u16, 8u16]))
@@ -274,6 +274,7 @@ impl Drawer {
                     text_color: content_color,
                     border: iced::Border::default(),
                     shadow: iced::Shadow::default(),
+                    snap: false,
                 });
             header_children.push(close_btn.into());
         }
@@ -291,7 +292,7 @@ impl Drawer {
 
         let inner = iced::widget::Column::new()
             .push(header)
-            .push(iced::widget::Space::with_height(Length::Fixed(8.0)))
+            .push(iced::widget::Space::new().height(Length::Fixed(8.0)))
             .push(body);
 
         // 按 direction 计算尺寸
@@ -312,6 +313,7 @@ impl Drawer {
                     radius: iced::border::radius(0.0),
                 },
                 shadow: iced::Shadow::default(),
+                snap: false,
             });
 
         // 按 direction 决定整体容器的对齐方式
@@ -342,6 +344,7 @@ impl Drawer {
                 background: Some(iced::Background::Color(mask)),
                 border: iced::Border::default(),
                 shadow: iced::Shadow::default(),
+                snap: false,
             })
             .into()
     }

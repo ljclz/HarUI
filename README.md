@@ -46,7 +46,7 @@ HarUI 是一个对标 [Element Plus](https://element-plus.org/) 的 Rust 原生 
 [dependencies]
 har-ui-core = { git = "https://github.com/harui/har-ui.git", tag = "v1.0.0" }
 har-ui-components = { git = "https://github.com/harui/har-ui.git", tag = "v1.0.0" }
-iced = "0.13"
+iced = "0.14"
 ```
 
 ### 最简示例
@@ -58,14 +58,22 @@ use iced::widget::{column, container};
 use iced::{Element, Length, Task};
 
 fn main() -> iced::Result {
-    iced::application("HarUI App", update, view)
-        .window_size(iced::Size::new(640.0, 480.0))
-        .run_with(|| {
-            (State {
-                theme: Theme::element_light(),
-                button: Button::new("Click me").with_type(ButtonType::Primary),
-            }, Task::none())
-        })
+    iced::application(
+        || {
+            (
+                State {
+                    theme: Theme::element_light(),
+                    button: Button::new("Click me").with_type(ButtonType::Primary),
+                },
+                Task::none(),
+            )
+        },
+        update,
+        view,
+    )
+    .title(|_state: &State| String::from("HarUI App"))
+    .window_size(iced::Size::new(640.0, 480.0))
+    .run()
 }
 
 struct State { theme: Theme, button: Button }

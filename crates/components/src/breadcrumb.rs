@@ -167,7 +167,7 @@ impl Breadcrumb {
                         .size(14.0)
                         .into(),
                 );
-                children.push(iced::widget::Space::with_width(Length::Fixed(4.0)).into());
+                children.push(iced::widget::Space::new().width(Length::Fixed(4.0)).into());
             }
 
             let label_color = if is_last {
@@ -189,6 +189,7 @@ impl Breadcrumb {
                             text_color: label_color,
                             border: iced::Border::default(),
                             shadow: iced::Shadow::default(),
+                            snap: false,
                         })
                         .on_press(on_click(to.to_string()));
                     children.push(btn.into());
@@ -202,20 +203,21 @@ impl Breadcrumb {
                             background: None,
                             border: iced::Border::default(),
                             shadow: iced::Shadow::default(),
+                            snap: false,
                         });
                 children.push(label_wrap.into());
             }
 
             // 分隔符（非最后一项）
             if !is_last {
-                children.push(iced::widget::Space::with_width(Length::Fixed(6.0)).into());
+                children.push(iced::widget::Space::new().width(Length::Fixed(6.0)).into());
                 children.push(
                     text(self.separator.clone())
                         .color(separator_color)
                         .size(14.0)
                         .into(),
                 );
-                children.push(iced::widget::Space::with_width(Length::Fixed(6.0)).into());
+                children.push(iced::widget::Space::new().width(Length::Fixed(6.0)).into());
             }
         }
 

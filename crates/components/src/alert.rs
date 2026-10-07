@@ -187,7 +187,7 @@ impl Alert {
         let mut row_children: Vec<Element<'a, Message>> = Vec::new();
         if self.show_icon {
             row_children.push(text(icon_str.to_string()).color(accent).size(16.0).into());
-            row_children.push(iced::widget::Space::with_width(Length::Fixed(8.0)).into());
+            row_children.push(iced::widget::Space::new().width(Length::Fixed(8.0)).into());
         }
 
         let mut text_col_children: Vec<Element<'a, Message>> = Vec::new();
@@ -213,6 +213,7 @@ impl Alert {
                     text_color: desc_color,
                     border: iced::Border::default(),
                     shadow: iced::Shadow::default(),
+                    snap: false,
                 })
                 .on_press(on_close());
             row_children.push(close_btn.into());
@@ -237,6 +238,7 @@ impl Alert {
                     radius: iced::border::radius(4.0),
                 },
                 shadow: iced::Shadow::default(),
+                snap: false,
             })
             .into()
     }

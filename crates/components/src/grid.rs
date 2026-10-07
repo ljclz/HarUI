@@ -141,7 +141,7 @@ impl<T: GridItem> Grid<T> {
     ) -> Element<'a, Message> {
         let border_extra_light = Color::from(theme.neutral.border_extra_light);
         let cols = self.props.columns.max(1);
-        let gap = self.props.gap.max(0.0) as u16;
+        let gap = self.props.gap.max(0.0);
 
         let mut rows: Vec<Element<'a, Message>> = Vec::new();
         let mut current: Vec<Element<'a, Message>> = Vec::new();
@@ -167,7 +167,7 @@ impl<T: GridItem> Grid<T> {
         let col = iced::widget::Column::with_children(rows).spacing(gap);
         container(col)
             .width(Length::Fill)
-            .padding(Padding::from(gap))
+            .padding(Padding::from([gap, gap]))
             .style(move |_t| iced::widget::container::Style {
                 text_color: None,
                 background: Some(iced::Background::Color(border_extra_light)),
@@ -177,6 +177,7 @@ impl<T: GridItem> Grid<T> {
                     radius: iced::border::radius(4.0),
                 },
                 shadow: iced::Shadow::default(),
+                snap: false,
             })
             .into()
     }

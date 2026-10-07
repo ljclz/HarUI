@@ -64,9 +64,8 @@ fn view(state: &State) -> Element<'_, Message> {
 }
 
 fn main() -> iced::Result {
-    iced::application("HarUI — Input Demo", update, view)
-        .window_size(iced::Size::new(800.0, 700.0))
-        .run_with(|| {
+    iced::application(
+        || {
             let inputs = vec![
                 Input::new()
                     .with_placeholder("Enter text")
@@ -89,5 +88,11 @@ fn main() -> iced::Result {
                 inputs,
             };
             (state, Task::none())
-        })
+        },
+        update,
+        view,
+    )
+    .title(|_state: &State| String::from("HarUI — Input Demo"))
+    .window_size(iced::Size::new(800.0, 700.0))
+    .run()
 }

@@ -263,6 +263,7 @@ impl TimePicker {
                     radius: iced::border::radius(4.0),
                 },
                 shadow: iced::Shadow::default(),
+                snap: false,
             });
 
         let mut col_children: Vec<Element<'a, Message>> = vec![display_area.into()];
@@ -285,6 +286,7 @@ impl TimePicker {
                             radius: iced::border::radius(4.0),
                         },
                         shadow: iced::Shadow::default(),
+                        snap: false,
                     });
                 row_children.push(btn.into());
             }

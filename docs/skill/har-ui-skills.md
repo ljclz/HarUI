@@ -1,7 +1,7 @@
 # HarUI AI 技能包（LLM-Friendly Reference）
 
 > 面向 AI 编码助手（Cursor / Claude Code 等）与人类新人的单文件参考。
-> 生成日期：2026-09-30 ｜ 对应版本：v1.1.0（tag）
+> 生成日期：2026-09-30 ｜ 对应版本：v1.2.0 分支 feat/iced-0.14（iced 0.14）
 > API 速查段由 `python scripts/gen_skill_doc.py` 从源码自动生成——**发现与代码不符时重跑脚本，勿手改**。
 
 ## 一、项目定位与架构
@@ -13,7 +13,7 @@
   [dependencies]
   har-ui-core = { git = "https://github.com/szzmj1980/HarUI", tag = "v1.1.0" }
   har-ui-components = { git = "https://github.com/szzmj1980/HarUI", tag = "v1.1.0" }
-  iced = "0.13"
+  iced = "0.14"
   ```
 
 ## 二、组件五段式（所有组件统一遵循）
@@ -155,10 +155,15 @@ let (x, y) = (r.rect.x, r.rect.y);
 ### 4.10 FPS overlay（性能自证）
 
 ```rust
-// Message::Frame(std::time::Instant)
-iced::application("Demo", update, view)
-    .subscription(|_s| iced::window::frames().map(Message::Frame))
-    .run_with(...)?;
+// Message::Frame(std::time::Instant)（0.14：boot 闭包初始化，.run() 收尾）
+iced::application(
+    || (State::default(), Task::none()),
+    update,
+    view,
+)
+.title(|_state: &State| String::from("Demo"))
+.subscription(|_s| iced::window::frames().map(Message::Frame))
+.run()?;
 // update 中：state.fps.record(instant);
 // view 中（叠放右上角）：state.fps.overlay_view::<Message>(&theme)
 ```

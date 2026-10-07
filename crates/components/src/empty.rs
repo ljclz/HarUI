@@ -136,13 +136,13 @@ impl Empty {
 
         let mut col = iced::widget::Column::new()
             .push(icon_text)
-            .push(iced::widget::Space::with_height(Length::Fixed(8.0)))
+            .push(iced::widget::Space::new().height(Length::Fixed(8.0)))
             .push(desc_text)
             .spacing(0)
             .align_x(iced::alignment::Horizontal::Center);
 
         if self.has_extra {
-            col = col.push(iced::widget::Space::with_height(Length::Fixed(12.0)));
+            col = col.push(iced::widget::Space::new().height(Length::Fixed(12.0)));
             col = col.push(
                 text("[extra slot]")
                     .color(Color::from(theme.neutral.text_placeholder))

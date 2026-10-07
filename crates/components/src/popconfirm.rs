@@ -338,6 +338,7 @@ impl Popconfirm {
                 radius: iced::border::radius(3.0),
             },
             shadow: iced::Shadow::default(),
+            snap: false,
         })
         .on_press(on_cancel());
 
@@ -356,13 +357,14 @@ impl Popconfirm {
                 radius: iced::border::radius(3.0),
             },
             shadow: iced::Shadow::default(),
+            snap: false,
         })
         .on_press(on_confirm());
 
         let buttons_row = iced::widget::Row::new()
-            .push(iced::widget::Space::with_width(Length::Fill))
+            .push(iced::widget::Space::new().width(Length::Fill))
             .push(cancel_btn)
-            .push(iced::widget::Space::with_width(Length::Fixed(8.0)))
+            .push(iced::widget::Space::new().width(Length::Fixed(8.0)))
             .push(confirm_btn)
             .align_y(iced::Alignment::Center);
 
@@ -385,11 +387,12 @@ impl Popconfirm {
                     radius: iced::border::radius(4.0),
                 },
                 shadow: har_ui_core::theme::style_sheets::iced_shadow(&theme.shadow.light),
+                snap: false,
             });
 
         iced::widget::Column::new()
             .push(content)
-            .push(iced::widget::Space::with_height(Length::Fixed(4.0)))
+            .push(iced::widget::Space::new().height(Length::Fixed(4.0)))
             .push(pop)
             .into()
     }

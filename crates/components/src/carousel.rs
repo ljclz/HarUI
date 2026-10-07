@@ -223,6 +223,7 @@ impl Carousel {
                     text_color: text_secondary,
                     border: iced::Border::default(),
                     shadow: iced::Shadow::default(),
+                    snap: false,
                 });
             row_children.push(prev_btn.into());
         }
@@ -236,6 +237,7 @@ impl Carousel {
                     text_color: text_secondary,
                     border: iced::Border::default(),
                     shadow: iced::Shadow::default(),
+                    snap: false,
                 });
             row_children.push(next_btn.into());
         }
@@ -263,6 +265,7 @@ impl Carousel {
                             radius: iced::border::radius(4.0),
                         },
                         shadow: iced::Shadow::default(),
+                        snap: false,
                     });
                 dots.push(dot.into());
             }
@@ -285,6 +288,7 @@ impl Carousel {
                     radius: iced::border::radius(4.0),
                 },
                 shadow: iced::Shadow::default(),
+                snap: false,
             })
             .into()
     }

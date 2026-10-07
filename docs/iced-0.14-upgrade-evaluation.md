@@ -2,6 +2,14 @@
 
 > 评估日期：2026-09-30 ｜ 触发条件：iced 0.14.0 正式发布（[Release Notes](https://github.com/iced-rs/iced/releases/tag/0.14.0)）
 > 结论先行：**值得升级，独立立项为 v1.2.0 候选**；收益大、成本中等、非紧急。
+>
+> **✅ 升级已实施（2026-09-30，分支 feat/iced-0.14）**：全 workspace 编译通过、
+> 2113 测试 0 失败、门禁 12 关 PASS、audit 重审 **9 条豁免清零 6 条**（quick-xml ×2 /
+> instant / rustybuzz / event-listener / lru 旧档），保留 3 条（paste / ttf-parser /
+> lru unsound——0.14 仍传递依赖）。实际迁移面：snap 字段 122+6 处（脚本自动补）、
+> Space::with_width/height → new().width/height（44 处）、application 构造改 boot 闭包 +
+> .title()/.run()（15 示例）、keyboard::on_key_press → listen（1 处）、
+> Status::Focused 结构体变体（3 处）、Palette.warning（1 处）。
 > 本文档是评估记录，不是迁移指南；实际升级前需重读官方迁移说明。
 
 ## 一、升级收益（按 HarUI 痛点对齐）

@@ -190,6 +190,7 @@ impl Pagination {
                                 text_color: Color::WHITE,
                                 border: iced::Border::default(),
                                 shadow: iced::Shadow::default(),
+                                snap: false,
                             }
                         } else {
                             style_sheets::button_style(theme, ButtonKind::Default, false, status)

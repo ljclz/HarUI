@@ -157,7 +157,7 @@ impl Loading {
         let mut col_children: Vec<Element<'a, Message>> = Vec::new();
         col_children.push(text(spinner.to_string()).color(primary).size(28.0).into());
         if let Some(t) = &self.text {
-            col_children.push(iced::widget::Space::with_height(Length::Fixed(8.0)).into());
+            col_children.push(iced::widget::Space::new().height(Length::Fixed(8.0)).into());
             col_children.push(text(t.clone()).color(text_color).size(14.0).into());
         }
 
@@ -173,6 +173,7 @@ impl Loading {
                 background: Some(iced::Background::Color(mask)),
                 border: iced::Border::default(),
                 shadow: iced::Shadow::default(),
+                snap: false,
             });
 
         // content + 遮罩叠加：使用 Column 让两者堆叠

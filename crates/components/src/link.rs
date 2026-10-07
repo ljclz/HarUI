@@ -154,7 +154,7 @@ impl Link {
         let mut row_children: Vec<Element<'a, Message>> = Vec::new();
         if let Some(icon) = &self.icon {
             row_children.push(text(icon.clone()).color(text_color).size(14.0).into());
-            row_children.push(iced::widget::Space::with_width(Length::Fixed(4.0)).into());
+            row_children.push(iced::widget::Space::new().width(Length::Fixed(4.0)).into());
         }
         let link_text = text(self.text.clone()).color(text_color).size(14.0);
         row_children.push(link_text.into());
@@ -171,6 +171,7 @@ impl Link {
                     text_color,
                     border: iced::Border::default(),
                     shadow: iced::Shadow::default(),
+                    snap: false,
                 });
         if !self.disabled {
             btn = btn.on_press(on_click);
@@ -190,6 +191,7 @@ impl Link {
                         radius: iced::border::radius(0.0),
                     },
                     shadow: iced::Shadow::default(),
+                    snap: false,
                 })
                 .into()
         } else {

@@ -168,7 +168,7 @@ impl Radio {
 
         let content = iced::widget::Row::new()
             .push(text(dot).color(dot_color).size(size + 2.0))
-            .push(iced::widget::Space::with_width(Length::Fixed(6.0)))
+            .push(iced::widget::Space::new().width(Length::Fixed(6.0)))
             .push(text(self.label.clone()).color(text_color).size(size))
             .align_y(iced::Alignment::Center);
 
@@ -209,6 +209,7 @@ impl Radio {
                     text_color,
                     border,
                     shadow: iced::Shadow::default(),
+                    snap: false,
                 }
             });
 
@@ -343,7 +344,7 @@ impl RadioGroup {
 
             let content = iced::widget::Row::new()
                 .push(text(dot).color(dot_color).size(size + 2.0))
-                .push(iced::widget::Space::with_width(Length::Fixed(6.0)))
+                .push(iced::widget::Space::new().width(Length::Fixed(6.0)))
                 .push(text(label.to_string()).color(label_color).size(size))
                 .align_y(iced::Alignment::Center);
 
@@ -353,6 +354,7 @@ impl RadioGroup {
                     text_color: label_color,
                     border: iced::Border::default(),
                     shadow: iced::Shadow::default(),
+                    snap: false,
                 }
             });
             if !self.disabled {

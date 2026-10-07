@@ -261,6 +261,7 @@ impl Tag {
                     text_color,
                     border: iced::Border::default(),
                     shadow: iced::Shadow::default(),
+                    snap: false,
                 });
             row = row.push(close_btn);
         }
@@ -280,6 +281,7 @@ impl Tag {
                     radius: iced::border::radius(4.0),
                 },
                 shadow: iced::Shadow::default(),
+                snap: false,
             })
             .into()
     }

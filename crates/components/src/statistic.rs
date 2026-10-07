@@ -184,7 +184,7 @@ impl Statistic {
         // title
         if let Some(t) = &self.title {
             col_children.push(text(t.clone()).color(title_color).size(13.0).into());
-            col_children.push(iced::widget::Space::with_height(Length::Fixed(4.0)).into());
+            col_children.push(iced::widget::Space::new().height(Length::Fixed(4.0)).into());
         }
 
         // value row: prefix + value + suffix

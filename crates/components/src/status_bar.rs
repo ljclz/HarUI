@@ -168,7 +168,7 @@ impl StatusBar {
 
         let main_row = iced::widget::Row::new()
             .push(left_row)
-            .push(iced::widget::Space::with_width(Length::Fill))
+            .push(iced::widget::Space::new().width(Length::Fill))
             .push(right_row)
             .align_y(iced::Alignment::Center);
 
@@ -187,6 +187,7 @@ impl StatusBar {
                     radius: iced::border::radius(0.0),
                 },
                 shadow: iced::Shadow::default(),
+                snap: false,
             })
             .into()
     }

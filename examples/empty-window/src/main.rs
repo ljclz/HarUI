@@ -100,13 +100,18 @@ fn view(state: &State) -> Element<'_, Message> {
 }
 
 fn main() -> iced::Result {
-    iced::application("HarUI — Empty Window (M0 Verification)", update, view)
-        .window_size(iced::Size::new(640.0, 480.0))
-        .run_with(|| {
+    iced::application(
+        || {
             let state = State { theme: None };
             (
                 state,
                 Task::perform(async { Theme::element_light() }, Message::ThemeLoaded),
             )
-        })
+        },
+        update,
+        view,
+    )
+    .title(|_state: &State| String::from("HarUI — Empty Window (M0 Verification)"))
+    .window_size(iced::Size::new(640.0, 480.0))
+    .run()
 }

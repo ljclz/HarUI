@@ -238,6 +238,7 @@ impl Steps {
                         radius: iced::border::radius(14.0),
                     },
                     shadow: iced::Shadow::default(),
+                    snap: false,
                 });
 
             let title_color = match status {
@@ -249,10 +250,11 @@ impl Steps {
 
             let mut step_col_children: Vec<Element<'a, ()>> = Vec::new();
             step_col_children.push(node.into());
-            step_col_children.push(iced::widget::Space::with_height(Length::Fixed(4.0)).into());
+            step_col_children.push(iced::widget::Space::new().height(Length::Fixed(4.0)).into());
             step_col_children.push(title_text.into());
             if let Some(desc) = step.description() {
-                step_col_children.push(iced::widget::Space::with_height(Length::Fixed(2.0)).into());
+                step_col_children
+                    .push(iced::widget::Space::new().height(Length::Fixed(2.0)).into());
                 step_col_children.push(
                     text(desc.to_string())
                         .color(text_secondary)
@@ -277,6 +279,7 @@ impl Steps {
                         radius: iced::border::radius(0.0),
                     },
                     shadow: iced::Shadow::default(),
+                    snap: false,
                 });
             children.push(step_wrap.into());
 
@@ -295,6 +298,7 @@ impl Steps {
                         background: Some(iced::Background::Color(line_color)),
                         border: iced::Border::default(),
                         shadow: iced::Shadow::default(),
+                        snap: false,
                     });
                 children.push(line.into());
             }

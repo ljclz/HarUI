@@ -217,6 +217,7 @@ impl Slider {
                 background: Some(iced::Background::Color(primary)),
                 border: iced::Border::default(),
                 shadow: iced::Shadow::default(),
+                snap: false,
             });
 
         let mut handle_btn = button(text(""))
@@ -231,6 +232,7 @@ impl Slider {
                     radius: iced::border::radius(8.0),
                 },
                 shadow: iced::Shadow::default(),
+                snap: false,
             });
         if !self.disabled {
             handle_btn = handle_btn.on_press(on_change(self.value));
@@ -244,6 +246,7 @@ impl Slider {
                 background: Some(iced::Background::Color(border_lighter)),
                 border: iced::Border::default(),
                 shadow: iced::Shadow::default(),
+                snap: false,
             });
 
         let track_row = iced::widget::Row::new()
@@ -258,7 +261,7 @@ impl Slider {
             let value_label = text(value_text).color(text_regular).size(14.0);
             iced::widget::Row::new()
                 .push(track_row)
-                .push(iced::widget::Space::with_width(Length::Fixed(12.0)))
+                .push(iced::widget::Space::new().width(Length::Fixed(12.0)))
                 .push(value_label)
                 .align_y(iced::Alignment::Center)
                 .into()
@@ -287,6 +290,7 @@ impl Slider {
                     radius: iced::border::radius(4.0),
                 },
                 shadow: iced::Shadow::default(),
+                snap: false,
             })
             .into()
     }

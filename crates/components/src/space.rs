@@ -152,11 +152,11 @@ impl Space {
 
         let element: Element<'a, Message> = match self.direction {
             SpaceDirection::Horizontal => iced::widget::Row::with_children(children)
-                .spacing(spacing)
+                .spacing(f32::from(spacing))
                 .align_y(align)
                 .into(),
             SpaceDirection::Vertical => iced::widget::Column::with_children(children)
-                .spacing(spacing)
+                .spacing(f32::from(spacing))
                 .align_x(align)
                 .into(),
         };

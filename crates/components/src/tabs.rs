@@ -265,7 +265,7 @@ impl Tabs {
                 .align_y(iced::Alignment::Center);
             if item.closable && !is_disabled {
                 label_row = label_row
-                    .push(iced::widget::Space::with_width(Length::Fixed(6.0)))
+                    .push(iced::widget::Space::new().width(Length::Fixed(6.0)))
                     .push(text("×").color(text_regular).size(14.0));
             }
 
@@ -286,6 +286,7 @@ impl Tabs {
                         radius: iced::border::radius(4.0),
                     },
                     shadow: iced::Shadow::default(),
+                    snap: false,
                 });
             if !is_disabled {
                 btn = btn.on_press(on_select(item.id.clone()));
@@ -309,6 +310,7 @@ impl Tabs {
                     radius: iced::border::radius(0.0),
                 },
                 shadow: iced::Shadow::default(),
+                snap: false,
             });
 
         let mut outer: Vec<Element<'a, Message>> = Vec::new();

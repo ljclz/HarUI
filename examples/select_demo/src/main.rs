@@ -59,9 +59,8 @@ fn view(state: &State) -> Element<'_, Message> {
 }
 
 fn main() -> iced::Result {
-    iced::application("HarUI — Select Demo", update, view)
-        .window_size(iced::Size::new(600.0, 500.0))
-        .run_with(|| {
+    iced::application(
+        || {
             let select = Select::new()
                 .with_clearable(true)
                 .with_filterable(true)
@@ -79,5 +78,11 @@ fn main() -> iced::Result {
                 select,
             };
             (state, Task::none())
-        })
+        },
+        update,
+        view,
+    )
+    .title(|_state: &State| String::from("HarUI — Select Demo"))
+    .window_size(iced::Size::new(600.0, 500.0))
+    .run()
 }

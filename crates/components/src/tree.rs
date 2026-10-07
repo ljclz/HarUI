@@ -377,8 +377,11 @@ impl Tree {
 
         let mut row_children: Vec<Element<'a, Message>> = Vec::new();
         if depth > 0 {
-            row_children
-                .push(iced::widget::Space::with_width(Length::Fixed(depth as f32 * 16.0)).into());
+            row_children.push(
+                iced::widget::Space::new()
+                    .width(Length::Fixed(depth as f32 * 16.0))
+                    .into(),
+            );
         }
 
         // 指示器按钮（点击切换展开/折叠）
@@ -390,6 +393,7 @@ impl Tree {
                 text_color: primary,
                 border: iced::Border::default(),
                 shadow: iced::Shadow::default(),
+                snap: false,
             });
         if !node.is_leaf() && !is_disabled {
             indicator_btn = indicator_btn.on_press((on_toggle)(node.id.clone()));
@@ -405,6 +409,7 @@ impl Tree {
                 text_color: label_color,
                 border: iced::Border::default(),
                 shadow: iced::Shadow::default(),
+                snap: false,
             });
         if !is_disabled {
             label_btn = label_btn.on_press((on_select)(node.id.clone()));

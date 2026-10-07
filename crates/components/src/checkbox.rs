@@ -226,7 +226,7 @@ impl Checkbox {
 
         let content = iced::widget::Row::new()
             .push(text(indicator).color(box_color).size(size + 2.0))
-            .push(iced::widget::Space::with_width(Length::Fixed(6.0)))
+            .push(iced::widget::Space::new().width(Length::Fixed(6.0)))
             .push(text(self.label.clone()).color(text_color).size(size))
             .align_y(iced::Alignment::Center);
 
@@ -267,6 +267,7 @@ impl Checkbox {
                     text_color,
                     border,
                     shadow: iced::Shadow::default(),
+                    snap: false,
                 }
             });
 
@@ -446,7 +447,7 @@ impl CheckboxGroup {
 
             let content = iced::widget::Row::new()
                 .push(text(indicator).color(box_color).size(size + 2.0))
-                .push(iced::widget::Space::with_width(Length::Fixed(6.0)))
+                .push(iced::widget::Space::new().width(Length::Fixed(6.0)))
                 .push(text(label.to_string()).color(label_color).size(size))
                 .align_y(iced::Alignment::Center);
 
@@ -456,6 +457,7 @@ impl CheckboxGroup {
                     text_color: label_color,
                     border: iced::Border::default(),
                     shadow: iced::Shadow::default(),
+                    snap: false,
                 }
             });
             if !option_disabled {

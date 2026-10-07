@@ -63,9 +63,8 @@ fn view(state: &State) -> Element<'_, Message> {
 }
 
 fn main() -> iced::Result {
-    iced::application("HarUI — Card Demo", update, view)
-        .window_size(iced::Size::new(700.0, 700.0))
-        .run_with(|| {
+    iced::application(
+        || {
             let always_card = Card::new("This card always shows shadow.")
                 .with_header("Card — Shadow Always")
                 .with_footer("Footer: always shadow");
@@ -86,5 +85,11 @@ fn main() -> iced::Result {
                 hover_on: false,
             };
             (state, Task::none())
-        })
+        },
+        update,
+        view,
+    )
+    .title(|_state: &State| String::from("HarUI — Card Demo"))
+    .window_size(iced::Size::new(700.0, 700.0))
+    .run()
 }

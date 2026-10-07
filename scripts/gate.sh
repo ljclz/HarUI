@@ -46,15 +46,9 @@ run_gate "doc 文档构建" "cargo doc --workspace --no-deps --all-features" 5 |
 # 故以 CLI 参数为准；升级依赖或 iced 后应清空豁免并重审）。
 # 网络受限环境请预先设置 https_proxy，或依赖 ~/.cargo/advisory-db 缓存回退。
 AUDIT_ARGS=(
-  --ignore RUSTSEC-2026-0194  # quick-xml DoS，iced svg 链传递依赖，仅解析内置图标
-  --ignore RUSTSEC-2026-0195  # quick-xml DoS，同上
-  --ignore RUSTSEC-2026-0002  # lru unsound，iced_glyphon 0.6 钉死，无外部输入
-  --ignore RUSTSEC-2026-0253  # lru unsound，同上
-  --ignore RUSTSEC-2024-0384  # instant unmaintained，等 iced 0.14+ 替换
-  --ignore RUSTSEC-2024-0436  # paste unmaintained，同上
-  --ignore RUSTSEC-2026-0206  # rustybuzz unmaintained，同上
-  --ignore RUSTSEC-2026-0192  # ttf-parser unmaintained，同上
-  --ignore RUSTSEC-2026-0221  # event-listener unsound，同上
+  --ignore RUSTSEC-2026-0253  # lru unsound，iced 0.14 传递依赖，字形缓存内部使用
+  --ignore RUSTSEC-2024-0436  # paste unmaintained，等上游替换
+  --ignore RUSTSEC-2026-0192  # ttf-parser unmaintained，等上游替换
 )
 set +e
 cargo audit "${AUDIT_ARGS[@]}"

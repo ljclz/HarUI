@@ -106,6 +106,7 @@ impl Divider {
                     background: Some(iced::Background::Color(border_color)),
                     border: iced::Border::default(),
                     shadow: iced::Shadow::default(),
+                    snap: false,
                 });
             return line.into();
         }
@@ -121,6 +122,7 @@ impl Divider {
                         background: Some(iced::Background::Color(border_color)),
                         border: iced::Border::default(),
                         shadow: iced::Shadow::default(),
+                        snap: false,
                     });
                 line.into()
             }
@@ -142,6 +144,7 @@ impl Divider {
                         background: Some(iced::Background::Color(border_color)),
                         border: iced::Border::default(),
                         shadow: iced::Shadow::default(),
+                        snap: false,
                     });
 
                 let right_line = container(text(""))
@@ -152,15 +155,16 @@ impl Divider {
                         background: Some(iced::Background::Color(border_color)),
                         border: iced::Border::default(),
                         shadow: iced::Shadow::default(),
+                        snap: false,
                     });
 
                 let label = text(t.clone()).color(text_color).size(14.0);
 
                 iced::widget::Row::new()
                     .push(left_line)
-                    .push(iced::widget::Space::with_width(Length::Fixed(8.0)))
+                    .push(iced::widget::Space::new().width(Length::Fixed(8.0)))
                     .push(label)
-                    .push(iced::widget::Space::with_width(Length::Fixed(8.0)))
+                    .push(iced::widget::Space::new().width(Length::Fixed(8.0)))
                     .push(right_line)
                     .align_y(iced::Alignment::Center)
                     .into()

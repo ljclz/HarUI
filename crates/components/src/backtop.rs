@@ -140,6 +140,7 @@ impl Backtop {
                     radius: iced::border::radius(20.0),
                 },
                 shadow: iced::Shadow::default(),
+                snap: false,
             })
             .on_press(on_click);
 
@@ -157,6 +158,7 @@ impl Backtop {
                     radius: iced::border::radius(20.0),
                 },
                 shadow: iced::Shadow::default(),
+                snap: false,
             });
 
         btn_wrap.into()

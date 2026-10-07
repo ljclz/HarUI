@@ -180,7 +180,7 @@ impl Descriptions {
 
         let inner = iced::widget::Row::new()
             .push(label_text)
-            .push(iced::widget::Space::with_width(Length::Fixed(8.0)))
+            .push(iced::widget::Space::new().width(Length::Fixed(8.0)))
             .push(value_text)
             .padding(Padding::from([8u16, 12u16]));
 
@@ -197,6 +197,7 @@ impl Descriptions {
                             radius: iced::border::radius(0.0),
                         },
                         shadow: iced::Shadow::default(),
+                        snap: false,
                     }
                 } else {
                     iced::widget::container::Style::default()

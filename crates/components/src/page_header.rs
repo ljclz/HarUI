@@ -131,13 +131,14 @@ impl PageHeader {
                 text_color: title_color,
                 border: iced::Border::default(),
                 shadow: iced::Shadow::default(),
+                snap: false,
             });
 
         // 标题 + 副标题
         let title_text = text(self.title.clone()).color(title_color).size(18.0);
         let mut title_children: Vec<Element<'a, Message>> = Vec::new();
         title_children.push(back_btn.into());
-        title_children.push(iced::widget::Space::with_width(Length::Fixed(8.0)).into());
+        title_children.push(iced::widget::Space::new().width(Length::Fixed(8.0)).into());
 
         let mut title_text_col_children: Vec<Element<'a, Message>> = Vec::new();
         title_text_col_children.push(title_text.into());
@@ -150,7 +151,7 @@ impl PageHeader {
 
         // 顶部行：左 (返回+标题) + 右 (extra)
         let mut top_row_children: Vec<Element<'a, Message>> = title_children;
-        top_row_children.push(iced::widget::Space::with_width(Length::Fill).into());
+        top_row_children.push(iced::widget::Space::new().width(Length::Fill).into());
         if self.has_extra {
             top_row_children.push(text("[extra]").color(placeholder_color).size(12.0).into());
         }
@@ -162,7 +163,7 @@ impl PageHeader {
         let mut col_children: Vec<Element<'a, Message>> = Vec::new();
         col_children.push(top_row.into());
         if let Some(c) = &self.content {
-            col_children.push(iced::widget::Space::with_height(Length::Fixed(8.0)).into());
+            col_children.push(iced::widget::Space::new().height(Length::Fixed(8.0)).into());
             col_children.push(text(c.clone()).color(content_color).size(14.0).into());
         }
         let col = iced::widget::Column::with_children(col_children).spacing(0);
@@ -179,6 +180,7 @@ impl PageHeader {
                     radius: iced::border::radius(0.0),
                 },
                 shadow: iced::Shadow::default(),
+                snap: false,
             })
             .into()
     }

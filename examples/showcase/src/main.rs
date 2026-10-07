@@ -345,10 +345,15 @@ fn build_bottom_bar(
     let fps_btn = button(text(fps_label).size(12))
         .on_press(Message::ToggleFps)
         .padding(Padding::from([4u16, 12u16]));
-    let bar = row![status, Space::with_width(Length::Fill), toggle_btn, fps_btn]
-        .spacing(8)
-        .align_y(iced::Alignment::Center)
-        .padding(Padding::from([8u16, 16u16]));
+    let bar = row![
+        status,
+        Space::new().width(Length::Fill),
+        toggle_btn,
+        fps_btn
+    ]
+    .spacing(8)
+    .align_y(iced::Alignment::Center)
+    .padding(Padding::from([8u16, 16u16]));
     container(bar)
         .width(Length::Fill)
         .height(Length::Fixed(40.0))
@@ -387,6 +392,7 @@ fn build_nav(theme: &Theme, current: Category) -> Element<'_, Message> {
                 },
                 border: iced::Border::default(),
                 shadow: iced::Shadow::default(),
+                snap: false,
             });
         col = col.push(nav_btn);
     }
@@ -757,10 +763,8 @@ fn build_table() -> Table<TableRow> {
 }
 
 fn main() -> iced::Result {
-    iced::application("HarUI Showcase", update, view)
-        .window_size(iced::Size::new(1024.0, 700.0))
-        .subscription(|_state| iced::window::frames().map(Message::Frame))
-        .run_with(|| {
+    iced::application(
+        || {
             let type_buttons = vec![
                 Button::new("Default"),
                 Button::new("Primary").with_type(ButtonType::Primary),
@@ -831,5 +835,12 @@ fn main() -> iced::Result {
                 show_fps: false,
             };
             (state, Task::none())
-        })
+        },
+        update,
+        view,
+    )
+    .title(|_state: &State| String::from("HarUI Showcase"))
+    .window_size(iced::Size::new(1024.0, 700.0))
+    .subscription(|_state| iced::window::frames().map(Message::Frame))
+    .run()
 }

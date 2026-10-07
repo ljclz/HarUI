@@ -181,7 +181,7 @@ impl Text {
         if self.copyable {
             let copyable_row = iced::widget::Row::new()
                 .push(wrapper)
-                .push(iced::widget::Space::with_width(Length::Fixed(4.0)))
+                .push(iced::widget::Space::new().width(Length::Fixed(4.0)))
                 .push(
                     text("📋")
                         .color(Color::from(theme.neutral.text_secondary))

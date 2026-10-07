@@ -147,10 +147,8 @@ fn view(state: &State) -> Element<'_, Message> {
 }
 
 fn main() -> iced::Result {
-    iced::application("HarUI — Table Demo", update, view)
-        .window_size(iced::Size::new(800.0, 600.0))
-        .subscription(|_state| iced::window::frames().map(Message::Frame))
-        .run_with(|| {
+    iced::application(
+        || {
             let columns = vec![
                 TableColumn::new("id", "ID")
                     .with_width(60.0)
@@ -196,5 +194,12 @@ fn main() -> iced::Result {
                 show_fps: false,
             };
             (state, Task::none())
-        })
+        },
+        update,
+        view,
+    )
+    .title(|_state: &State| String::from("HarUI — Table Demo"))
+    .window_size(iced::Size::new(800.0, 600.0))
+    .subscription(|_state| iced::window::frames().map(Message::Frame))
+    .run()
 }

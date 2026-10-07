@@ -410,7 +410,7 @@ impl DatePicker {
         let arrow = if self.visible { "▲" } else { "▼" };
         let trigger_content = iced::widget::Row::new()
             .push(text(display_text).color(display_color))
-            .push(iced::widget::Space::with_width(Length::Fill))
+            .push(iced::widget::Space::new().width(Length::Fill))
             .push(text(arrow).color(text_regular));
 
         let mut trigger_btn = button(trigger_content)
@@ -425,6 +425,7 @@ impl DatePicker {
                     radius: iced::border::radius(4.0),
                 },
                 shadow: iced::Shadow::default(),
+                snap: false,
             });
         if !self.disabled {
             trigger_btn = trigger_btn.on_press(on_pick("__toggle__".to_string()));
@@ -448,9 +449,9 @@ impl DatePicker {
                     .on_press(on_pick("__prev_month__".to_string()))
                     .padding(Padding::from([2u16, 6u16])),
             )
-            .push(iced::widget::Space::with_width(Length::Fill))
+            .push(iced::widget::Space::new().width(Length::Fill))
             .push(text(header_text).color(text_primary).size(14.0))
-            .push(iced::widget::Space::with_width(Length::Fill))
+            .push(iced::widget::Space::new().width(Length::Fill))
             .push(
                 button(text(">").color(text_regular))
                     .on_press(on_pick("__next_month__".to_string()))
@@ -519,6 +520,7 @@ impl DatePicker {
                             radius: iced::border::radius(2.0),
                         },
                         shadow: iced::Shadow::default(),
+                        snap: false,
                     });
                 day_btn = day_btn.on_press(on_pick(date_label));
                 row_children.push(day_btn.into());
@@ -539,6 +541,7 @@ impl DatePicker {
                     radius: iced::border::radius(4.0),
                 },
                 shadow: iced::Shadow::default(),
+                snap: false,
             });
 
         container(

@@ -204,9 +204,9 @@ impl Notification {
 
         let mut header_children: Vec<Element<'a, ()>> = vec![
             text(icon).color(accent).size(18.0).into(),
-            iced::widget::Space::with_width(Length::Fixed(8.0)).into(),
+            iced::widget::Space::new().width(Length::Fixed(8.0)).into(),
             title_text.into(),
-            iced::widget::Space::with_width(Length::Fill).into(),
+            iced::widget::Space::new().width(Length::Fill).into(),
         ];
         if self.show_close {
             header_children.push(text("×").color(content_color).size(16.0).into());
@@ -217,7 +217,7 @@ impl Notification {
 
         let col = iced::widget::Column::new()
             .push(header)
-            .push(iced::widget::Space::with_height(Length::Fixed(6.0)))
+            .push(iced::widget::Space::new().height(Length::Fixed(6.0)))
             .push(content_text);
 
         container(col)
@@ -232,6 +232,7 @@ impl Notification {
                     radius: iced::border::radius(4.0),
                 },
                 shadow: iced::Shadow::default(),
+                snap: false,
             })
             .into()
     }

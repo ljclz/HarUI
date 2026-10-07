@@ -270,7 +270,9 @@
 - [x] W5：画廊化 + FPS overlay（2026-09-30：catalog.rs 61 组件目录索引页 + 12 演示页用法
   片段；core `devtools::fps_meter`（对标 gpui-fps，window::frames 订阅 + 健康度配色 overlay），
   showcase 与 table_demo 均可切换显示）
-- [ ] W6：AI 技能包文档
+- [x] W6：AI 技能包文档（2026-09-30：docs/skill/har-ui-skills.md — API 速查由
+  scripts/gen_skill_doc.py 从源码自动生成（61 组件），10 个可编译模式片段逐一与源码核对
+  （修正 Button/Pagination/Card 3 处 API 漂移，README 同步修正），AI 编码规约 5 条硬约束）
 - [ ] 全量门禁 12 关通过；tag `v1.1.0` 并推送
 
 ### 远期

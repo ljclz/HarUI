@@ -1,3 +1,24 @@
+## v1.1.0 — 2026-09-30（GPUI Kit 吸收特性版）
+
+### Highlights
+- **headless 行为层**（ADR-009）：`har_ui_core::behavior` — 弹层 12 方位定位引擎
+  （碰撞翻转/钳制）、虚拟列表度量、浮层堆叠、焦点环；纯 f32 零 iced 依赖，可全空间 fuzz
+- **Table 冻结列 + 列宽拖拽**（ADR-008）：左/右冻结三段式、`resizable(min,max)` 拖拽、
+  横向滚动，与虚拟滚动正交；新增 `view_msg` 交互渲染入口
+- **性能自证**：FPS overlay（showcase/table_demo 可切换）；基准：10 万行滚动计算
+  ~10.5ns/次、定位引擎 ~6.4ns/次（docs/perf_baseline.md）
+- **测试 +66**：2100+ 全通过 — 业务流回放 4 条、overlay_fuzz/table_fuzz 各 1000 轮
+- **AI 技能包**：docs/skill/har-ui-skills.md（API 速查脚本自动生成）
+
+### Upgrade
+```toml
+har-ui-core = { git = "https://github.com/szzmj1980/HarUI", tag = "v1.1.0" }
+har-ui-components = { git = "https://github.com/szzmj1980/HarUI", tag = "v1.1.0" }
+```
+v1.0.0 → v1.1.0 零破坏性变更；新增 API 详见 CHANGELOG.md。
+
+---
+
 ## HarUI v1.0.0 - Rust Native UI Component Library
 
 ### Features

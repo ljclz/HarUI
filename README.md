@@ -5,20 +5,24 @@
 [![Rust](https://img.shields.io/badge/Rust-1.75+-orange.svg)](https://www.rust-lang.org/)
 [![iced](https://img.shields.io/badge/iced-0.13.1-blue.svg)](https://github.com/iced-rs/iced)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-1.0.0-brightgreen.svg)](#)
+[![Version](https://img.shields.io/badge/version-1.1.0-brightgreen.svg)](#)
 
-## Status: v1.0.0 — 渲染层就绪，可被业务项目引用
+## Status: v1.1.0 — 渲染层 + headless 行为层就绪，可被业务项目引用
 
 HarUI 是一个对标 [Element Plus](https://element-plus.org/) 的 Rust 原生 UI 组件库，基于 [iced 0.13.1](https://github.com/iced-rs/iced) 构建，专为 POS（Point of Sale）收银场景设计，同时适用于桌面端管理后台、表单应用、数据展示等场景。
 
 ## Features
 
-- **60+ 组件**：覆盖 Element Plus 全部核心组件，包含 POS 专用组件（Keypad / Payment / HangOrder / CustomerDisplay / StatusBar）
+- **61 组件**：覆盖 Element Plus 全部核心组件，包含 POS 专用组件（Keypad / Payment / HangOrder / CustomerDisplay / StatusBar）
 - **主题系统**：light / dark 双主题，CSS 变量级别的颜色 token 系统，完全复刻 Element Plus 设计规范
 - **虚拟滚动**：Table 组件支持 1000+ 行虚拟滚动，保持 60 FPS
 - **IME 支持**：Input / Textarea 内置中文输入法支持，无闪烁、候选框正常
 - **零依赖绘制**：纯 Rust 原生渲染（iced + winit + wgpu），无需 Web View / Node.js
-- **2030+ 测试**：单元测试 + 集成测试 + 模糊测试 + 渲染快照测试
+- **2100+ 测试**：单元 + 集成 + 模糊(proptest) + 业务流回放 + 快照测试
+- **headless 行为层**：弹层 12 方位定位引擎（碰撞翻转/钳制）、虚拟列表、焦点环——纯计算可全空间 fuzz
+- **Table 冻结列**：左/右冻结 + 列宽拖拽 + 横向滚动，与虚拟滚动正交
+- **FPS 自证**：`window::frames` 逐帧统计 overlay（showcase / table_demo 可切换）
+- **AI 技能包**：`docs/skill/har-ui-skills.md`，API 速查由脚本从源码生成
 - **零警告编译**：`cargo build --workspace` 0 warning 0 error
 
 ## Component Categories
@@ -27,12 +31,12 @@ HarUI 是一个对标 [Element Plus](https://element-plus.org/) 的 Rust 原生 
 |----------|-----------|-------|
 | 基础 | Button / Input / InputNumber / Select / Radio / Checkbox / Switch / Tag / Badge / Avatar | 10 |
 | 表单 | Form / DatePicker / TimePicker / Cascader / Slider / Rate / ColorPicker / Upload | 8 |
-| 数据展示 | Table / Card / Pagination / Descriptions / Timeline / Collapse / Statistic / Empty / Result / Skeleton / Progress | 11 |
+| 数据展示 | Table / Card / Pagination / Descriptions / Timeline / Collapse / Statistic / Empty / Result / Skeleton / Progress / Tree | 12 |
 | 导航 | Tabs / Steps / Breadcrumb / Dropdown / Backtop / Affix / Menu / PageHeader | 8 |
 | 反馈 | Dialog / Drawer / MessageBox / Notification / Message / Loading / Tooltip / Popover / Popconfirm / Alert | 10 |
 | 其他 | Text / Link / Divider / Space / Scrollbar / Calendar / Carousel / Grid | 8 |
 | POS 专用 | Keypad / Payment / HangOrder / CustomerDisplay / StatusBar | 5 |
-| **合计** | | **60** |
+| **合计** | | **61** |
 
 ## Quick Start
 
@@ -59,7 +63,7 @@ fn main() -> iced::Result {
         .run_with(|| {
             (State {
                 theme: Theme::element_light(),
-                button: Button::new("Click me").button_type(ButtonType::Primary),
+                button: Button::new("Click me").with_type(ButtonType::Primary),
             }, Task::none())
         })
 }

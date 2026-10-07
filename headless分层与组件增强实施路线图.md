@@ -58,7 +58,7 @@
 
 ## 三、工作项明细
 
-### W1：core 行为层（headless）抽离 🔶 **P0，架构级（第一/二批 2026-09-30 完成，ADR-009）**
+### W1：core 行为层（headless）抽离 ✅ **P0，架构级（两批 2026-09-30 全部完成，ADR-009）**
 
 **现状证据**：
 - `crates/core/src/utils/keyboard.rs` 已有 `Shortcut/ShortcutRegistry/KeyEvent/subscription()`（行为层的雏形，仅键盘）
@@ -262,8 +262,8 @@
 - [ ] tag `v1.1.0` 并推送（推送待 GitHub 凭据）
 
 ### M-B：v1.1.0（headless + 测试分发体系）
-- [ ] ADR-009 完成
-- [ ] W1：behavior 模块 + 8 个弹层组件接入 + proptest
+- [x] ADR-009 完成（2026-09-30）
+- [x] W1：behavior 模块 + 8 个弹层组件接入 + proptest（overlay_fuzz 1000 cases）
 - [ ] W4：replay_test 四条业务流
 - [ ] W3(完整)：overlay bench
 - [ ] W5：画廊化 + FPS overlay

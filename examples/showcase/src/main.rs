@@ -1,4 +1,10 @@
 //! HarUI Showcase — comprehensive component gallery
+//!
+//! 路线图 W5：组件目录索引页（61 组件）+ 12 个可交互演示页 + 用法片段 + FPS overlay。
+
+mod catalog;
+
+use std::time::Instant;
 
 use har_ui_components::button::{Button, ButtonType};
 use har_ui_components::card::Card;
@@ -15,6 +21,7 @@ use har_ui_components::table::{
 use har_ui_components::tabs::{TabItem, Tabs, TabsMessage};
 use har_ui_components::upload::{Upload, UploadFile, UploadMessage};
 use har_ui_core::Theme;
+use har_ui_core::devtools::fps_meter::FpsMeter;
 use iced::widget::{Space, button, column, container, row, scrollable, text, text_input};
 use iced::{Color, Element, Length, Padding, Task};
 
@@ -23,6 +30,8 @@ const TABLE_VIEWPORT_HEIGHT: f32 = 240.0;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Category {
+    /// 组件目录索引页（61 组件）
+    Overview,
     Button,
     Input,
     Table,
@@ -38,7 +47,8 @@ pub enum Category {
 }
 
 impl Category {
-    const ALL: [Category; 12] = [
+    const ALL: [Category; 13] = [
+        Category::Overview,
         Category::Button,
         Category::Input,
         Category::Table,
@@ -55,6 +65,7 @@ impl Category {
 
     fn label(self) -> &'static str {
         match self {
+            Category::Overview => "目录",
             Category::Button => "Button",
             Category::Input => "Input",
             Category::Table => "Table",
@@ -89,12 +100,18 @@ pub struct State {
     cascader: Cascader,
     upload: Upload,
     upload_count: u32,
+    /// FPS 测量（window::frames 订阅驱动，路线图 W5）
+    fps: FpsMeter,
+    show_fps: bool,
 }
 
 #[derive(Debug, Clone)]
 pub enum Message {
     SelectCategory(Category),
     ToggleTheme,
+    ToggleFps,
+    /// 逐帧采样（window::frames 订阅）
+    Frame(Instant),
     Noop,
     ButtonClicked,
     InputChanged(String),
@@ -124,6 +141,15 @@ fn update(state: &mut State, message: Message) -> Task<Message> {
             } else {
                 Theme::element_dark()
             };
+            Task::none()
+        }
+        Message::ToggleFps => {
+            state.show_fps = !state.show_fps;
+            state.fps.reset();
+            Task::none()
+        }
+        Message::Frame(now) => {
+            state.fps.record(now);
             Task::none()
         }
         Message::Noop => Task::none(),
@@ -248,7 +274,7 @@ fn update(state: &mut State, message: Message) -> Task<Message> {
 fn view(state: &State) -> Element<'_, Message> {
     let theme = &state.theme;
     let top_bar = build_top_bar(theme);
-    let bottom_bar = build_bottom_bar(theme, state.category, state.theme.is_dark);
+    let bottom_bar = build_bottom_bar(theme, state.category, state.theme.is_dark, state.show_fps);
     let nav = build_nav(theme, state.category);
     let content = build_content(state);
     let middle = row![nav, content]
@@ -259,15 +285,32 @@ fn view(state: &State) -> Element<'_, Message> {
         .spacing(0)
         .width(Length::Fill)
         .height(Length::Fill);
-    container(layout)
+    let layout = container(layout)
         .width(Length::Fill)
         .height(Length::Fill)
         .style(move |_t| container::Style {
             background: Some(iced::Background::Color(Color::from(theme.neutral.bg_page))),
             text_color: Some(Color::from(theme.neutral.text_primary)),
             ..container::Style::default()
-        })
-        .into()
+        });
+    // FPS overlay 叠放（右上角，避开 top bar）
+    let fps_layer: Option<Element<'_, Message>> = if state.show_fps {
+        state.fps.overlay_view(theme)
+    } else {
+        None
+    };
+    match fps_layer {
+        Some(overlay) => {
+            let layer = container(overlay)
+                .width(Length::Fill)
+                .height(Length::Fill)
+                .align_x(iced::alignment::Horizontal::Right)
+                .align_y(iced::alignment::Vertical::Top)
+                .padding(Padding::from([56u16, 12u16]));
+            iced::widget::Stack::with_children(vec![layout.into(), layer.into()]).into()
+        }
+        None => layout.into(),
+    }
 }
 
 fn build_top_bar(theme: &Theme) -> Element<'_, Message> {
@@ -285,7 +328,12 @@ fn build_top_bar(theme: &Theme) -> Element<'_, Message> {
         .into()
 }
 
-fn build_bottom_bar(theme: &Theme, category: Category, is_dark: bool) -> Element<'_, Message> {
+fn build_bottom_bar(
+    theme: &Theme,
+    category: Category,
+    is_dark: bool,
+    show_fps: bool,
+) -> Element<'_, Message> {
     let status = text(format!("Category: {}", category.label()))
         .size(14)
         .color(Color::from(theme.neutral.text_regular));
@@ -293,7 +341,11 @@ fn build_bottom_bar(theme: &Theme, category: Category, is_dark: bool) -> Element
     let toggle_btn = button(toggle_label)
         .on_press(Message::ToggleTheme)
         .padding(Padding::from([4u16, 12u16]));
-    let bar = row![status, Space::with_width(Length::Fill), toggle_btn]
+    let fps_label = if show_fps { "FPS ✓" } else { "FPS" };
+    let fps_btn = button(text(fps_label).size(12))
+        .on_press(Message::ToggleFps)
+        .padding(Padding::from([4u16, 12u16]));
+    let bar = row![status, Space::with_width(Length::Fill), toggle_btn, fps_btn]
         .spacing(8)
         .align_y(iced::Alignment::Center)
         .padding(Padding::from([8u16, 16u16]));
@@ -374,8 +426,29 @@ fn build_content(state: &State) -> Element<'_, Message> {
         Category::DatePicker => build_date_picker_panel(state),
         Category::Cascader => build_cascader_panel(state),
         Category::Upload => build_upload_panel(state),
+        Category::Overview => return catalog::index_view(theme),
     };
-    let col = column![title, body]
+    // 源码片段（等宽文本，路线图 W5）
+    let snippet_bg = Color::from(theme.neutral.bg_base);
+    let snippet_border = Color::from(theme.neutral.border_lighter);
+    let snippet_color = Color::from(theme.neutral.text_regular);
+    let snippet = container(
+        text(code_snippet(state.category))
+            .size(12)
+            .color(snippet_color),
+    )
+    .width(Length::Fill)
+    .padding(Padding::from(10u16))
+    .style(move |_t| container::Style {
+        background: Some(iced::Background::Color(snippet_bg)),
+        border: iced::Border {
+            color: snippet_border,
+            width: 1.0,
+            radius: iced::border::radius(4.0),
+        },
+        ..container::Style::default()
+    });
+    let col = column![title, body, text("用法片段：").size(13), snippet]
         .spacing(16)
         .padding(Padding::from(24u16));
     let scroll = scrollable(col).height(Length::Fill);
@@ -387,6 +460,45 @@ fn build_content(state: &State) -> Element<'_, Message> {
             ..container::Style::default()
         })
         .into()
+}
+
+/// 各演示页的用法片段（等宽文本展示）
+fn code_snippet(category: Category) -> &'static str {
+    match category {
+        Category::Button => {
+            "Button::new(\"点击\")\n    .button_type(ButtonType::Primary)\n    .view(&theme, Message::Clicked)"
+        }
+        Category::Input => {
+            "Input::new().with_placeholder(\"请输入\")\n    .view(&theme, Message::InputChanged)"
+        }
+        Category::Table => {
+            "Table::new()\n    .with_columns(cols)\n    .with_rows(rows)\n    .with_virtual_scroll(VirtualScroll::new(30.0, 240.0))\n    .view_msg(&theme, cell_renderer, Message::TableMsg)"
+        }
+        Category::Dialog => {
+            "dialog.handle(DialogMessage::Open);\ndialog.view(&theme, Message::DialogMsg)"
+        }
+        Category::Form => {
+            "Form::new().with_item(FormItem::new(\"name\", \"姓名\")\n    .with_rule(FormRule::new(\"name\").required(true)))\nform.handle(FormMessage::Validate);"
+        }
+        Category::Select => {
+            "Select::new().with_option(SelectOption::new(\"a\", \"选项A\"))\n    .view(&theme, Message::SelectChoose)"
+        }
+        Category::Pagination => {
+            "Pagination::new().with_total(100).with_page_size(10)\n    .view(&theme, Message::PageChanged)"
+        }
+        Category::Card => "Card::new(\"卡片内容\").with_title(\"标题\").view(&theme)",
+        Category::Tabs => {
+            "Tabs::new().with_item(TabItem::new(\"tab1\", \"标签一\"))\n    .view(&theme, Message::TabSelected)"
+        }
+        Category::DatePicker => "DatePicker::new().view(&theme, Message::DateChanged)",
+        Category::Cascader => {
+            "Cascader::new().with_options(nodes)\n    .view(&theme, Message::CascaderPath)"
+        }
+        Category::Upload => {
+            "Upload::new().with_multiple(true)\n    .view(&theme, Message::UploadMsg)"
+        }
+        Category::Overview => "",
+    }
 }
 
 fn build_button_panel(state: &State) -> Element<'_, Message> {
@@ -647,6 +759,7 @@ fn build_table() -> Table<TableRow> {
 fn main() -> iced::Result {
     iced::application("HarUI Showcase", update, view)
         .window_size(iced::Size::new(1024.0, 700.0))
+        .subscription(|_state| iced::window::frames().map(Message::Frame))
         .run_with(|| {
             let type_buttons = vec![
                 Button::new("Default"),
@@ -714,6 +827,8 @@ fn main() -> iced::Result {
                 cascader,
                 upload,
                 upload_count: 0,
+                fps: FpsMeter::new(),
+                show_fps: false,
             };
             (state, Task::none())
         })

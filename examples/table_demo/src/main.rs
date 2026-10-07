@@ -5,10 +5,13 @@
 //! - 列宽拖拽：Name / Value / Qty 列表头右缘有拖拽条（`view_msg` 交互接线）
 //! - 行点击：`RowClicked` → 选中行展示
 
+use std::time::Instant;
+
 use har_ui_components::table::{
     FixedSide, Table, TableColumn, TableMessage, TableProps, TableRow, VirtualScroll,
 };
 use har_ui_core::Theme;
+use har_ui_core::devtools::fps_meter::FpsMeter;
 use iced::widget::{Row, column, container, text};
 use iced::{Element, Length, Task};
 
@@ -21,6 +24,9 @@ pub struct State {
     theme: Theme,
     table: Table<TableRow>,
     clicked_row: Option<String>,
+    /// FPS 测量（window::frames 订阅驱动，路线图 W5）
+    fps: FpsMeter,
+    show_fps: bool,
 }
 
 #[derive(Debug, Clone)]
@@ -28,6 +34,9 @@ pub enum Message {
     ScrollUp,
     ScrollDown,
     TableMsg(TableMessage),
+    ToggleFps,
+    /// 逐帧采样（window::frames 订阅）
+    Frame(Instant),
 }
 
 fn update(state: &mut State, message: Message) -> Task<Message> {
@@ -44,6 +53,15 @@ fn update(state: &mut State, message: Message) -> Task<Message> {
                 let new_offset = vs.scroll_offset + VIEWPORT_HEIGHT;
                 state.table.handle(TableMessage::Scroll(new_offset));
             }
+            Task::none()
+        }
+        Message::ToggleFps => {
+            state.show_fps = !state.show_fps;
+            state.fps.reset();
+            Task::none()
+        }
+        Message::Frame(now) => {
+            state.fps.record(now);
             Task::none()
         }
         Message::TableMsg(msg) => {
@@ -78,7 +96,15 @@ fn view(state: &State) -> Element<'_, Message> {
 
     let scroll_up = iced::widget::button("Scroll Up").on_press(Message::ScrollUp);
     let scroll_down = iced::widget::button("Scroll Down").on_press(Message::ScrollDown);
-    let controls = Row::new().push(scroll_up).push(scroll_down).spacing(8);
+    let fps_label = if state.show_fps { "FPS ✓" } else { "FPS" };
+    let fps_btn = iced::widget::button(fps_label)
+        .on_press(Message::ToggleFps)
+        .padding(iced::Padding::from([4u16, 12u16]));
+    let controls = Row::new()
+        .push(scroll_up)
+        .push(scroll_down)
+        .push(fps_btn)
+        .spacing(8);
 
     // 交互模式：横向滚动 / 列宽拖拽 / 行点击统一经 Message::TableMsg 接线
     let table_elem = state.table.view_msg(
@@ -96,16 +122,34 @@ fn view(state: &State) -> Element<'_, Message> {
     .spacing(16)
     .padding(40);
 
-    container(content)
+    let layout = container(content)
         .width(Length::Fill)
         .height(Length::Fill)
-        .center_x(Length::Fill)
-        .into()
+        .center_x(Length::Fill);
+    // FPS overlay 叠放（右上角）
+    let fps_layer: Option<Element<'_, Message>> = if state.show_fps {
+        state.fps.overlay_view(&state.theme)
+    } else {
+        None
+    };
+    match fps_layer {
+        Some(overlay) => {
+            let layer = container(overlay)
+                .width(Length::Fill)
+                .height(Length::Fill)
+                .align_x(iced::alignment::Horizontal::Right)
+                .align_y(iced::alignment::Vertical::Top)
+                .padding(iced::Padding::from([12u16, 12u16]));
+            iced::widget::Stack::with_children(vec![layout.into(), layer.into()]).into()
+        }
+        None => layout.into(),
+    }
 }
 
 fn main() -> iced::Result {
     iced::application("HarUI — Table Demo", update, view)
         .window_size(iced::Size::new(800.0, 600.0))
+        .subscription(|_state| iced::window::frames().map(Message::Frame))
         .run_with(|| {
             let columns = vec![
                 TableColumn::new("id", "ID")
@@ -148,6 +192,8 @@ fn main() -> iced::Result {
                 theme: Theme::element_light(),
                 table,
                 clicked_row: None,
+                fps: FpsMeter::new(),
+                show_fps: false,
             };
             (state, Task::none())
         })

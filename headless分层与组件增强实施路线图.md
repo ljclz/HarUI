@@ -267,7 +267,9 @@
 - [x] W4：replay_test 四条业务流（扫码收银 / 挂单生命周期 / 表单提交 / 弹层表单流）——
   并抓出并修复 Form `set_required` 标记未参与校验的缺陷（2026-09-30）
 - [x] W3(完整)：overlay/focus bench 追加（定位 ~6.4ns/次、Tab 步进 ~6.2ns），基线落 perf_baseline.md
-- [ ] W5：画廊化 + FPS overlay
+- [x] W5：画廊化 + FPS overlay（2026-09-30：catalog.rs 61 组件目录索引页 + 12 演示页用法
+  片段；core `devtools::fps_meter`（对标 gpui-fps，window::frames 订阅 + 健康度配色 overlay），
+  showcase 与 table_demo 均可切换显示）
 - [ ] W6：AI 技能包文档
 - [ ] 全量门禁 12 关通过；tag `v1.1.0` 并推送
 

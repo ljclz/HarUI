@@ -4,6 +4,7 @@
 //! 对标 Element Plus 设计体系。
 
 pub mod behavior;
+pub mod devtools;
 pub mod icon;
 pub mod layout;
 pub mod theme;

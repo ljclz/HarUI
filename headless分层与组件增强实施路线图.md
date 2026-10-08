@@ -235,11 +235,16 @@
 |---|---|---|
 | iced 0.14+ 升级 | iced 发布稳定版 | audit 豁免 9 条清零重审；IME workaround 是否可移除；profile 性能对比 |
 
-> **W8 触发状态（2026-09-30 复核）**：iced 0.14.0 已发布——**iced 升级触发器命中**。
-> 评估完成（见 `docs/iced-0.14-upgrade-evaluation.md`）：IME 原生支持/headless+E2E 测试/
-> audit 豁免预期清零三大收益确认；主风险为布局 Shrink/Fill 语义变化（#3045）需全组件回归。
-> **建议立项 v1.2.0 升级专项**（2-3 会话），本仓库 v1.1.0 先行发布。其余触发器（WASM/
-> Dock/无障碍）未命中。
+> **W8 触发状态（2026-09-30 第二次复核）**：
+> - **iced 升级**：✅ 已实施并发布 v1.2.0。
+> - **WASM**：⚠️ **触发器实证命中**——iced 0.14 下 `har-ui-core` 与 `har-ui-components`
+>   对 `wasm32-unknown-unknown` **零错误编译通过**（实测 `cargo check --target`，
+>   含行为层/devtools 全量）。剩余工作仅为"画廊网页化"封装（wasm-bindgen 入口 +
+>   trunk 构建 + FpsMeter 的 Instant 运行时行为验证），非库兼容问题。
+>   是否启动 WASM 画廊 → 待业务决策。
+> - **snap 像素吸附**：评估框架已制定（`docs/snap-evaluation.md`：决策矩阵 +
+>   三条评估路径 + 触发条件），等待真机截图对比或业务方反馈。
+> - **Dock / AccessKit**：触发器未命中，维持挂起。
 | WASM 画廊 | iced 支持 WASM 后 | 画廊部署到网页，上手门槛归零 |
 | Dock 多面板 | 后台管理端需求出现 | 参考_gpui-kit 的 dock 基础设施做 iced 版 |
 | AccessKit 无障碍 | 收银机无障碍合规要求 | 对标 gpui-kit 的 AccessKit 集成 |

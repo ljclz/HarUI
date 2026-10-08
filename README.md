@@ -38,6 +38,18 @@ HarUI 是一个对标 [Element Plus](https://element-plus.org/) 的 Rust 原生 
 | POS 专用 | Keypad / Payment / HangOrder / CustomerDisplay / StatusBar | 5 |
 | **合计** | | **61** |
 
+## WASM 画廊（Web 部署）
+
+61 组件全量支持 `wasm32-unknown-unknown` 编译（iced 0.14）。本地体验：
+
+```bash
+rustup target add wasm32-unknown-unknown
+cargo install trunk wasm-bindgen-cli   # wasm-bindgen-cli 版本需与 Cargo.lock 一致
+cd examples/showcase
+trunk serve                            # http://localhost:8080
+trunk build --release                  # 产物 dist/ 可直接部署静态站点
+```
+
 ## Quick Start
 
 ### 引用方式

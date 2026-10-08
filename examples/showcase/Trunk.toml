@@ -1,0 +1,22 @@
+# Trunk 构建配置 — HarUI Showcase WASM 画廊（路线图 W8）
+# 用法：
+#   cargo install trunk wasm-bindgen-cli   # 版本需与 Cargo.lock 的 wasm-bindgen 一致
+#   rustup target add wasm32-unknown-unknown
+#   cd examples/showcase
+#   trunk serve                            # 本地开发（http://localhost:8080）
+#   trunk build --release                  # 产物在 dist/（可直接部署 GitHub Pages）
+
+[build]
+target = "index.html"
+dist = "dist"
+release = true
+# wasm-opt 需从 GitHub 下载 binaryen；网络受限环境可关闭（仅体积优化）
+wasm-opt = false
+
+[watch]
+watch = ["src", "../../crates"]
+
+[serve]
+address = "0.0.0.0"
+port = 8080
+open = false

@@ -26,3 +26,6 @@ target/criterion/
 
 # cargo-mutants 输出
 mutants-out/
+
+# trunk WASM 构建产物
+examples/showcase/dist/

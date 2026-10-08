@@ -6,7 +6,7 @@
 //! # use har_ui_core::devtools::fps_meter::FpsMeter;
 //! # use iced::{Element, Task};
 //! # struct State { fps: FpsMeter }
-//! # #[derive(Debug, Clone)] enum Message { Frame(std::time::Instant) }
+//! # #[derive(Debug, Clone)] enum Message { Frame(web_time::Instant) }
 //! # fn view(state: &State) -> Element<'_, Message> { iced::widget::text("").into() }
 //! # fn update(state: &mut State, msg: Message) -> Task<Message> {
 //! #     Task::none()
@@ -26,7 +26,7 @@
 //! # }
 //! ```
 
-use std::time::Instant;
+use web_time::Instant;
 
 use iced::widget::text;
 use iced::{Element, Length};

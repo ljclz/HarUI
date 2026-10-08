@@ -7,6 +7,7 @@ description = "HarUI core: theme system, icons, layout, utils"
 
 [dependencies]
 iced = { workspace = true }
+web-time = "1.1"
 
 [dev-dependencies]
 iced = { workspace = true }

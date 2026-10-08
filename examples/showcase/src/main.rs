@@ -4,7 +4,7 @@
 
 mod catalog;
 
-use std::time::Instant;
+use web_time::Instant;
 
 use har_ui_components::button::{Button, ButtonType};
 use har_ui_components::card::Card;
@@ -472,7 +472,7 @@ fn build_content(state: &State) -> Element<'_, Message> {
 fn code_snippet(category: Category) -> &'static str {
     match category {
         Category::Button => {
-            "Button::new(\"点击\")\n    .button_type(ButtonType::Primary)\n    .view(&theme, Message::Clicked)"
+            "Button::new(\"点击\")\n    .with_type(ButtonType::Primary)\n    .view(&theme, Message::Clicked)"
         }
         Category::Input => {
             "Input::new().with_placeholder(\"请输入\")\n    .view(&theme, Message::InputChanged)"
@@ -762,7 +762,7 @@ fn build_table() -> Table<TableRow> {
         .with_virtual_scroll(VirtualScroll::new(TABLE_ROW_HEIGHT, TABLE_VIEWPORT_HEIGHT))
 }
 
-fn main() -> iced::Result {
+fn run_app() -> iced::Result {
     iced::application(
         || {
             let type_buttons = vec![
@@ -843,4 +843,18 @@ fn main() -> iced::Result {
     .window_size(iced::Size::new(1024.0, 700.0))
     .subscription(|_state| iced::window::frames().map(Message::Frame))
     .run()
+}
+
+/// 原生入口
+#[cfg(not(target_arch = "wasm32"))]
+fn main() -> iced::Result {
+    run_app()
+}
+
+/// Web 入口（WASM 画廊，路线图 W8）
+#[cfg(target_arch = "wasm32")]
+fn main() -> Result<(), wasm_bindgen::JsValue> {
+    std::panic::set_hook(Box::new(console_error_panic_hook::hook));
+    run_app().expect("HarUI showcase failed to run");
+    Ok(())
 }

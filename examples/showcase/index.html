@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>HarUI Showcase — 61 Rust Components</title>
+
+    <!-- trunk: 构建 wasm 模块并注入加载器 -->
+    <link data-trunk rel="rust" data-bin="showcase" />
+
+    <style>
+        html, body {
+            margin: 0; padding: 0;
+            width: 100%; height: 100%;
+            overflow: hidden;
+            background: #f5f7fa; /* Element Plus bg_base，避免首帧闪白 */
+        }
+        #harui-loading {
+            position: fixed; inset: 0;
+            display: flex; align-items: center; justify-content: center;
+            font-family: "Segoe UI", "PingFang SC", sans-serif;
+            color: #909399; font-size: 14px; letter-spacing: 2px;
+        }
+        canvas { outline: none; }
+    </style>
+    <base data-trunk-public-url />
+</head>
+<body>
+    <script>
+        // 运行时错误收集：首错直接显示在加载层（wasm 调试辅助，保留）
+        window.__errs = [];
+        window.addEventListener('error', function (e) {
+            var m = String(e.message || e);
+            window.__errs.push(m);
+            var el = document.getElementById('harui-loading');
+            if (el && window.__errs.length === 1) el.textContent = 'ERR: ' + m.slice(0, 400);
+        });
+        (function () {
+            var oe = console.error;
+            console.error = function () {
+                var m = Array.prototype.map.call(arguments, String).join(' ');
+                window.__errs.push(m);
+                var el = document.getElementById('harui-loading');
+                if (el && window.__errs.length === 1) el.textContent = 'ERR: ' + m.slice(0, 400);
+                oe.apply(console, arguments);
+            };
+        })();
+    </script>
+    <div id="harui-loading">HarUI 加载中…</div>
+    <script>
+        // iced 挂载渲染 canvas 后自动移除加载层
+        (function () {
+            var obs = new MutationObserver(function () {
+                if (document.querySelector('canvas')) {
+                    var el = document.getElementById('harui-loading');
+                    if (el) el.remove();
+                    obs.disconnect();
+                }
+            });
+            obs.observe(document.body, { childList: true, subtree: true });
+        })();
+    </script>
+</body>
+</html>

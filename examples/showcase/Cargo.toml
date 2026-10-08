@@ -6,6 +6,14 @@ license.workspace = true
 description = "HarUI showcase — comprehensive component gallery"
 
 [dependencies]
-iced = { workspace = true }
+web-time = "1.1"
+iced = { workspace = true, features = ["fira-sans"] }
 har-ui-core = { path = "../../crates/core" }
 har-ui-components = { path = "../../crates/components" }
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wasm-bindgen = "0.2"
+console_error_panic_hook = "0.1"
+# wasm 上 wgpu 走 WebGL2 后端（无 webgl 时 wgpu 创建失败回落 tiny_skia/softbuffer，
+# 与已创建的 GPU context 冲突 → "A canvas context other than ... already created"）
+iced = { workspace = true, features = ["webgl", "fira-sans"] }

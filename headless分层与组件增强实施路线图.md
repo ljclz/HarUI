@@ -237,11 +237,14 @@
 
 > **W8 触发状态（2026-09-30 第二次复核）**：
 > - **iced 升级**：✅ 已实施并发布 v1.2.0。
-> - **WASM**：⚠️ **触发器实证命中**——iced 0.14 下 `har-ui-core` 与 `har-ui-components`
->   对 `wasm32-unknown-unknown` **零错误编译通过**（实测 `cargo check --target`，
->   含行为层/devtools 全量）。剩余工作仅为"画廊网页化"封装（wasm-bindgen 入口 +
->   trunk 构建 + FpsMeter 的 Instant 运行时行为验证），非库兼容问题。
->   是否启动 WASM 画廊 → 待业务决策。
+> - **WASM**：🚀 **实施中（2026-09-30 启动画廊）**——全栈实证：core/components/
+>   showcase（含 wgpu 渲染栈）三层对 `wasm32-unknown-unknown` 零错误编译。
+>   已落地并**浏览器运行时验证通过**（2026-10-08 截图 docs/images/wasm-gallery-button-page.png）：
+>   双平台 main（run_app 复用）、web-time 统一 Instant、index.html + Trunk.toml +
+>   fira-sans 内嵌字体（wasm 无系统字体，未开启时文字全空白）、wasm 上强制
+>   webgl 后端（否则 tiny_skia/softbuffer 与 GPU context 冲突 panic）、
+>   loading 层随 canvas 挂载自动隐藏。trunk build 产物 3.5MB wasm + 87KB loader。
+>   已知项：CJK 字形缺失（需挂中文 webfont，后续项）。剩余：GitHub Pages 部署。
 > - **snap 像素吸附**：评估框架已制定（`docs/snap-evaluation.md`：决策矩阵 +
 >   三条评估路径 + 触发条件），等待真机截图对比或业务方反馈。
 > - **Dock / AccessKit**：触发器未命中，维持挂起。

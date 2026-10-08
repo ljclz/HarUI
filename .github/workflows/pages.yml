@@ -1,0 +1,61 @@
+name: pages
+
+# WASM 画廊自动部署 — push main 触发（showcase/组件库变更时）或手动
+on:
+  push:
+    branches: [main]
+    paths:
+      - "examples/showcase/**"
+      - "crates/**"
+      - "Cargo.toml"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 安装 Rust 1.90.0 + wasm32 target
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: "1.90.0"
+          targets: wasm32-unknown-unknown
+
+      - name: 编译缓存
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: |
+            examples/showcase
+
+      - name: 安装 trunk + wasm-bindgen-cli（版本与 Cargo.lock 对齐）
+        run: cargo install wasm-bindgen-cli --version 0.2.129 --locked && cargo install trunk --locked
+
+      - name: 构建 WASM 画廊
+        working-directory: examples/showcase
+        run: trunk build --release
+
+      - name: 上传 Pages 产物
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: examples/showcase/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

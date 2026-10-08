@@ -840,6 +840,7 @@ fn run_app() -> iced::Result {
         view,
     )
     .title(|_state: &State| String::from("HarUI Showcase"))
+    .font(include_bytes!("../fonts/NotoSansSC-HarUI-subset.otf").as_slice())
     .window_size(iced::Size::new(1024.0, 700.0))
     .subscription(|_state| iced::window::frames().map(Message::Frame))
     .run()

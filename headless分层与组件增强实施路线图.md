@@ -244,7 +244,11 @@
 >   fira-sans 内嵌字体（wasm 无系统字体，未开启时文字全空白）、wasm 上强制
 >   webgl 后端（否则 tiny_skia/softbuffer 与 GPU context 冲突 panic）、
 >   loading 层随 canvas 挂载自动隐藏。trunk build 产物 3.5MB wasm + 87KB loader。
->   已知项：CJK 字形缺失（需挂中文 webfont，后续项）。剩余：GitHub Pages 部署。
+>   CJK 字形已修复（2026-10-10）：Noto Sans SC 按实际字符集子集化
+  （141 UI 字符 + 常用补充 = 308 字，125KB），`.font()` 加载 + cosmic-text 自动 fallback，
+  浏览器实测"目录/用法片段/点击"等中文全部正常（wasm 7MB，含字体字节；
+  wasm-opt 后可显著缩减）。GitHub Pages 部署 workflow（pages.yml）就绪并已启用
+  （build_type=workflow），推送 main 自动构建发布 https://ljclz.github.io/HarUI/ 。
 > - **snap 像素吸附**：评估框架已制定（`docs/snap-evaluation.md`：决策矩阵 +
 >   三条评估路径 + 触发条件），等待真机截图对比或业务方反馈。
 > - **Dock / AccessKit**：触发器未命中，维持挂起。

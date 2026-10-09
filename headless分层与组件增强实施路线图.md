@@ -229,32 +229,42 @@
 
 ---
 
-### W8：远期评估项（触发式，不承诺）⬜
+### W8：远期评估项（触发式）🔶
 
-| 项 | 触发条件 | 内容 |
+| 项 | 触发条件 | 状态 |
 |---|---|---|
-| iced 0.14+ 升级 | iced 发布稳定版 | audit 豁免 9 条清零重审；IME workaround 是否可移除；profile 性能对比 |
+| iced 0.14+ 升级 | iced 发布稳定版 | ✅ 已实施并发布 v1.2.0（audit 豁免 9→3） |
+| WASM 画廊 | iced 支持 WASM 后 | ✅ 已落地并浏览器验证 + 公网发布（见下） |
+| Dock 多面板 | 后台管理端需求出现 | ⏸ 挂起（触发未命中） |
+| AccessKit 无障碍 | 收银机无障碍合规要求 | ⏸ 挂起（触发未命中） |
 
-> **W8 触发状态（2026-09-30 第二次复核）**：
+> **W8 触发状态（2026-10-10 复核）**：
 > - **iced 升级**：✅ 已实施并发布 v1.2.0。
-> - **WASM**：🚀 **实施中（2026-09-30 启动画廊）**——全栈实证：core/components/
->   showcase（含 wgpu 渲染栈）三层对 `wasm32-unknown-unknown` 零错误编译。
->   已落地并**浏览器运行时验证通过**（2026-10-08 截图 docs/images/wasm-gallery-button-page.png）：
->   双平台 main（run_app 复用）、web-time 统一 Instant、index.html + Trunk.toml +
->   fira-sans 内嵌字体（wasm 无系统字体，未开启时文字全空白）、wasm 上强制
->   webgl 后端（否则 tiny_skia/softbuffer 与 GPU context 冲突 panic）、
->   loading 层随 canvas 挂载自动隐藏。trunk build 产物 3.5MB wasm + 87KB loader。
->   CJK 字形已修复（2026-10-10）：Noto Sans SC 按实际字符集子集化
-  （141 UI 字符 + 常用补充 = 308 字，125KB），`.font()` 加载 + cosmic-text 自动 fallback，
-  浏览器实测"目录/用法片段/点击"等中文全部正常（wasm 7MB，含字体字节；
-  wasm-opt 后可显著缩减）。GitHub Pages 部署 workflow（pages.yml）就绪并已启用
-  （build_type=workflow），推送 main 自动构建发布 https://ljclz.github.io/HarUI/ 。
-> - **snap 像素吸附**：评估框架已制定（`docs/snap-evaluation.md`：决策矩阵 +
->   三条评估路径 + 触发条件），等待真机截图对比或业务方反馈。
+> - **WASM**：✅ **已落地**——全栈实证（core/components/showcase 含 wgpu 渲染栈对
+>   `wasm32-unknown-unknown` 零错误编译）并**浏览器运行时验证通过**
+>   （截图 docs/images/wasm-gallery-button-page.png、cjk-verify.png）：
+>   双平台 main、web-time 统一 Instant、fira-sans 内嵌字体、wasm 强制 webgl 后端、
+>   loading 自动隐藏、CJK 子集字体（Noto Sans SC 308 字 125KB）。trunk build 产物
+>   7MB wasm + 87KB loader，**公网发布 https://ljclz.github.io/HarUI/**
+>   （pages.yml 自动部署，runs/37858983509 success）。已知项：CJK 字形依赖
+>   子集字符集（新增 UI 文案需重跑子集）；wasm-opt 需网络下载 binaryen。
+> - **snap 像素吸附**：评估框架已制定（`docs/snap-evaluation.md`），等待真机截图对比。
 > - **Dock / AccessKit**：触发器未命中，维持挂起。
-| WASM 画廊 | iced 支持 WASM 后 | 画廊部署到网页，上手门槛归零 |
-| Dock 多面板 | 后台管理端需求出现 | 参考_gpui-kit 的 dock 基础设施做 iced 版 |
-| AccessKit 无障碍 | 收银机无障碍合规要求 | 对标 gpui-kit 的 AccessKit 集成 |
+
+### W9：Element Plus 对齐补齐（新增 2026-10-10）⬜
+
+> 实证评估见 `docs/element-plus-alignment.md`：高频核心组件 ~87% 对齐且 API 语义
+> 忠实（57 项完全对齐）；**10 个真实缺口**（Autocomplete/Transfer/TreeSelect/Image/
+> Watermark/Anchor/Tour/Countdown/InputTag/Splitter）；图标 40/~290 为最大硬伤；
+> 像素级视觉对照未验证（T3 为自建基准）。
+
+| 优先级 | 项 | 触发条件 |
+|---|---|---|
+| P1 | Autocomplete + Image + TreeSelect | 业务后台管理端需求（库存/报表页） |
+| P1 | 图标批量扩充至 EP 全集（iconify 脚本生成） | 随 P1 组件一起 |
+| P2 | Transfer/Watermark/Anchor/Countdown 等低频件 | 主动补齐迭代 |
+| P2 | EP 像素级视觉对照管线（AE/SSIM 对照官网） | 视觉还原度争议或发布前验收 |
+| 挂起 | Select V2 / Tree V2 / Splitter / InputTag | 业务触发 |
 
 ---
 

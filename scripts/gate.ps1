@@ -46,7 +46,7 @@ if ($exitCode -ne 0) { if ($Fast) { exit $exitCode } }
 Run-Gate "test 单元测试" "cargo test --workspace" 4 | Out-Null
 if ($exitCode -ne 0) { if ($Fast) { exit $exitCode } }
 
-Run-Gate "doc 文档构建" "cargo doc --workspace --no-deps --all-features" 5 | Out-Null
+Run-Gate "doc 文档构建" "cargo doc --workspace --no-deps --all-features -j 2" 5 | Out-Null
 if ($exitCode -ne 0) { if ($Fast) { exit $exitCode } }
 
 Run-Gate "audit 安全审计" "cargo audit" 6 | Out-Null

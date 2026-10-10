@@ -37,7 +37,7 @@ pub const GROUPS: [&str; 7] = [
 ];
 
 /// 全部 61 个组件
-pub const CATALOG: [CatalogEntry; 64] = [
+pub const CATALOG: [CatalogEntry; 68] = [
     // 基础 10
     CatalogEntry {
         name: "Button",
@@ -145,6 +145,11 @@ pub const CATALOG: [CatalogEntry; 64] = [
         group: "表单",
         level: DemoLevel::Listed,
     },
+    CatalogEntry {
+        name: "Transfer",
+        group: "表单",
+        level: DemoLevel::Listed,
+    },
     // 数据展示 12（含 README 未列的 Tree）
     CatalogEntry {
         name: "Table",
@@ -206,11 +211,21 @@ pub const CATALOG: [CatalogEntry; 64] = [
         group: "数据展示",
         level: DemoLevel::Listed,
     },
+    CatalogEntry {
+        name: "Countdown",
+        group: "数据展示",
+        level: DemoLevel::Listed,
+    },
     // 导航 8
     CatalogEntry {
         name: "Tabs",
         group: "导航",
         level: DemoLevel::Interactive,
+    },
+    CatalogEntry {
+        name: "Anchor",
+        group: "导航",
+        level: DemoLevel::Listed,
     },
     CatalogEntry {
         name: "Steps",
@@ -339,6 +354,11 @@ pub const CATALOG: [CatalogEntry; 64] = [
         group: "其他",
         level: DemoLevel::Listed,
     },
+    CatalogEntry {
+        name: "Watermark",
+        group: "其他",
+        level: DemoLevel::Listed,
+    },
     // POS 专用 5
     CatalogEntry {
         name: "Keypad",
@@ -394,7 +414,7 @@ pub fn index_view(theme: &Theme) -> Element<'static, Message> {
     let border = Color::from(theme.neutral.border_lighter);
 
     let mut col = column![
-        text("组件目录 — 64 components")
+        text("组件目录 — 68 components")
             .size(20)
             .color(text_primary)
     ]
@@ -479,9 +499,9 @@ mod catalog_tests {
 
     #[test]
     fn test_catalog_has_61_unique_entries() {
-        assert_eq!(CATALOG.len(), 64);
+        assert_eq!(CATALOG.len(), 68);
         let names: std::collections::BTreeSet<&str> = CATALOG.iter().map(|e| e.name).collect();
-        assert_eq!(names.len(), 64, "组件名不得重复");
+        assert_eq!(names.len(), 68, "组件名不得重复");
     }
 
     #[test]

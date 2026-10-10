@@ -39,7 +39,8 @@ run_gate "fmt 格式检查" "cargo fmt --all -- --check" 1 || { [ $FAST -eq 1 ] 
 run_gate "check 编译检查" "cargo check --workspace --all-targets" 2 || { [ $FAST -eq 1 ] && exit $EXIT_CODE; }
 run_gate "clippy 静态分析" "cargo clippy --workspace --all-targets -- -D warnings" 3 || { [ $FAST -eq 1 ] && exit $EXIT_CODE; }
 run_gate "test 单元测试" "cargo test --workspace" 4 || true
-run_gate "doc 文档构建" "cargo doc --workspace --no-deps --all-features" 5 || true
+# -j 2：Windows 上多进程 rustdoc 并行会偶发 STATUS_STACK_BUFFER_OVERRUN（2026-10-10 实测）
+run_gate "doc 文档构建" "cargo doc --workspace --no-deps --all-features -j 2" 5 || true
 
 # 关卡 6: 安全审计
 # 豁免清单与 audit.toml 保持同步（cargo-audit 0.22 不支持配置文件自动发现，

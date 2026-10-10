@@ -4,6 +4,7 @@
 
 pub mod affix;
 pub mod alert;
+pub mod anchor;
 pub mod autocomplete;
 pub mod avatar;
 pub mod backtop;
@@ -17,6 +18,7 @@ pub mod cascader;
 pub mod checkbox;
 pub mod collapse;
 pub mod color_picker;
+pub mod countdown;
 pub mod customer_display;
 pub mod date_picker;
 pub mod descriptions;
@@ -63,6 +65,8 @@ pub mod text;
 pub mod time_picker;
 pub mod timeline;
 pub mod tooltip;
+pub mod transfer;
 pub mod tree;
 pub mod tree_select;
 pub mod upload;
+pub mod watermark;

@@ -13,7 +13,7 @@ HarUI 是一个对标 [Element Plus](https://element-plus.org/) 的 Rust 原生 
 
 ## Features
 
-- **68 组件**：覆盖 Element Plus 全部核心组件 + 333 图标（EP 全集），包含 POS 专用组件（Keypad / Payment / HangOrder / CustomerDisplay / StatusBar）
+- **71 组件**：覆盖 Element Plus 全部核心组件 + 333 图标（EP 全集），包含 POS 专用组件（Keypad / Payment / HangOrder / CustomerDisplay / StatusBar）
 - **主题系统**：light / dark 双主题，CSS 变量级别的颜色 token 系统，完全复刻 Element Plus 设计规范
 - **虚拟滚动**：Table 组件支持 1000+ 行虚拟滚动，保持 60 FPS
 - **IME 支持**：Input / Textarea 内置中文输入法支持，无闪烁、候选框正常
@@ -30,17 +30,17 @@ HarUI 是一个对标 [Element Plus](https://element-plus.org/) 的 Rust 原生 
 | Category | Components | Count |
 |----------|-----------|-------|
 | 基础 | Button / Input / InputNumber / Select / Radio / Checkbox / Switch / Tag / Badge / Avatar | 10 |
-| 表单 | Form / DatePicker / TimePicker / Cascader / Slider / Rate / ColorPicker / Upload / Autocomplete / Image / TreeSelect / Transfer | 12 |
+| 表单 | Form / DatePicker / TimePicker / Cascader / Slider / Rate / ColorPicker / Upload / Autocomplete / Image / TreeSelect / Transfer / InputTag | 13 |
 | 数据展示 | Table / Card / Pagination / Descriptions / Timeline / Collapse / Statistic / Empty / Result / Skeleton / Progress / Tree / Countdown | 13 |
 | 导航 | Tabs / Steps / Breadcrumb / Dropdown / Backtop / Affix / Menu / PageHeader / Anchor | 9 |
 | 反馈 | Dialog / Drawer / MessageBox / Notification / Message / Loading / Tooltip / Popover / Popconfirm / Alert | 10 |
 | 其他 | Text / Link / Divider / Space / Scrollbar / Calendar / Carousel / Grid / Watermark | 9 |
 | POS 专用 | Keypad / Payment / HangOrder / CustomerDisplay / StatusBar | 5 |
-| **合计** | | **68** |
+| **合计** | | **71** |
 
 ## WASM 画廊（Web 部署）
 
-68 组件全量支持 `wasm32-unknown-unknown` 编译（iced 0.14）。本地体验：
+71 组件全量支持 `wasm32-unknown-unknown` 编译（iced 0.14）。本地体验：
 
 ```bash
 rustup target add wasm32-unknown-unknown

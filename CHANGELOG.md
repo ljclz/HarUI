@@ -3,6 +3,12 @@
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 格式与
 [SemVer](https://semver.org/lang/zh-CN/) 语义化版本。
 
+### Added (continued)
+
+- **Tour**（漫游式引导）：步骤状态机/上下步/遮罩配置/完成标记，target 标识由应用层绘制高亮
+- **InputTag**（标签输入框）：Enter 提交/退格双语义/上限与去重/禁用
+- **Splitter**（分栏面板）：水平垂直/相邻面板百分比转移/min 钳制/拖拽三元组/Reset
+
 ## [v1.3.0] — 2026-10-10
 
 ### Added

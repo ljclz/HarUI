@@ -37,7 +37,7 @@ pub const GROUPS: [&str; 7] = [
 ];
 
 /// 全部 61 个组件
-pub const CATALOG: [CatalogEntry; 68] = [
+pub const CATALOG: [CatalogEntry; 71] = [
     // 基础 10
     CatalogEntry {
         name: "Button",
@@ -86,6 +86,11 @@ pub const CATALOG: [CatalogEntry; 68] = [
     },
     CatalogEntry {
         name: "Avatar",
+        group: "基础",
+        level: DemoLevel::Listed,
+    },
+    CatalogEntry {
+        name: "Splitter",
         group: "基础",
         level: DemoLevel::Listed,
     },
@@ -142,6 +147,11 @@ pub const CATALOG: [CatalogEntry; 68] = [
     },
     CatalogEntry {
         name: "TreeSelect",
+        group: "表单",
+        level: DemoLevel::Listed,
+    },
+    CatalogEntry {
+        name: "InputTag",
         group: "表单",
         level: DemoLevel::Listed,
     },
@@ -313,6 +323,11 @@ pub const CATALOG: [CatalogEntry; 68] = [
         group: "反馈",
         level: DemoLevel::Listed,
     },
+    CatalogEntry {
+        name: "Tour",
+        group: "反馈",
+        level: DemoLevel::Listed,
+    },
     // 其他 8
     CatalogEntry {
         name: "Text",
@@ -414,7 +429,7 @@ pub fn index_view(theme: &Theme) -> Element<'static, Message> {
     let border = Color::from(theme.neutral.border_lighter);
 
     let mut col = column![
-        text("组件目录 — 68 components")
+        text("组件目录 — 71 components")
             .size(20)
             .color(text_primary)
     ]
@@ -499,9 +514,9 @@ mod catalog_tests {
 
     #[test]
     fn test_catalog_has_61_unique_entries() {
-        assert_eq!(CATALOG.len(), 68);
+        assert_eq!(CATALOG.len(), 71);
         let names: std::collections::BTreeSet<&str> = CATALOG.iter().map(|e| e.name).collect();
-        assert_eq!(names.len(), 68, "组件名不得重复");
+        assert_eq!(names.len(), 71, "组件名不得重复");
     }
 
     #[test]

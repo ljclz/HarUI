@@ -1,3 +1,20 @@
+## v1.4.0 — 2026-10-11（EP 对齐清零版，W9 完结）
+
+### Highlights
+- **EP 缺口全部清零**：Tour / InputTag / Splitter 三个最后组件（71 组件总量）
+- **Button 文字 14px**（EP 规格）：行高 46→35px，几何尺度首轮对齐
+- **EP 像素对照管线**：visual_compare.py（AE+SSIM）+ ep-parity 复刻页 + 首轮数字
+- **snap 试点**：技术验证通过（零错误），保守回退待 AE 定论
+
+### Upgrade
+```toml
+har-ui-core = { git = "https://github.com/ljclz/HarUI", tag = "v1.4.0" }
+har-ui-components = { git = "https://github.com/ljclz/HarUI", tag = "v1.4.0" }
+iced = "0.14"
+```
+
+---
+
 ## v1.3.0 — 2026-10-10（EP 对齐补齐版，W9）
 
 ### Highlights

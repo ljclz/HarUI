@@ -3,9 +3,16 @@
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 格式与
 [SemVer](https://semver.org/lang/zh-CN/) 语义化版本。
 
-## [Unreleased]
+## [v1.4.0] — 2026-10-11
 
 ### Added
+
+- **Button 文字 14px**（EP 规格 FontSize::Sm）：按钮行高 46→35px，几何尺度首轮对齐
+- **EP 像素对照管线工具**：scripts/visual_compare.py（AE+SSIM 双指标，PoC 三组通过）
+- **EP 复刻对照页**：examples/ep-parity（首轮数字 AE=30.3 PASS / SSIM=0.36，修复路径明确）
+- **snap 试点**：技术验证通过（零错误无回归），保守回退 false，结论入档
+
+### Added (continued from W9)
 
 - **Tour**（漫游式引导）：步骤状态机/上下步/遮罩配置/完成标记，target 标识由应用层绘制高亮
 - **InputTag**（标签输入框）：Enter 提交/退格双语义/上限与去重/禁用
@@ -52,6 +59,7 @@ iced 0.14.0 升级专项（W8 触发器命中，评估见 docs/iced-0.14-upgrade
 - `text_input::Status::Focused` 结构体变体（3 处）、`Palette.warning` 字段（1 处）、
   `Pixels: From<u16>` 移除（3 处）
 
+[v1.4.0]: https://github.com/ljclz/HarUI/compare/v1.3.0...v1.4.0
 [v1.3.0]: https://github.com/ljclz/HarUI/compare/v1.2.0...v1.3.0
 [v1.2.0]: https://github.com/ljclz/HarUI/compare/v1.1.0...v1.2.0
 

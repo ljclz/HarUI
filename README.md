@@ -5,9 +5,9 @@
 [![Rust](https://img.shields.io/badge/Rust-1.75+-orange.svg)](https://www.rust-lang.org/)
 [![iced](https://img.shields.io/badge/iced-0.14.0-blue.svg)](https://github.com/iced-rs/iced)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-1.3.0-brightgreen.svg)](#)
+[![Version](https://img.shields.io/badge/version-1.4.0-brightgreen.svg)](#)
 
-## Status: v1.3.0 — EP 对齐补齐 + iced 0.14 + headless 行为层，可被业务项目引用
+## Status: v1.4.0 — EP 对齐清零 + 几何尺度首轮对齐 + wasm 画廊公网
 
 HarUI 是一个对标 [Element Plus](https://element-plus.org/) 的 Rust 原生 UI 组件库，基于 [iced 0.14.0](https://github.com/iced-rs/iced) 构建，专为 POS（Point of Sale）收银场景设计，同时适用于桌面端管理后台、表单应用、数据展示等场景。
 

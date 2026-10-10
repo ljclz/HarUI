@@ -3,7 +3,9 @@
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 格式与
 [SemVer](https://semver.org/lang/zh-CN/) 语义化版本。
 
-### Added (continued)
+## [Unreleased]
+
+### Added
 
 - **Tour**（漫游式引导）：步骤状态机/上下步/遮罩配置/完成标记，target 标识由应用层绘制高亮
 - **InputTag**（标签输入框）：Enter 提交/退格双语义/上限与去重/禁用

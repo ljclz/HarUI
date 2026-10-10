@@ -22,18 +22,20 @@
 | 反馈 | alert、dialog、drawer、message、message_box、notification、popconfirm、popover、tooltip（12 方位 placement 对齐） |
 | 自有扩展 | keypad、payment、hang_order、customer_display、status_bar（EP 无的 POS 场景组件） |
 
-### 1.2 真实缺口（10 项，❌，grep 全源码实证）
+### 1.2 缺口清单（原 10 项，grep 全源码实证）
+
+> **状态（2026-10-10，W9-P1/P2 后）**：已补 7 项（Autocomplete/Transfer/TreeSelect/Image/Watermark/Anchor/Countdown ✅），余 3 项低频挂起（Tour/InputTag/Splitter）。
 
 | 缺失组件 | 严重度 | 替代方案 / 说明 |
 |---|---|---|
-| Autocomplete | **中** | Input + 事件可凑，但无防抖/下拉联动专用组件 |
-| Transfer（穿梭框） | 中 | Checkbox 列表可拼，体验差距大 |
-| TreeSelect | 中 | Cascader/Select 组合可替代 |
-| Image（预览/懒加载） | **中** | avatar 仅 URL 参数，无独立组件 |
-| Watermark | 低 | — |
-| Anchor | 低 | — |
+| Autocomplete | **中** | ✅ 已补（W9-P1）：本地过滤/自定义 provider/键盘选择 |
+| Transfer（穿梭框） | 中 | ✅ 已补（W9-P2）：双面板勾选/搬移/禁用守卫 |
+| TreeSelect | 中 | ✅ 已补（W9-P1）：勾选镜像单选/面板开合/树消息透传 |
+| Image（预览/懒加载） | **中** | ✅ 已补（W9-P1）：加载状态机/失败重试/预览开关 |
+| Watermark | 低 | ✅ 已补（W9-P2）：居中半透明层（平铺+旋转待 canvas） |
+| Anchor | 低 | ✅ 已补（W9-P2）：点击高亮/滚动联动 |
 | Tour | 低 | — |
-| Countdown | 低 | Statistic + tick 可变通 |
+| Countdown | 低 | ✅ 已补（W9-P2）：Tick 驱动/暂停恢复/0 时长语义 |
 | InputTag | 低 | EP 2.9+ 新增 |
 | Splitter | 低 | EP 2.8+ 新增 |
 

@@ -254,8 +254,7 @@
 ### W9：Element Plus 对齐补齐（新增 2026-10-10）🔶
 
 > 实证评估见 `docs/element-plus-alignment.md`：高频核心组件对齐度已从 ~87% 提升
-> （P1 完成后 64 组件；缺口余 7 个低频件：Transfer/Watermark/Anchor/Tour/
-> Countdown/InputTag/Splitter）；图标 333 个（EP 全集 293 + legacy 40），
+> （P1/P2 完成后 68 组件；缺口余 3 个低频件：Tour/InputTag/Splitter）；图标 333 个（EP 全集 293 + legacy 40），
 > 组件库现挂**渲染路径**（iced svg widget，此前 IconLibrary 零消费）；
 > 像素级视觉对照未验证（T3 为自建基准）。
 

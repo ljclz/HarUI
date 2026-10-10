@@ -2,7 +2,7 @@
 
 ### Highlights
 - **组件 68 个**：新增 Autocomplete / Image / TreeSelect（P1）+
-  Transfer / Watermark / Anchor / Countdown（P2），EP 缺口 10 → 6 个低频项
+  Transfer / Watermark / Anchor / Countdown（P2），EP 缺口 10 → 3 个低频项（Tour/InputTag/Splitter）
 - **图标 333 个**：EP 官方全集 293（iconify path 数据）+ legacy 40，
   并首次挂上渲染路径（iced svg widget + Icon::view）
 - 2163 测试 0 失败，12 关门禁 + GitHub CI 双绿

@@ -3,7 +3,7 @@
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 格式与
 [SemVer](https://semver.org/lang/zh-CN/) 语义化版本。
 
-## [Unreleased]
+## [v1.3.0] — 2026-10-10
 
 ### Added
 
@@ -44,6 +44,7 @@ iced 0.14.0 升级专项（W8 触发器命中，评估见 docs/iced-0.14-upgrade
 - `text_input::Status::Focused` 结构体变体（3 处）、`Palette.warning` 字段（1 处）、
   `Pixels: From<u16>` 移除（3 处）
 
+[v1.3.0]: https://github.com/ljclz/HarUI/compare/v1.2.0...v1.3.0
 [v1.2.0]: https://github.com/ljclz/HarUI/compare/v1.1.0...v1.2.0
 
 ## [v1.1.0] — 2026-09-30

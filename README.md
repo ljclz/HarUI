@@ -5,15 +5,15 @@
 [![Rust](https://img.shields.io/badge/Rust-1.75+-orange.svg)](https://www.rust-lang.org/)
 [![iced](https://img.shields.io/badge/iced-0.14.0-blue.svg)](https://github.com/iced-rs/iced)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-1.2.0-brightgreen.svg)](#)
+[![Version](https://img.shields.io/badge/version-1.3.0-brightgreen.svg)](#)
 
-## Status: v1.2.0 — iced 0.14 + 渲染层 + headless 行为层就绪，可被业务项目引用
+## Status: v1.3.0 — EP 对齐补齐 + iced 0.14 + headless 行为层，可被业务项目引用
 
 HarUI 是一个对标 [Element Plus](https://element-plus.org/) 的 Rust 原生 UI 组件库，基于 [iced 0.14.0](https://github.com/iced-rs/iced) 构建，专为 POS（Point of Sale）收银场景设计，同时适用于桌面端管理后台、表单应用、数据展示等场景。
 
 ## Features
 
-- **68 组件**：覆盖 Element Plus 全部核心组件，包含 POS 专用组件（Keypad / Payment / HangOrder / CustomerDisplay / StatusBar）
+- **68 组件**：覆盖 Element Plus 全部核心组件 + 333 图标（EP 全集），包含 POS 专用组件（Keypad / Payment / HangOrder / CustomerDisplay / StatusBar）
 - **主题系统**：light / dark 双主题，CSS 变量级别的颜色 token 系统，完全复刻 Element Plus 设计规范
 - **虚拟滚动**：Table 组件支持 1000+ 行虚拟滚动，保持 60 FPS
 - **IME 支持**：Input / Textarea 内置中文输入法支持，无闪烁、候选框正常

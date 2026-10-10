@@ -64,11 +64,18 @@
 - EP 配套 `@element-plus/icons-vue` 约 **290 个**图标；HarUI `IconName` 枚举实测 **40 个**
 - 建议补齐方式：从 iconify 的 EP 图标集批量生成 Rust 枚举 + 内嵌 SVG（脚本化，1 会话量级），命名对齐 EP 图标名
 
-### 3.2 像素级视觉对齐：未验证
+### 3.2 像素级视觉对照管线：✅ 工具已就绪（2026-10-10）
 
-- 全部 T3 截图测试为**自建基准**（与自身历史帧比对），从未与 EP 官方网页渲染做 AE<100 / SSIM>0.95 对照
-- "85-95% 还原度"目前是设计文档的自我声明等级
-- 补齐方式：搭 EP 官网组件对照页截图管线（1-2 会话），含 100%/125% 缩放两档
+- **对比工具**：`scripts/visual_compare.py`（AE 逐像素均值 + 窗口化 SSIM，
+  双指标 PASS/FAIL，尺寸不一致自动 LANCZOS 归一）——PoC 三组验证：
+  同图 AE=0/SSIM=1.0、不同页 AE=0.16/SSIM=0.9956、snap 对照 AE=0.20/SSIM=0.9947
+- **对照工作流**（EP 参照帧由 agent-browser 从 element-plus.org 组件页截取，
+  HarUI 帧从公网画廊同内容页截取）：
+  1. `agent-browser open https://element-plus.org/zh-CN/component/button.html` → 截图存 docs/visual-baseline/ep/
+  2. 公网画廊对应页截图存 docs/visual-baseline/harui/
+  3. `python scripts/visual_compare.py <ep帧> <harui帧>` → AE/SSIM 报告
+- **诚实现状**：像素级"还原度 85-95%"仍需等值内容页（HarUI 需建 EP demo 复刻页）
+  才有意义的数字——当前工具验证的是管线本身；等值内容页为后续项
 
 ## 四、补齐路线建议（按需启动，非当前迭代）
 

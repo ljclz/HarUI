@@ -263,7 +263,7 @@
 | P1 | Autocomplete + Image + TreeSelect | ✅ 已完成（2026-10-10，64 组件） |
 | P1 | 图标批量扩充至 EP 全集（iconify 脚本生成） | ✅ 已完成（293 EP + 40 legacy = 333，scripts/gen_icons.py） |
 | P2 | Transfer/Watermark/Anchor/Countdown 等低频件 | 主动补齐迭代 |
-| P2 | EP 像素级视觉对照管线（AE/SSIM 对照官网） | 视觉还原度争议或发布前验收 |
+| P2 | EP 像素级视觉对照管线（AE/SSIM 对照官网） | ✅ 工具就绪（scripts/visual_compare.py，AE+SSIM 双指标，PoC 三组通过）；等值内容页（EP demo 复刻）待建 |
 | 挂起 | Select V2 / Tree V2 / Splitter / InputTag | 业务触发 |
 
 ---

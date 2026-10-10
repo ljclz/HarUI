@@ -1,0 +1,12 @@
+[build]
+target = "index.html"
+dist = "dist"
+release = true
+wasm-opt = false
+
+[watch]
+watch = ["src"]
+
+[serve]
+port = 8138
+open = false

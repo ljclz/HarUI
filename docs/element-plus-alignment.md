@@ -74,8 +74,16 @@
   1. `agent-browser open https://element-plus.org/zh-CN/component/button.html` → 截图存 docs/visual-baseline/ep/
   2. 公网画廊对应页截图存 docs/visual-baseline/harui/
   3. `python scripts/visual_compare.py <ep帧> <harui帧>` → AE/SSIM 报告
-- **诚实现状**：像素级"还原度 85-95%"仍需等值内容页（HarUI 需建 EP demo 复刻页）
-  才有意义的数字——当前工具验证的是管线本身；等值内容页为后续项
+- **首次实测数字（2026-10-10，EP 复刻页 examples/ep-parity 已建）**：
+  对照 docs/images/ep-parity-row1-side-by-side.png（上=EP 官网截帧，下=HarUI 同内容）——
+  **AE=30.3（<100 PASS）/ SSIM=0.32（>0.95 FAIL）**
+- **SSIM 低的三项根因**（视觉可辨）：
+  ① 按钮**高度** 32px(EP) vs 46px(HarUI)——iced 默认文字 16px + line-height 高于 EP 的 14px
+  ② 按钮**宽度**随之偏宽（文字宽），水平节奏不同
+  ③ 字形渲染差异（Fira Sans vs EP 系统字体栈）
+- **结论**：色彩/布局/结构/文案已对齐（AE 30 达标），几何尺度未对齐（SSIM 0.32）。
+  修复路径（后续 v1.3.x）：Button/组件默认文字尺寸降到 14px（iced text .size(14)
+  全组件排查）+ Default 尺寸 padding 微调 → 预期 SSIM > 0.8
 
 ## 四、补齐路线建议（按需启动，非当前迭代）
 

@@ -18,6 +18,7 @@ members = [
     "examples/upload_demo",
     "examples/showcase",
     "examples/screenshot_test",
+    "examples/ep-parity",
 ]
 
 [workspace.package]

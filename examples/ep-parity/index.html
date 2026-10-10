@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>EP Parity — Button</title>
+    <link data-trunk rel="rust" data-bin="ep-parity" />
+    <style>
+        html, body { margin: 0; padding: 0; background: #ffffff; overflow: hidden; }
+    </style>
+    <base data-trunk-public-url />
+</head>
+<body>
+    <div id="loading">loading…</div>
+    <script>
+        new MutationObserver(function (_, obs) {
+            if (document.querySelector('canvas')) {
+                var el = document.getElementById('loading');
+                if (el) el.remove();
+                obs.disconnect();
+            }
+        }).observe(document.body, { childList: true, subtree: true });
+    </script>
+</body>
+</html>

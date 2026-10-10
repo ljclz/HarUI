@@ -1,0 +1,16 @@
+[package]
+name = "ep-parity"
+version.workspace = true
+edition.workspace = true
+publish = false
+
+[dependencies]
+har-ui-components = { path = "../../crates/components" }
+har-ui-core = { path = "../../crates/core" }
+iced = { workspace = true, features = ["advanced", "fira-sans"] }
+web-time = "1.1"
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wasm-bindgen = "0.2"
+console_error_panic_hook = "0.1"
+iced = { workspace = true, features = ["webgl", "fira-sans"] }

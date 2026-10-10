@@ -3,6 +3,19 @@
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 格式与
 [SemVer](https://semver.org/lang/zh-CN/) 语义化版本。
 
+## [Unreleased]
+
+### Added
+
+- **图标系统扩至 EP 全集**：`IconName` 333 个（EP 官方 293 + legacy 40），
+  `scripts/gen_icons.py` 从 iconify 官方 path 数据生成；新增 `Icon::view()`
+  渲染路径（iced "svg" feature，此前图标为纯数据零消费）
+- **三个对齐缺口组件**：Autocomplete（本地过滤/自定义 provider/键盘环绕选择）、
+  Image（加载状态机/失败重试/预览开关）、TreeSelect（勾选镜像单选/面板开合/
+  树消息透传）；组件目录与 README 更新至 64
+- **W9 专项**：docs/element-plus-alignment.md（EP 对齐评估：覆盖矩阵/缺口清单/
+  补齐路线），剩余 7 个低频缺口挂起待业务触发
+
 ## [v1.2.0] — 2026-09-30
 
 iced 0.14.0 升级专项（W8 触发器命中，评估见 docs/iced-0.14-upgrade-evaluation.md）。

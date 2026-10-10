@@ -5,12 +5,15 @@
 //! - SVG data 在编译期内嵌
 //! - 中后台 + POS 共 50 个常用图标
 //!
-//! 图标来源：参考 @element-plus/icons-vue 的 SVG path 数据
-//! 为降低实现复杂度，本模块手绘了简化版本的 SVG path。
+//! 图标来源：legacy 40 个为手绘简化版；EP 全集 293 个由 scripts/gen_icons.py
+//! 生成（icon/ep.rs，官方 path 数据），经 `IconName::Ep` / `Icon::ep()` 取用。
+pub mod ep;
 
 /// 图标名称枚举
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum IconName {
+    /// EP 全集图标（293 个，见 ep 模块）
+    Ep(ep::EpIcon),
     // 数值操作
     Plus,
     Minus,
@@ -65,6 +68,11 @@ pub enum IconName {
 }
 
 impl IconName {
+    /// EP 全集图标名列表（293 个，PascalCase）
+    pub fn ep_all() -> Vec<&'static str> {
+        ep::ALL_NAMES.to_vec()
+    }
+
     /// 返回所有图标名称（用于测试和遍历）
     pub fn all() -> Vec<IconName> {
         vec![
@@ -138,11 +146,43 @@ impl Icon {
         self.loading = loading;
         self
     }
+
+    /// EP 全集构造：按 PascalCase 名取 EP 图标（如 "Plus"/"ShoppingCart"）
+    pub fn ep(name: &str) -> Option<Self> {
+        ep::from_name(name).map(|e| Self {
+            name: IconName::Ep(e),
+            size: 16.0,
+            loading: false,
+        })
+    }
+
+    /// 图标的完整 SVG 字符串（legacy 手绘集 + EP 官方集）
+    pub fn svg_data(&self) -> &'static str {
+        match &self.name {
+            IconName::Ep(e) => e.svg(),
+            legacy => legacy_library().get(*legacy),
+        }
+    }
+
+    /// 渲染图标为 iced Element（需 iced "svg" feature；颜色走 currentColor/默认）
+    pub fn view<'a, Message: Clone>(&self) -> iced::Element<'a, Message> {
+        let handle = iced::widget::svg::Handle::from_memory(self.svg_data().as_bytes().to_vec());
+        iced::widget::svg(handle)
+            .width(iced::Length::Fixed(self.size))
+            .height(iced::Length::Fixed(self.size))
+            .into()
+    }
 }
 
-/// 图标库 — 提供 IconName → SVG data 的映射
+/// 图标库 — 提供 legacy IconName → SVG data 的映射（EP 集见 ep 模块）
 pub struct IconLibrary {
     svgs: std::collections::HashMap<IconName, &'static str>,
+}
+
+static LEGACY_LIBRARY: std::sync::OnceLock<IconLibrary> = std::sync::OnceLock::new();
+
+fn legacy_library() -> &'static IconLibrary {
+    LEGACY_LIBRARY.get_or_init(IconLibrary::default)
 }
 
 impl Default for IconLibrary {
@@ -301,3 +341,65 @@ const SVG_ARROW_DOWN: &str = r#"<svg viewBox="0 0 1024 1024" xmlns="http://www.w
 // 防止未使用警告
 #[allow(dead_code)]
 const _ENSURE_USE: (&str, &str) = (SVG_WRAP_START, SVG_WRAP_END);
+
+#[cfg(test)]
+mod icon_tests {
+    use super::*;
+
+    #[test]
+    fn test_legacy_40_icons_intact() {
+        assert_eq!(IconName::all().len(), 40);
+        for name in IconName::all() {
+            let icon = Icon::new(name);
+            let svg = icon.svg_data();
+            assert!(svg.starts_with("<svg"), "{:?} svg 缺失", name);
+        }
+    }
+
+    #[test]
+    fn test_ep_full_set_293() {
+        assert_eq!(ep::ALL_NAMES.len(), 293);
+        assert_eq!(IconName::ep_all().len(), 293);
+        // 全量非空且格式合法
+        for name in IconName::ep_all() {
+            let icon = Icon::ep(name).expect("EP 名应可解析");
+            let svg = icon.svg_data();
+            assert!(
+                svg.starts_with("<svg viewBox=\"0 0 1024 1024\""),
+                "{}",
+                name
+            );
+            assert!(svg.ends_with("</svg>"), "{}", name);
+            assert!(svg.contains("path"), "{} 缺少 path", name);
+        }
+    }
+
+    #[test]
+    fn test_ep_name_roundtrip() {
+        for name in IconName::ep_all() {
+            let icon = Icon::ep(name).unwrap();
+            match icon.name {
+                IconName::Ep(e) => assert_eq!(e.name(), name),
+                _ => panic!("应为 Ep 变体"),
+            }
+        }
+    }
+
+    #[test]
+    fn test_ep_unknown_name_returns_none() {
+        assert!(Icon::ep("NoSuchIcon").is_none());
+        assert!(Icon::ep("").is_none());
+    }
+
+    #[test]
+    fn test_ep_icon_view_renders() {
+        let icon = Icon::ep("ShoppingCart").unwrap().size(20.0);
+        let _element = icon.view::<()>();
+    }
+
+    #[test]
+    fn test_legacy_icon_view_renders() {
+        let icon = Icon::new(IconName::Plus).size(24.0);
+        let _element = icon.view::<()>();
+    }
+}

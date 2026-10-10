@@ -4,6 +4,7 @@
 
 pub mod affix;
 pub mod alert;
+pub mod autocomplete;
 pub mod avatar;
 pub mod backtop;
 pub mod badge;
@@ -27,6 +28,7 @@ pub mod empty;
 pub mod form;
 pub mod grid;
 pub mod hang_order;
+pub mod image;
 pub mod input;
 pub mod input_number;
 pub mod keypad;
@@ -62,4 +64,5 @@ pub mod time_picker;
 pub mod timeline;
 pub mod tooltip;
 pub mod tree;
+pub mod tree_select;
 pub mod upload;

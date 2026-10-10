@@ -251,17 +251,18 @@
 > - **snap 像素吸附**：评估框架已制定（`docs/snap-evaluation.md`），等待真机截图对比。
 > - **Dock / AccessKit**：触发器未命中，维持挂起。
 
-### W9：Element Plus 对齐补齐（新增 2026-10-10）⬜
+### W9：Element Plus 对齐补齐（新增 2026-10-10）🔶
 
-> 实证评估见 `docs/element-plus-alignment.md`：高频核心组件 ~87% 对齐且 API 语义
-> 忠实（57 项完全对齐）；**10 个真实缺口**（Autocomplete/Transfer/TreeSelect/Image/
-> Watermark/Anchor/Tour/Countdown/InputTag/Splitter）；图标 40/~290 为最大硬伤；
+> 实证评估见 `docs/element-plus-alignment.md`：高频核心组件对齐度已从 ~87% 提升
+> （P1 完成后 64 组件；缺口余 7 个低频件：Transfer/Watermark/Anchor/Tour/
+> Countdown/InputTag/Splitter）；图标 333 个（EP 全集 293 + legacy 40），
+> 组件库现挂**渲染路径**（iced svg widget，此前 IconLibrary 零消费）；
 > 像素级视觉对照未验证（T3 为自建基准）。
 
 | 优先级 | 项 | 触发条件 |
 |---|---|---|
-| P1 | Autocomplete + Image + TreeSelect | 业务后台管理端需求（库存/报表页） |
-| P1 | 图标批量扩充至 EP 全集（iconify 脚本生成） | 随 P1 组件一起 |
+| P1 | Autocomplete + Image + TreeSelect | ✅ 已完成（2026-10-10，64 组件） |
+| P1 | 图标批量扩充至 EP 全集（iconify 脚本生成） | ✅ 已完成（293 EP + 40 legacy = 333，scripts/gen_icons.py） |
 | P2 | Transfer/Watermark/Anchor/Countdown 等低频件 | 主动补齐迭代 |
 | P2 | EP 像素级视觉对照管线（AE/SSIM 对照官网） | 视觉还原度争议或发布前验收 |
 | 挂起 | Select V2 / Tree V2 / Splitter / InputTag | 业务触发 |

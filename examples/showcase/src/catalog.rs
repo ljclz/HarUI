@@ -37,7 +37,7 @@ pub const GROUPS: [&str; 7] = [
 ];
 
 /// 全部 61 个组件
-pub const CATALOG: [CatalogEntry; 61] = [
+pub const CATALOG: [CatalogEntry; 64] = [
     // 基础 10
     CatalogEntry {
         name: "Button",
@@ -129,6 +129,21 @@ pub const CATALOG: [CatalogEntry; 61] = [
         name: "Upload",
         group: "表单",
         level: DemoLevel::Interactive,
+    },
+    CatalogEntry {
+        name: "Autocomplete",
+        group: "表单",
+        level: DemoLevel::Listed,
+    },
+    CatalogEntry {
+        name: "Image",
+        group: "表单",
+        level: DemoLevel::Listed,
+    },
+    CatalogEntry {
+        name: "TreeSelect",
+        group: "表单",
+        level: DemoLevel::Listed,
     },
     // 数据展示 12（含 README 未列的 Tree）
     CatalogEntry {
@@ -379,7 +394,7 @@ pub fn index_view(theme: &Theme) -> Element<'static, Message> {
     let border = Color::from(theme.neutral.border_lighter);
 
     let mut col = column![
-        text("组件目录 — 61 components")
+        text("组件目录 — 64 components")
             .size(20)
             .color(text_primary)
     ]
@@ -464,9 +479,9 @@ mod catalog_tests {
 
     #[test]
     fn test_catalog_has_61_unique_entries() {
-        assert_eq!(CATALOG.len(), 61);
+        assert_eq!(CATALOG.len(), 64);
         let names: std::collections::BTreeSet<&str> = CATALOG.iter().map(|e| e.name).collect();
-        assert_eq!(names.len(), 61, "组件名不得重复");
+        assert_eq!(names.len(), 64, "组件名不得重复");
     }
 
     #[test]

@@ -23,7 +23,7 @@
 use har_ui_core::theme::Theme;
 use har_ui_core::theme::style_sheets::{self, ButtonKind};
 use iced::widget::{button, text};
-use iced::{Element, Padding};
+use iced::{Color, Element, Length, Padding};
 
 /// 按钮类型
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
@@ -230,8 +230,19 @@ impl Button {
         theme: &'a Theme,
         on_press: Message,
     ) -> Element<'a, Message> {
-        let content = text(&self.props.text).size(14.0); // EP 默认按钮字号（FontSize::Sm）
-        let mut btn = button(content).padding(Self::padding_for_size(self.props.size));
+        let content = text(&self.props.text)
+            .size(14.0) // EP 默认按钮字号（FontSize::Sm）
+            .center();
+        // EP 固定高度：Large 40px / Default 32px / Small 24px
+        let height = match self.props.size {
+            ButtonSize::Large => 40.0,
+            ButtonSize::Default => 32.0,
+            ButtonSize::Small => 24.0,
+        };
+        let mut btn = button(content)
+            .width(Length::Shrink)
+            .height(Length::Fixed(height))
+            .padding(Self::padding_for_size(self.props.size));
 
         let disabled = self.props.disabled || self.props.loading;
         if !disabled {

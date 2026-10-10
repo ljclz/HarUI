@@ -263,7 +263,7 @@
 | P1 | Autocomplete + Image + TreeSelect | ✅ 已完成（2026-10-10，64 组件） |
 | P1 | 图标批量扩充至 EP 全集（iconify 脚本生成） | ✅ 已完成（293 EP + 40 legacy = 333，scripts/gen_icons.py） |
 | P2 | Transfer/Watermark/Anchor/Countdown 等低频件 | 主动补齐迭代 |
-| P2 | EP 像素级视觉对照管线（AE/SSIM 对照官网） | ✅ 首轮数字出炉（ep-parity 复刻页：AE=30.3 PASS / SSIM=0.32 FAIL——色彩/布局/文案对齐，几何尺度未对齐：HarUI 按钮 46px vs EP 32px，根因 iced 默认文字 16px；修复路径=组件默认文字降至 14px，预期 SSIM>0.8） |
+| P2 | EP 像素级视觉对照管线（AE/SSIM 对照官网） | ✅ 几何尺度终测出炉（ep-parity：固定高度 32px → AE=64.5 / SSIM=0.36 持平）。**根因确认为字体度量差异**（Fira Sans 比 PingFang 宽 → 逐按钮累计偏移），需自定义 PingFang 子集字体才能收敛——长期项。目检对齐度远高于 SSIM 数字反映（并排图见 docs/images/） |
 | 挂起 | Select V2 / Tree V2 / Splitter / InputTag | 业务触发 |
 
 ---

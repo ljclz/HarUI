@@ -230,7 +230,7 @@ impl Button {
         theme: &'a Theme,
         on_press: Message,
     ) -> Element<'a, Message> {
-        let content = text(&self.props.text);
+        let content = text(&self.props.text).size(14.0); // EP 默认按钮字号（FontSize::Sm）
         let mut btn = button(content).padding(Self::padding_for_size(self.props.size));
 
         let disabled = self.props.disabled || self.props.loading;

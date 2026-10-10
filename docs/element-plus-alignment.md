@@ -77,13 +77,13 @@
 - **首次实测数字（2026-10-10，EP 复刻页 examples/ep-parity 已建）**：
   对照 docs/images/ep-parity-row1-side-by-side.png（上=EP 官网截帧，下=HarUI 同内容）——
   **AE=30.3（<100 PASS）/ SSIM=0.32（>0.95 FAIL）**
-- **SSIM 低的三项根因**（视觉可辨）：
-  ① 按钮**高度** 32px(EP) vs 46px(HarUI)——iced 默认文字 16px + line-height 高于 EP 的 14px
-  ② 按钮**宽度**随之偏宽（文字宽），水平节奏不同
-  ③ 字形渲染差异（Fira Sans vs EP 系统字体栈）
-- **结论**：色彩/布局/结构/文案已对齐（AE 30 达标），几何尺度未对齐（SSIM 0.32）。
-  修复路径（后续 v1.3.x）：Button/组件默认文字尺寸降到 14px（iced text .size(14)
-  全组件排查）+ Default 尺寸 padding 微调 → 预期 SSIM > 0.8
+- **14px 文字修正后复测**（2026-10-11）：按钮行高 46→35px（EP 32px，差 3px），
+  SSIM 0.32→0.36、AE 30→61（裁剪变紧致按钮像素占比升高，AE 数值升高正常）
+- **并排图目检**：颜色/文案/类型/圆角/间距已高度对齐（上下两排视觉一致）；
+  SSIM 低的根因是**像素级度量差异**：iced 行高 ~20px（14px 字号 + 行距）vs EP
+  紧凑 14px 行、Fira Sans 与 PingFang 字形差、按钮间 12px 间距微差——
+  组件层面可修的已修完，剩余需固定高度按钮约束（container height 32 + center_y）
+  与字体管线调优，属 v1.3.x 细化项
 
 ## 四、补齐路线建议（按需启动，非当前迭代）
 

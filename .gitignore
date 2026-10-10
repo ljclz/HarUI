@@ -33,3 +33,11 @@ examples/showcase/dist/
 examples/ep-parity/dist/
 *.pyc
 __pycache__/
+
+# 视觉对照临时帧（保留 docs/images 下的最终对照图）
+harui-parity-full.png
+harui-row1-crop.png
+ep-row1-crop.png
+ep-ref-full.png
+cjk-verify.png
+cjk-catalog.png

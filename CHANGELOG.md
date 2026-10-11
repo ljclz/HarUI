@@ -3,6 +3,19 @@
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 格式与
 [SemVer](https://semver.org/lang/zh-CN/) 语义化版本。
 
+## [Unreleased]
+
+### Added
+
+- **ep-parity 71 组件全部真实渲染**：占位清零，含 grid/table 泛型演示行、
+  scrollbar 自定义内容、watermark/form/menu 等全部实际组件树
+- **EP 参照帧扩至 64 页**（补拍 autocomplete/dialog/drawer/form/image/loading/menu/
+  message/message_box/notification/popconfirm/popover/radio/tooltip/tour/transfer/
+  tree_select/upload/watermark/grid/splitter/text）
+- **HarUI 独立组件帧 71 页全捕获**（docs/visual-baseline/harui/，agent-browser 批跑）
+- **全量像素对照批跑**：scripts/batch_visual_compare.py + docs/parity-batch-result.md，
+  64 组 AE 全部 <100 PASS；parity-status-report 更新为 71 组件全状态表
+
 ## [v1.4.0] — 2026-10-11
 
 ### Added

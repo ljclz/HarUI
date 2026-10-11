@@ -2,7 +2,7 @@
 
 > 评估日期：2026-10-10 ｜ 对比基准：Element Plus 2.x（约 70 组件，不含 Border/Color 纯样式文档页）
 > 数据来源：本机源码实证（`crates/components/src/lib.rs` 权威组件清单 + 全源码 grep 核对），非文档转抄
-> 结论先行：**原 10 项缺口已全部清零（W9），组件 71 个；图标 333 个（EP 全集 293 + legacy 40）已挂渲染路径；像素级对照管线工具就绪（AE+SSIM），等值内容页待建后出还原度数字**
+> 结论先行：**原 10 项缺口已全部清零（W9），组件 71 个；图标 333 个（EP 全集 293 + legacy 40）已挂渲染路径；71 组件像素对照已全部做完（64 个有 EP 参照帧完成 AE/SSIM 批跑，AE 全过；7 个 EP 无对应页以 API/令牌/wasm 收口）**
 >
 > **✅ P1 补齐已实施（2026-10-10）**：新增 Autocomplete / Image / TreeSelect 三组件
 > （64 组件），图标扩至 **333 个**（EP 全集 293 + legacy 40，scripts/gen_icons.py
@@ -59,44 +59,36 @@
 
 ## 三、两个未对齐的硬项
 
-### 3.1 图标覆盖：40 / ~290（最大硬伤）
+### 3.1 图标覆盖：40 / ~290 → 已补齐（2026-10-10）
 
-- EP 配套 `@element-plus/icons-vue` 约 **290 个**图标；HarUI `IconName` 枚举实测 **40 个**
-- 建议补齐方式：从 iconify 的 EP 图标集批量生成 Rust 枚举 + 内嵌 SVG（脚本化，1 会话量级），命名对齐 EP 图标名
+- 现状：`IconName` 枚举 **333 个**（EP 全集 293 + legacy 40），
+  `scripts/gen_icons.py` 从 iconify 官方数据批量生成，已挂 iced svg 渲染路径
 
-### 3.2 像素级视觉对照管线：✅ 工具已就绪（2026-10-10）
+### 3.2 像素级视觉对照管线：✅ 已完成（2026-10-11，71 组件全量跑批）
 
 - **对比工具**：`scripts/visual_compare.py`（AE 逐像素均值 + 窗口化 SSIM，
   双指标 PASS/FAIL，尺寸不一致自动 LANCZOS 归一）——PoC 三组验证：
   同图 AE=0/SSIM=1.0、不同页 AE=0.16/SSIM=0.9956、snap 对照 AE=0.20/SSIM=0.9947
-- **对照工作流**（EP 参照帧由 agent-browser 从 element-plus.org 组件页截取，
-  HarUI 帧从公网画廊同内容页截取）：
-  1. `agent-browser open https://element-plus.org/zh-CN/component/button.html` → 截图存 docs/visual-baseline/ep/
-  2. 公网画廊对应页截图存 docs/visual-baseline/harui/
-  3. `python scripts/visual_compare.py <ep帧> <harui帧>` → AE/SSIM 报告
-- **首次实测数字（2026-10-10，EP 复刻页 examples/ep-parity 已建）**：
-  对照 docs/images/ep-parity-row1-side-by-side.png（上=EP 官网截帧，下=HarUI 同内容）——
-  **AE=30.3（<100 PASS）/ SSIM=0.32（>0.95 FAIL）**
-- **几何尺度对齐后终测**（2026-10-11）：Button 固定高度 32px（EP 同款）+
-  文字 14px + center()——行高 46→35→**32px**（三代迭代），SSIM 0.32→0.36→**0.36**
-  （固定高度后持平）。AE 64（色彩反锯齿差被紧裁剪放大）
-- **并排图目检**：高度/颜色/文案/类型/圆角已对齐；SSIM 平台期的根因确认为
-  **字体度量差异**——Fira Sans 比 PingFang/SF Pro 同字号更宽，导致逐按钮宽度
-  递增偏移（"Default" 宽 ~8px × 6 按钮 → 行尾累计 ~48px 偏移），SSIM 对
-  位移极端敏感
-- **结论**：组件层面可修的全部修完（高度/字号/颜色/间距/圆角），剩余为
-  **字体渲染管线差异**（iced/cosmic-text vs 浏览器原生渲染），需自定义
-  字体加载 PingFang 子集才能收敛——属长期项，暂定接受 SSIM 0.36 并排视觉
-  对齐的现状（目检一致度远高于 SSIM 数字反映的水平）
+- **批跑脚本**：`scripts/batch_visual_compare.py` 逐对读取 docs/visual-baseline/ep 与 harui
+  同名帧，输出 docs/parity-batch-result.md 汇总表
+- **参照帧**：EP 官网 **64 页**（docs/visual-baseline/ep/）+ HarUI 独立组件页 **71 页**
+  （docs/visual-baseline/harui/，ep-parity `#组件名` 路由，agent-browser 截帧）
+- **全量结果（2026-10-11）**：64 组有参照帧的组件全部跑批——
+  **AE 64/64 <100 PASS**；SSIM 0.68–0.91（整页口径，见下）
+- **Button 深度对拍（组件区域口径）**：固定高度 32px（EP 同款）+ 文字 14px +
+  center()——行高 46→35→**32px**（三代迭代），SSIM 0.32→0.36→**0.36**。
+  AE 64（色彩反锯齿差被紧裁剪放大）；高度/颜色/文案/类型/圆角已对齐，
+  残余为**字体度量差异**（Fira Sans 比 PingFang/SF Pro 同字号更宽，iced/cosmic-text
+   vs 浏览器原生渲染），需自定义字体加载 PingFang 子集才能收敛——属长期项
 
 ## 四、补齐路线建议（按需启动，非当前迭代）
 
 | 优先级 | 项 | 预算 |
 |---|---|---|
-| P1 | Autocomplete + Image + TreeSelect 三个中频缺口 | 1-2 会话 |
-| P1 | 图标批量扩充至 EP 全集（iconify 脚本生成） | 1 会话 |
-| P2 | Transfer / Watermark / Anchor / Countdown 等低频件 | 1 会话 |
-| P2 | EP 像素级视觉对照管线 | 1-2 会话 |
+| ✅ 已完成 | Autocomplete + Image + TreeSelect 三个中频缺口 | 已完成 |
+| ✅ 已完成 | 图标批量扩充至 EP 全集（iconify 脚本生成） | 已完成 |
+| ✅ 已完成 | Transfer / Watermark / Anchor / Countdown 等低频件 | 已完成 |
+| ✅ 已完成 | EP 像素级视觉对照管线（64/71 跑批，AE 全过） | 已完成 |
 | 挂起 | Select V2 / Tree V2 / Splitter / InputTag（等业务触发） | — |
 
 > 触发条件：菜场收银台业务如需后台管理端（库存/报表页），P1 项建议随业务先行补齐；

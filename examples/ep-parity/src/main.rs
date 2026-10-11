@@ -148,10 +148,21 @@ fn demo_row_field(r: &DemoRow, prop: &str) -> String {
 fn view(s: &State) -> Element<'_, Message> {
     let t = theme();
     let name = s.selected.as_str();
-    if name.is_empty() {
+    // 空 hash 或未知组件名 → 回退展示全组件列表，避免白屏
+    if name.is_empty() || !ALL.contains(&name) {
         let mut col = column![text("HarUI — All 71 Components").size(20)]
             .spacing(8)
             .padding(Padding::from(16));
+        if !name.is_empty() {
+            col = col.push(
+                text(format!(
+                    "未知组件 “{}”，已回退全列表（#button/#table/#form …）",
+                    name
+                ))
+                .size(12)
+                .color(Color::from(t.warning.base)),
+            );
+        }
         for c in ALL {
             col = col.push(text(*c).size(12).color(Color::from(t.primary.base)));
             col = col.push(render(c, t));
@@ -607,7 +618,7 @@ fn main() -> iced::Result {
         view,
     )
     .title(|s: &State| {
-        if s.selected.is_empty() {
+        if s.selected.is_empty() || !ALL.contains(&s.selected.as_str()) {
             "HarUI — All Components".into()
         } else {
             format!("HarUI — {}", s.selected)

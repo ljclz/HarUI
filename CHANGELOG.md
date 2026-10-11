@@ -15,6 +15,8 @@
 - **HarUI 独立组件帧 71 页全捕获**（docs/visual-baseline/harui/，agent-browser 批跑）
 - **全量像素对照批跑**：scripts/batch_visual_compare.py + docs/parity-batch-result.md，
   64 组 AE 全部 <100 PASS；parity-status-report 更新为 71 组件全状态表
+- **未知 hash 回退全组件列表**：ep-parity 输入非组件名（如 `#hash`）不再白屏，
+  自动回退展示 71 组件全列表并提示正确格式
 
 ## [v1.4.0] — 2026-10-11
 

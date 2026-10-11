@@ -947,6 +947,7 @@ dependencies = [
  "har-ui-core",
  "iced",
  "wasm-bindgen",
+ "web-sys",
  "web-time",
 ]
 

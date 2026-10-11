@@ -23,7 +23,7 @@
 use har_ui_core::theme::Theme;
 use har_ui_core::theme::style_sheets::{self, ButtonKind};
 use iced::widget::{button, text};
-use iced::{Color, Element, Length, Padding};
+use iced::{Element, Length, Padding};
 
 /// 按钮类型
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]

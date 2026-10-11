@@ -1,103 +1,254 @@
-//! EP 复刻对照页 — 1:1 复刻 element-plus.org Button demo（像素对照基准，W9 视觉管线）
+//! EP 全组件复刻对照页 — URL hash 选组件独立渲染（W9 像素对照管线）
 //!
-//! 布局规格对齐 EP 官网「基础用法」demo：
-//! - 三行按钮：solid / plain / round，每行 6 个（Default/Primary/Success/Info/Warning/Danger）
-//! - 水平间距 12px、行距 12px、页面白底、左上 20px 边距
-//! - 按钮：Default 尺寸（padding 8×15，EP 同款），文字 14px
+//! 用法：
+//! - `http://…/#button` → 只渲染 Button
+//! - `http://…/#input` → 只渲染 Input
+//! - 无 hash（或 native `HARUI_COMPONENT=x`）→ 纵向渲染全部组件
 //!
-//! 截图工作流：
-//! 1. EP 参照帧：agent-browser 截 element-plus.org/zh-CN/component/button.html，裁 demo 卡片区
-//! 2. 本页帧：trunk build 后 agent-browser 截整页（本页无多余 chrome）
-//! 3. python scripts/visual_compare.py <ep-crop> <harui-crop>
+//! 每个组件在白底独立渲染，适配 agent-browser 截帧 + visual_compare.py 对比。
 
-use har_ui_components::button::{Button, ButtonType};
-use har_ui_core::Theme;
-use iced::widget::{column, container, text};
+use har_ui_core::theme::Theme;
+use iced::widget::{column, container, scrollable, text};
 use iced::{Color, Element, Length, Padding, Task};
 
-/// EP demo 行数据：(label, type)
-const ROW_TYPES: [(&str, ButtonType); 6] = [
-    ("Default", ButtonType::Default),
-    ("Primary", ButtonType::Primary),
-    ("Success", ButtonType::Success),
-    ("Info", ButtonType::Info),
-    ("Warning", ButtonType::Warning),
-    ("Danger", ButtonType::Danger),
-];
-
 struct State {
-    theme: Theme,
-    solid: Vec<Button>,
-    plain: Vec<Button>,
-    round: Vec<Button>,
+    selected: String,
+}
+
+static THEME: std::sync::OnceLock<Theme> = std::sync::OnceLock::new();
+
+fn get_theme() -> &'static Theme {
+    THEME.get_or_init(Theme::element_light)
 }
 
 #[derive(Debug, Clone)]
 enum Message {
-    Clicked,
+    Noop,
 }
 
 fn update(_state: &mut State, _msg: Message) -> Task<Message> {
     Task::none()
 }
 
-/// 一行按钮：从 State 中已持有的组件渲染（Element 借用 State 存活期）
-fn button_row<'a>(state: &'a State, buttons: &'a [Button]) -> Element<'a, Message> {
-    let mut row = iced::widget::Row::new().spacing(12.0);
-    for btn in buttons {
-        row = row.push(btn.view(&state.theme, Message::Clicked));
-    }
-    row.into()
-}
+/// 组件名列表（71 个，与 lib.rs pub mod 一致）
+const ALL_COMPONENTS: &[&str] = &[
+    "affix",
+    "alert",
+    "anchor",
+    "autocomplete",
+    "avatar",
+    "backtop",
+    "badge",
+    "breadcrumb",
+    "button",
+    "calendar",
+    "card",
+    "carousel",
+    "cascader",
+    "checkbox",
+    "collapse",
+    "color_picker",
+    "countdown",
+    "customer_display",
+    "date_picker",
+    "descriptions",
+    "dialog",
+    "divider",
+    "drawer",
+    "dropdown",
+    "empty",
+    "form",
+    "grid",
+    "hang_order",
+    "image",
+    "input",
+    "input_number",
+    "input_tag",
+    "keypad",
+    "link",
+    "loading",
+    "menu",
+    "message",
+    "message_box",
+    "notification",
+    "page_header",
+    "pagination",
+    "payment",
+    "popconfirm",
+    "popover",
+    "progress",
+    "radio",
+    "rate",
+    "result_page",
+    "scrollbar",
+    "select",
+    "skeleton",
+    "slider",
+    "space",
+    "splitter",
+    "statistic",
+    "status_bar",
+    "steps",
+    "switch",
+    "table",
+    "tabs",
+    "tag",
+    "text",
+    "time_picker",
+    "timeline",
+    "tooltip",
+    "tour",
+    "transfer",
+    "tree",
+    "tree_select",
+    "upload",
+    "watermark",
+];
 
 fn view(state: &State) -> Element<'_, Message> {
-    // EP 按钮 14px 文字说明（iced 默认 16px，差异记录在案）
-    let note = text("Button demo - HarUI replica (EP spec aligned)")
-        .size(14)
-        .color(Color::from(state.theme.neutral.text_regular));
+    let theme = get_theme();
+    let name = state.selected.as_str();
 
-    let content = column![
-        note,
-        button_row(state, &state.solid), // solid
-        button_row(state, &state.plain), // plain
-        button_row(state, &state.round), // round
-    ]
-    .spacing(12.0)
-    .padding(Padding::from(20u16));
+    if name.is_empty() {
+        let mut col = column![text("HarUI — All Components").size(20),]
+            .spacing(8)
+            .padding(Padding::from(16u16));
+        for comp in ALL_COMPONENTS {
+            col = col.push(text(*comp).size(12).color(Color::from(theme.primary.base)));
+            col = col.push(render_component(comp, theme));
+            col = col.push(iced::widget::Space::new().height(Length::Fixed(8.0)));
+        }
+        return scrollable(col).height(Length::Fill).into();
+    }
 
-    container(content)
-        .width(Length::Fill)
-        .height(Length::Fill)
-        .style(move |_t| iced::widget::container::Style {
-            text_color: None,
-            background: Some(iced::Background::Color(Color::WHITE)),
-            border: iced::Border::default(),
-            shadow: iced::Shadow::default(),
-            snap: false,
-        })
-        .into()
+    let body = render_component(name, theme);
+    container(
+        column![
+            text(format!("HarUI — {}", name))
+                .size(14)
+                .color(Color::from(theme.neutral.text_secondary)),
+            container(body).padding(Padding::from(16u16)),
+        ]
+        .spacing(8)
+        .padding(Padding::from(16u16)),
+    )
+    .width(Length::Fill)
+    .height(Length::Fill)
+    .style(move |_t| iced::widget::container::Style {
+        background: Some(iced::Background::Color(Color::WHITE)),
+        ..container::Style::default()
+    })
+    .into()
 }
 
-fn run_app() -> iced::Result {
+/// 按组件名渲染默认态视图
+fn render_component(name: &str, theme: &'static Theme) -> Element<'static, Message> {
+    use har_ui_components::*;
+    // Box::leak：组件实例泄漏获得 'static，Element 引用安全返回。
+    // 本页仅在 boot 时渲染一次，泄漏量可控（71 个组件实例 ≈ 几十 KB）。
+    fn leak<T>(v: T) -> &'static mut T {
+        Box::leak(Box::new(v))
+    }
+    // 每个分支返回 Element<'static, Message>——无 Message 依赖的组件
+    // view() 返回 Element<'_, ()>，通过 .map(|_| Message::Noop) 统一类型
+    match name {
+        "button" => leak(button::Button::new("Default").with_type(button::ButtonType::Primary))
+            .view(theme, Message::Noop),
+        "input" => {
+            let inp = leak(input::Input::new().with_placeholder("请输入内容"));
+            inp.handle(input::InputMessage::Char('H'));
+            inp.handle(input::InputMessage::Char('i'));
+            inp.view(theme, |_| Message::Noop)
+        }
+        "tag" => leak(tag::Tag::new("标签一")).view(theme, || Message::Noop),
+        "progress" => leak(progress::Progress::new())
+            .view(theme)
+            .map(|_| Message::Noop),
+        "card" => leak(card::Card::new("卡片内容"))
+            .view(theme)
+            .map(|_| Message::Noop),
+        "switch" => leak(switch::Switch::new()).view(theme, Message::Noop),
+        "checkbox" => leak(checkbox::Checkbox::new("选项")).view(theme, Message::Noop),
+        "radio" => leak(radio::Radio::new("选项")).view(theme, Message::Noop),
+        "slider" => {
+            leak(slider::Slider::new().with_min(0.0).with_max(100.0)).view(theme, |_| Message::Noop)
+        }
+        "rate" => leak(rate::Rate::new()).view(theme, |_| Message::Noop),
+        "link" => leak(link::Link::new().with_text("链接文字")).view(theme, Message::Noop),
+        "divider" => leak(divider::Divider::new())
+            .view(theme)
+            .map(|_| Message::Noop),
+        "empty" => leak(empty::Empty::new()).view(theme).map(|_| Message::Noop),
+        "alert" => leak(
+            alert::Alert::new()
+                .with_title("提示")
+                .with_description("这是一条提示信息"),
+        )
+        .view(theme, || Message::Noop),
+        "badge" => leak(badge::Badge::new(badge::BadgeValue::Number(5)))
+            .view(theme)
+            .map(|_| Message::Noop),
+        "text" => leak(text::Text::new().with_content("正文文字"))
+            .view(theme)
+            .map(|_| Message::Noop),
+        "breadcrumb" => leak(breadcrumb::Breadcrumb::new()).view(theme, |_| Message::Noop),
+        "statistic" => leak(statistic::Statistic::new(statistic::StatisticValue::Float(
+            1234.56,
+        )))
+        .view(theme)
+        .map(|_| Message::Noop),
+        "skeleton" => leak(skeleton::Skeleton::new())
+            .view(theme)
+            .map(|_| Message::Noop),
+        "space" => text("Space 布局组件（无独立视觉输出）")
+            .size(13)
+            .color(Color::from(theme.neutral.text_placeholder))
+            .into(),
+        "avatar" => leak(avatar::Avatar::new().with_text("U"))
+            .view(theme)
+            .map(|_| Message::Noop),
+        "result_page" => leak(result_page::ResultPage::new().with_title("操作成功"))
+            .view(theme)
+            .map(|_| Message::Noop),
+        "date_picker" => leak(date_picker::DatePicker::new()).view(theme, |_| Message::Noop),
+        "pagination" => leak(pagination::Pagination::new(100, 10)).view(theme, |_| Message::Noop),
+        "collapse" => {
+            let mut c = collapse::Collapse::new();
+            c.add_item(collapse::CollapseItem::new("item1", "面板一"));
+            c.add_item(collapse::CollapseItem::new("item2", "面板二"));
+            leak(c).view(theme, |_| Message::Noop)
+        }
+        "timeline" => leak(timeline::Timeline::new())
+            .view(theme)
+            .map(|_| Message::Noop),
+        _ => text(format!("组件 {} 默认态渲染待接入", name))
+            .size(13)
+            .color(Color::from(theme.neutral.text_placeholder))
+            .into(),
+    }
+}
+
+/// 读取 URL hash / 环境变量
+fn read_hash() -> String {
+    #[cfg(target_arch = "wasm32")]
+    {
+        web_sys::window()
+            .and_then(|w| w.location().hash().ok())
+            .map(|h| h.trim_start_matches('#').to_string())
+            .unwrap_or_default()
+    }
+    #[cfg(not(target_arch = "wasm32"))]
+    {
+        std::env::var("HARUI_COMPONENT").unwrap_or_default()
+    }
+}
+
+fn main() -> iced::Result {
     iced::application(
         || {
-            let mk = |plain: bool, round: bool| -> Vec<Button> {
-                ROW_TYPES
-                    .iter()
-                    .map(|(label, btype)| {
-                        Button::new(*label)
-                            .with_type(*btype)
-                            .plain(plain)
-                            .round(round)
-                    })
-                    .collect()
-            };
             (
                 State {
-                    theme: Theme::element_light(),
-                    solid: mk(false, false),
-                    plain: mk(true, false),
-                    round: mk(false, true),
+                    selected: read_hash(),
                 },
                 Task::none(),
             )
@@ -105,20 +256,12 @@ fn run_app() -> iced::Result {
         update,
         view,
     )
-    .title(|_state: &State| String::from("EP Parity — Button"))
+    .title(|state: &State| {
+        if state.selected.is_empty() {
+            String::from("HarUI — All Components")
+        } else {
+            format!("HarUI — {}", state.selected)
+        }
+    })
     .run()
-}
-
-/// 原生入口
-#[cfg(not(target_arch = "wasm32"))]
-fn main() -> iced::Result {
-    run_app()
-}
-
-/// Web 入口（WASM 对照管线）
-#[cfg(target_arch = "wasm32")]
-fn main() -> Result<(), wasm_bindgen::JsValue> {
-    std::panic::set_hook(Box::new(console_error_panic_hook::hook));
-    run_app().expect("ep-parity failed to run");
-    Ok(())
 }

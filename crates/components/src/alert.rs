@@ -167,8 +167,8 @@ impl Alert {
         let (icon_str, accent) = match self.alert_type {
             AlertType::Success => ("✓", Color::from(theme.success.base)),
             AlertType::Warning => ("⚠", Color::from(theme.warning.base)),
-            AlertType::Error => ("✕", Color::from(theme.danger.base)),
-            AlertType::Info => ("ℹ", Color::from(theme.info.base)),
+            AlertType::Error => ("×", Color::from(theme.danger.base)),
+            AlertType::Info => ("ⓘ", Color::from(theme.info.base)),
         };
 
         let title_color = Color::from(theme.neutral.text_primary);

@@ -299,7 +299,7 @@ impl Switch {
         // loading 时显示加载指示
         if self.loading {
             row = row.push(iced::widget::Space::new().width(Length::Fixed(6.0)));
-            row = row.push(text("⟳").color(text_color).size(14));
+            row = row.push(text("◐").color(text_color).size(14));
         }
 
         let mut btn =

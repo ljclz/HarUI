@@ -88,13 +88,13 @@ impl ResultPage {
         self.has_extra
     }
 
-    /// 按 result_type 返回 (emoji, 颜色)
+    /// 按 result_type 返回 (图标字符, 颜色)
     fn type_visual(t: ResultType, theme: &Theme) -> (&'static str, Color) {
         match t {
-            ResultType::Success => ("✅", Color::from(theme.success.base)),
-            ResultType::Warning => ("⚠️", Color::from(theme.warning.base)),
-            ResultType::Info => ("ℹ️", Color::from(theme.info.base)),
-            ResultType::Error => ("❌", Color::from(theme.danger.base)),
+            ResultType::Success => ("✓", Color::from(theme.success.base)),
+            ResultType::Warning => ("⚠", Color::from(theme.warning.base)),
+            ResultType::Info => ("ⓘ", Color::from(theme.info.base)),
+            ResultType::Error => ("×", Color::from(theme.danger.base)),
         }
     }
 
@@ -102,9 +102,9 @@ impl ResultPage {
     pub fn view<'a>(&'a self, theme: &'a Theme) -> Element<'a, ()> {
         let (default_emoji, _accent) = Self::type_visual(self.result_type, theme);
 
-        // icon: 自定义 URL 优先（iced 0.13 无内置 image，使用占位 emoji）
+        // icon: 自定义 URL 优先（iced 无内置 image，使用占位字符）
         let icon_str = if self.icon_url.is_some() {
-            "🖼"
+            "▤"
         } else {
             default_emoji
         };

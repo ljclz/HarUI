@@ -191,8 +191,8 @@ impl Notification {
         let (icon, accent) = match self.msg_type {
             NotificationType::Success => ("✓", Color::from(theme.success.base)),
             NotificationType::Warning => ("⚠", Color::from(theme.warning.base)),
-            NotificationType::Info => ("ℹ", Color::from(theme.info.base)),
-            NotificationType::Error => ("✕", Color::from(theme.danger.base)),
+            NotificationType::Info => ("ⓘ", Color::from(theme.info.base)),
+            NotificationType::Error => ("×", Color::from(theme.danger.base)),
         };
         let title_color = Color::from(theme.neutral.text_primary);
         let content_color = Color::from(theme.neutral.text_regular);

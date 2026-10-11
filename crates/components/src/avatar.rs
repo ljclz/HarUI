@@ -199,10 +199,10 @@ impl Avatar {
         let text_color = Color::from(theme.neutral.text_primary);
 
         // 内容：按 source 选择 icon/text/image
-        // iced 0.13.1 暂无内置 image widget（需 features），简化为占位
+        // iced 无内置 image widget，简化为占位字符（不依赖系统 emoji 字体）
         let content: Element<'a, ()> = match self.source {
             AvatarSource::Icon => {
-                let icon_text = self.icon.clone().unwrap_or_else(|| "👤".to_string());
+                let icon_text = self.icon.clone().unwrap_or_else(|| "◉".to_string());
                 text(icon_text).color(text_color).size(px * 0.5).into()
             }
             AvatarSource::Text => {
@@ -215,7 +215,7 @@ impl Avatar {
                 let label = if url.is_empty() {
                     "IMG".to_string()
                 } else {
-                    "🖼".to_string()
+                    "▤".to_string()
                 };
                 text(label).color(text_color).size(px * 0.4).into()
             }

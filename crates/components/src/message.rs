@@ -86,10 +86,10 @@ impl MessageItem {
         }
 
         let (icon, accent) = match self.msg_type {
-            MessageType::Info => ("ℹ", Color::from(theme.info.base)),
+            MessageType::Info => ("ⓘ", Color::from(theme.info.base)),
             MessageType::Success => ("✓", Color::from(theme.success.base)),
             MessageType::Warning => ("⚠", Color::from(theme.warning.base)),
-            MessageType::Error => ("✕", Color::from(theme.danger.base)),
+            MessageType::Error => ("×", Color::from(theme.danger.base)),
         };
         let text_color = Color::from(theme.neutral.text_primary);
         let bg = Color::from(theme.neutral.bg_overlay);

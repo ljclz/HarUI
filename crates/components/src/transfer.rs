@@ -249,9 +249,9 @@ impl Transfer {
                 );
                 for item in items {
                     let mark = if checked.contains(&item.key) {
-                        "☑"
+                        "▣"
                     } else {
-                        "☐"
+                        "▢"
                     };
                     let color = if item.disabled {
                         text_disabled

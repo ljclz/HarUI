@@ -107,13 +107,13 @@ impl Empty {
         }
     }
 
-    /// 按 image 类型选 emoji
+    /// 按 image 类型选图标字符（不依赖系统 emoji 字体）
     fn icon_emoji(image: EmptyImage) -> &'static str {
         match image {
-            EmptyImage::Default => "📭",
-            EmptyImage::Error => "⚠️",
-            EmptyImage::Network => "📡",
-            EmptyImage::Custom => "🖼",
+            EmptyImage::Default => "▤",
+            EmptyImage::Error => "⚠",
+            EmptyImage::Network => "◉",
+            EmptyImage::Custom => "▩",
         }
     }
 
@@ -121,7 +121,7 @@ impl Empty {
     pub fn view<'a>(&'a self, theme: &'a Theme) -> Element<'a, ()> {
         let icon_size = Self::icon_size(self.size);
         let icon_str = if self.image == EmptyImage::Custom && self.image_url.is_some() {
-            "🖼"
+            "▩"
         } else {
             Self::icon_emoji(self.image)
         };

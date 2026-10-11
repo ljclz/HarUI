@@ -214,18 +214,41 @@ impl Checkbox {
             Color::from(theme.neutral.border_base)
         };
 
-        // 框指示器：☐ 未选 / ☑ 已选 / ▣ 半选（用 - 减号）
-        let indicator = if self.indeterminate {
-            "▣"
-        } else if self.checked {
-            "☑"
-        } else {
-            "☐"
-        };
+        // 框指示器：绘制边框盒 + ✓/－（不依赖系统 emoji 字体，wasm 可渲染）
         let size = Self::font_size_for_size(self.size);
+        let box_side = size + 4.0;
+        let checked_bg = self.checked || self.indeterminate;
+        let indicator = container(
+            text(if self.indeterminate {
+                "－"
+            } else if self.checked {
+                "✓"
+            } else {
+                ""
+            })
+            .color(Color::WHITE)
+            .size(size),
+        )
+        .width(Length::Fixed(box_side))
+        .height(Length::Fixed(box_side))
+        .align_x(iced::alignment::Horizontal::Center)
+        .align_y(iced::alignment::Vertical::Center)
+        .style(move |_| container::Style {
+            background: if checked_bg {
+                Some(iced::Background::Color(box_color))
+            } else {
+                None
+            },
+            border: iced::Border {
+                color: box_color,
+                width: 1.0,
+                radius: iced::border::radius(3.0),
+            },
+            ..Default::default()
+        });
 
         let content = iced::widget::Row::new()
-            .push(text(indicator).color(box_color).size(size + 2.0))
+            .push(indicator)
             .push(iced::widget::Space::new().width(Length::Fixed(6.0)))
             .push(text(self.label.clone()).color(text_color).size(size))
             .align_y(iced::Alignment::Center);

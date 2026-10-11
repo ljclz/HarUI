@@ -18,6 +18,15 @@
 - **未知 hash 回退全组件列表**：ep-parity 输入非组件名（如 `#hash`）不再白屏，
   自动回退展示 71 组件全列表并提示正确格式
 
+### Fixed
+
+- **wasm 中文/符号渲染豆腐块**：ep-parity 注册 NotoSansSC 中文字体子集
+  （examples/ep-parity/fonts/，含组件库全部演示文案与状态符号），中文不再显示为乱码方块
+- **组件图标字符脱离系统 emoji 依赖**：alert/message/notification/result_page 的
+  ✕/ℹ/✅/❌/⚠️ 改为字体可渲染的 ×/ⓘ/✓/⚠；checkbox 改为绘制式边框盒（✓/－）；
+  loading 旋转改用 ◐◓◑◒ 半圆；rate 空星用 ☆；empty/avatar/text 占位改用 ▤/▩/◉；
+  transfer 勾选标记改 ▣/▢；switch 加载指示改 ◐；showcase 同步复用新字体子集
+
 ## [v1.4.0] — 2026-10-11
 
 ### Added

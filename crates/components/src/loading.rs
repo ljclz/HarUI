@@ -146,12 +146,12 @@ impl Loading {
             mask_alpha,
         ));
 
-        // 旋转字符（按当前 rotation 取近似符号）
+        // 旋转字符（按当前 rotation 取半圆符号；不使用系统 emoji 字体）
         let spinner = match (self.rotation / 90.0) as u32 % 4 {
-            0 => "◜",
-            1 => "◝",
-            2 => "◞",
-            _ => "◟",
+            0 => "◐",
+            1 => "◓",
+            2 => "◑",
+            _ => "◒",
         };
 
         let mut col_children: Vec<Element<'a, Message>> = Vec::new();

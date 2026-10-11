@@ -183,7 +183,7 @@ impl Text {
                 .push(wrapper)
                 .push(iced::widget::Space::new().width(Length::Fixed(4.0)))
                 .push(
-                    text("📋")
+                    text("▤")
                         .color(Color::from(theme.neutral.text_secondary))
                         .size(12.0),
                 )

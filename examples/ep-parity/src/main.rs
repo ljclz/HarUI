@@ -624,5 +624,7 @@ fn main() -> iced::Result {
             format!("HarUI — {}", s.selected)
         }
     })
+    // 注册中文字体子集（wasm 无系统字体回退，不注册则中文/符号渲染为豆腐块）
+    .font(include_bytes!("../fonts/NotoSansSC-HarUI-subset.otf").as_slice())
     .run()
 }

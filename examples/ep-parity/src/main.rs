@@ -245,6 +245,99 @@ fn render(name: &str, t: &'static Theme) -> Element<'static, Message> {
             a.handle(autocomplete::AutocompleteMessage::Char('上'));
             a.view(t, |_| Message::Noop)
         }
+        "affix" => leak(affix::Affix::new()).view(t, text("固定内容").size(14).into()),
+        "backtop" => leak(backtop::Backtop::new()).view(t, Message::Noop),
+        "calendar" => text("Calendar 组件")
+            .size(13)
+            .color(Color::from(t.neutral.text_placeholder))
+            .into(),
+        "carousel" => leak(carousel::Carousel::new()).view(t, || Message::Noop, || Message::Noop),
+        "cascader" => text("Cascader 组件")
+            .size(13)
+            .color(Color::from(t.neutral.text_placeholder))
+            .into(),
+        "color_picker" => leak(color_picker::ColorPicker::new())
+            .view(t)
+            .map(|_| Message::Noop),
+        "customer_display" => leak(customer_display::CustomerDisplay::new())
+            .view(t)
+            .map(|_| Message::Noop),
+        "descriptions" => text("Descriptions 组件")
+            .size(13)
+            .color(Color::from(t.neutral.text_placeholder))
+            .into(),
+        "drawer" => leak(drawer::Drawer::new()).view(t, || Message::Noop),
+        "grid" => text("Grid 组件")
+            .size(13)
+            .color(Color::from(t.neutral.text_placeholder))
+            .into(),
+        "hang_order" => {
+            leak(hang_order::HangOrder::new()).view(t, |_| Message::Noop, |_| Message::Noop)
+        }
+        "keypad" => leak(keypad::Keypad::new()).view(t, |_| Message::Noop),
+        "page_header" => leak(page_header::PageHeader::new()).view(t, || Message::Noop),
+        "popover" => leak(popover::Popover::new())
+            .view(t, text("气泡内容").size(13).into(), || Message::Noop)
+            .map(|_| Message::Noop),
+        "scrollbar" => text("Scrollbar 组件")
+            .size(13)
+            .color(Color::from(t.neutral.text_placeholder))
+            .into(),
+        "status_bar" => text("StatusBar 组件")
+            .size(13)
+            .color(Color::from(t.neutral.text_placeholder))
+            .into(),
+        "time_picker" => leak(time_picker::TimePicker::new()).view(t, |_| Message::Noop),
+        "tooltip" => text("Tooltip 组件")
+            .size(13)
+            .color(Color::from(t.neutral.text_placeholder))
+            .into(),
+        "tour" => {
+            let tr = leak(
+                tour::Tour::new()
+                    .with_step(tour::TourStep::new("欢迎", "引导第一步"))
+                    .with_step(tour::TourStep::new("完成", "引导结束")),
+            );
+            tr.handle(tour::TourMessage::Open);
+            tr.view(t, |_| Message::Noop)
+        }
+        "transfer" => leak(transfer::Transfer::new(vec![
+            transfer::TransferItem::new("a", "选项A", transfer::Side::Left),
+            transfer::TransferItem::new("b", "选项B", transfer::Side::Left),
+        ]))
+        .view(t, |_| Message::Noop),
+        "tree" => leak(tree::Tree::new().with_data(vec![
+            tree::TreeNode::new("1", "根节点").with_child(tree::TreeNode::new("1-1", "子节点")),
+        ]))
+        .view(t, |_| Message::Noop, |_| Message::Noop),
+        "tree_select" => leak(tree_select::TreeSelect::new()).view(t, |_| Message::Noop),
+        "watermark" => text("Watermark 组件")
+            .size(13)
+            .color(Color::from(t.neutral.text_placeholder))
+            .into(),
+        "form" => text("Form 组件")
+            .size(13)
+            .color(Color::from(t.neutral.text_placeholder))
+            .into(),
+        "menu" => text("Menu 组件")
+            .size(13)
+            .color(Color::from(t.neutral.text_placeholder))
+            .into(),
+        "message_box" => text("MessageBox 组件")
+            .size(13)
+            .color(Color::from(t.neutral.text_placeholder))
+            .into(),
+        "notification" => text("Notification 组件")
+            .size(13)
+            .color(Color::from(t.neutral.text_placeholder))
+            .into(),
+        "payment" => {
+            leak(payment::Payment::new(100.0)).view(t, |_| Message::Noop, || Message::Noop)
+        }
+        "table" => text("Table 组件（虚拟滚动 + 冻结列）")
+            .size(13)
+            .color(Color::from(t.neutral.text_placeholder))
+            .into(),
         _ => text(format!("{} — 已对齐 API/令牌/wasm", name))
             .size(13)
             .color(Color::from(t.neutral.text_placeholder))

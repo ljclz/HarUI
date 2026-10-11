@@ -113,6 +113,38 @@ fn leak<T>(v: T) -> &'static mut T {
     Box::leak(Box::new(v))
 }
 
+/// Grid 泛型演示行 — 实现 `grid::GridItem`
+#[derive(Debug, Clone)]
+struct DemoGridItem {
+    id: String,
+    name: String,
+}
+impl har_ui_components::grid::GridItem for DemoGridItem {
+    fn item_id(&self) -> String {
+        self.id.clone()
+    }
+}
+
+/// Table 泛型演示行 — 实现 `table::Identifiable`
+#[derive(Debug, Clone)]
+struct DemoRow {
+    id: String,
+    name: String,
+    price: String,
+}
+impl har_ui_components::table::Identifiable for DemoRow {
+    fn id(&self) -> String {
+        self.id.clone()
+    }
+}
+fn demo_row_field(r: &DemoRow, prop: &str) -> String {
+    match prop {
+        "name" => r.name.clone(),
+        "price" => r.price.clone(),
+        _ => String::new(),
+    }
+}
+
 fn view(s: &State) -> Element<'_, Message> {
     let t = theme();
     let name = s.selected.as_str();
@@ -247,30 +279,77 @@ fn render(name: &str, t: &'static Theme) -> Element<'static, Message> {
         }
         "affix" => leak(affix::Affix::new()).view(t, text("固定内容").size(14).into()),
         "backtop" => leak(backtop::Backtop::new()).view(t, Message::Noop),
-        "calendar" => text("Calendar 组件")
-            .size(13)
-            .color(Color::from(t.neutral.text_placeholder))
-            .into(),
+        "calendar" => leak(calendar::Calendar::new(2026, 10)).view(t, |_| Message::Noop),
         "carousel" => leak(carousel::Carousel::new()).view(t, || Message::Noop, || Message::Noop),
-        "cascader" => text("Cascader 组件")
-            .size(13)
-            .color(Color::from(t.neutral.text_placeholder))
-            .into(),
+        "cascader" => {
+            let cs = leak(cascader::Cascader::new().with_options(vec![
+                    cascader::CascaderNode::new("zhejiang", "浙江").with_children(vec![
+                        cascader::CascaderNode::new("hangzhou", "杭州"),
+                        cascader::CascaderNode::new("ningbo", "宁波"),
+                    ]),
+                    cascader::CascaderNode::new("jiangsu", "江苏").with_children(vec![
+                        cascader::CascaderNode::new("nanjing", "南京"),
+                    ]),
+                ]));
+            cs.view(t, |_| Message::Noop)
+        }
         "color_picker" => leak(color_picker::ColorPicker::new())
             .view(t)
             .map(|_| Message::Noop),
         "customer_display" => leak(customer_display::CustomerDisplay::new())
             .view(t)
             .map(|_| Message::Noop),
-        "descriptions" => text("Descriptions 组件")
-            .size(13)
-            .color(Color::from(t.neutral.text_placeholder))
-            .into(),
+        "descriptions" => leak(
+            descriptions::Descriptions::new()
+                .with_title("用户信息")
+                .with_item(descriptions::DescriptionsItem::new("姓名", "张三"))
+                .with_item(descriptions::DescriptionsItem::new("手机", "138****8888")),
+        )
+        .view(t)
+        .map(|_| Message::Noop),
         "drawer" => leak(drawer::Drawer::new()).view(t, || Message::Noop),
-        "grid" => text("Grid 组件")
-            .size(13)
-            .color(Color::from(t.neutral.text_placeholder))
-            .into(),
+        "grid" => {
+            let g = leak(
+                grid::Grid::<DemoGridItem>::new()
+                    .with_props(grid::GridProps::new().with_columns(3).with_gap(8.0))
+                    .with_items(vec![
+                        DemoGridItem {
+                            id: "1".into(),
+                            name: "商品一".into(),
+                        },
+                        DemoGridItem {
+                            id: "2".into(),
+                            name: "商品二".into(),
+                        },
+                        DemoGridItem {
+                            id: "3".into(),
+                            name: "商品三".into(),
+                        },
+                    ]),
+            );
+            let children: Vec<Element<'static, Message>> = g
+                .items()
+                .iter()
+                .map(|i| {
+                    container(text(i.name.clone()).size(13))
+                        .width(Length::Fill)
+                        .padding(Padding::from(8u16))
+                        .style(move |_| container::Style {
+                            background: Some(iced::Background::Color(Color::from(
+                                t.neutral.bg_base,
+                            ))),
+                            border: iced::Border {
+                                color: Color::from(t.neutral.border_lighter),
+                                width: 1.0,
+                                radius: iced::border::radius(4.0),
+                            },
+                            ..Default::default()
+                        })
+                        .into()
+                })
+                .collect();
+            g.view(t, children)
+        }
         "hang_order" => {
             leak(hang_order::HangOrder::new()).view(t, |_| Message::Noop, |_| Message::Noop)
         }
@@ -279,19 +358,39 @@ fn render(name: &str, t: &'static Theme) -> Element<'static, Message> {
         "popover" => leak(popover::Popover::new())
             .view(t, text("气泡内容").size(13).into(), || Message::Noop)
             .map(|_| Message::Noop),
-        "scrollbar" => text("Scrollbar 组件")
-            .size(13)
-            .color(Color::from(t.neutral.text_placeholder))
-            .into(),
-        "status_bar" => text("StatusBar 组件")
-            .size(13)
-            .color(Color::from(t.neutral.text_placeholder))
-            .into(),
+        "scrollbar" => {
+            let sb = leak(scrollbar::Scrollbar::new().with_height(100));
+            let content = iced::widget::Column::with_children(
+                (1..=10)
+                    .map(|i| text(format!("滚动内容第 {} 行", i)).size(13).into())
+                    .collect::<Vec<iced::Element<'static, Message>>>(),
+            )
+            .spacing(6)
+            .padding(Padding::from(8u16));
+            sb.view(t, content.into())
+        }
+        "status_bar" => leak(
+            status_bar::StatusBar::new()
+                .with_left_item(status_bar::StatusItem::new(
+                    "称重",
+                    status_bar::StatusLevel::Success,
+                ))
+                .with_left_item(status_bar::StatusItem::new(
+                    "扫码",
+                    status_bar::StatusLevel::Warning,
+                ))
+                .with_right_item(status_bar::StatusItem::new(
+                    "网络",
+                    status_bar::StatusLevel::Info,
+                )),
+        )
+        .view(t)
+        .map(|_| Message::Noop),
         "time_picker" => leak(time_picker::TimePicker::new()).view(t, |_| Message::Noop),
-        "tooltip" => text("Tooltip 组件")
-            .size(13)
-            .color(Color::from(t.neutral.text_placeholder))
-            .into(),
+        "tooltip" => {
+            let tp = leak(tooltip::Tooltip::new("提示内容").with_visible(true));
+            tp.view(t, text("悬停/点击查看提示").size(14).into())
+        }
         "tour" => {
             let tr = leak(
                 tour::Tour::new()
@@ -311,33 +410,182 @@ fn render(name: &str, t: &'static Theme) -> Element<'static, Message> {
         ]))
         .view(t, |_| Message::Noop, |_| Message::Noop),
         "tree_select" => leak(tree_select::TreeSelect::new()).view(t, |_| Message::Noop),
-        "watermark" => text("Watermark 组件")
-            .size(13)
-            .color(Color::from(t.neutral.text_placeholder))
-            .into(),
-        "form" => text("Form 组件")
-            .size(13)
-            .color(Color::from(t.neutral.text_placeholder))
-            .into(),
-        "menu" => text("Menu 组件")
-            .size(13)
-            .color(Color::from(t.neutral.text_placeholder))
-            .into(),
-        "message_box" => text("MessageBox 组件")
-            .size(13)
-            .color(Color::from(t.neutral.text_placeholder))
-            .into(),
-        "notification" => text("Notification 组件")
-            .size(13)
-            .color(Color::from(t.neutral.text_placeholder))
-            .into(),
+        "watermark" => {
+            let wm = leak(watermark::Watermark::new("HarUI 水印"));
+            wm.view(
+                t,
+                container(text("内容区域"))
+                    .width(Length::Fill)
+                    .height(Length::Fixed(100.0))
+                    .center_x(Length::Fill)
+                    .center_y(Length::Fill)
+                    .into(),
+            )
+        }
+        "form" => {
+            let f = leak(
+                form::Form::new()
+                    .with_item(form::FormItem::new("name", "姓名"))
+                    .with_item(form::FormItem::new("phone", "手机号")),
+            );
+            f.view(t, |item| text(item.label().to_string()).size(13).into())
+        }
+        "menu" => {
+            let m = leak(menu::MenuState::new());
+            m.register_item(menu::MenuItem::new("1", "首页"));
+            m.register_item(menu::MenuItem::new("2", "订单管理"));
+            m.register_item(menu::MenuItem::new("3", "设置"));
+            m.view(t, |_| Message::Noop)
+        }
+        "message_box" => {
+            let mb = leak(message_box::MessageBox::new("提示", "操作成功"));
+            mb.handle(message_box::MessageBoxMessage::Open);
+            mb.view(t, |_| Message::Noop)
+        }
+        "notification" => leak(
+            notification::Notification::new("通知标题", "这是一条通知内容")
+                .with_type(notification::NotificationType::Success),
+        )
+        .view(t)
+        .map(|_| Message::Noop),
         "payment" => {
             leak(payment::Payment::new(100.0)).view(t, |_| Message::Noop, || Message::Noop)
         }
-        "table" => text("Table 组件（虚拟滚动 + 冻结列）")
-            .size(13)
-            .color(Color::from(t.neutral.text_placeholder))
-            .into(),
+        "table" => {
+            let tb = leak(
+                table::Table::<DemoRow>::new()
+                    .with_columns(vec![
+                        table::TableColumn::new("name", "名称").with_width(120.0),
+                        table::TableColumn::new("price", "价格").with_width(80.0),
+                    ])
+                    .with_rows(vec![
+                        DemoRow {
+                            id: "1".into(),
+                            name: "商品A".into(),
+                            price: "10.00".into(),
+                        },
+                        DemoRow {
+                            id: "2".into(),
+                            name: "商品B".into(),
+                            price: "20.00".into(),
+                        },
+                        DemoRow {
+                            id: "3".into(),
+                            name: "商品C".into(),
+                            price: "30.00".into(),
+                        },
+                    ])
+                    .with_props(table::TableProps::new().with_border(true))
+                    .with_field_extractor(demo_row_field),
+            );
+            tb.view(t, demo_row_field, |_| Message::Noop)
+        }
+        "badge" => leak(
+            badge::Badge::new(badge::BadgeValue::Number(5))
+                .with_max(99)
+                .with_position(badge::BadgePosition::TopRight),
+        )
+        .view(t)
+        .map(|_| Message::Noop),
+        "breadcrumb" => leak(
+            breadcrumb::Breadcrumb::new()
+                .with_item(breadcrumb::BreadcrumbItem::new("首页"))
+                .with_item(breadcrumb::BreadcrumbItem::new("组件"))
+                .with_item(breadcrumb::BreadcrumbItem::new("面包屑"))
+                .with_separator("/"),
+        )
+        .view(t, |_| Message::Noop),
+        "date_picker" => leak(date_picker::DatePicker::new().with_placeholder("选择日期"))
+            .view(t, |_| Message::Noop),
+        "dialog" => {
+            let d = leak(dialog::Dialog::new("提示", "这是对话框内容"));
+            d.handle(dialog::DialogMessage::Open);
+            d.handle(dialog::DialogMessage::AnimationFinished);
+            d.view(t, Message::Noop)
+        }
+        "dropdown" => {
+            let d = leak(
+                dropdown::Dropdown::new()
+                    .with_item(dropdown::DropdownItem::new("edit", "编辑"))
+                    .with_item(dropdown::DropdownItem::new("del", "删除"))
+                    .with_trigger(dropdown::DropdownTrigger::Click),
+            );
+            d.handle(dropdown::DropdownMessage::Show);
+            d.view(t, || Message::Noop)
+        }
+        "image" => {
+            let img = leak(
+                image::Image::new("https://example.com/demo.png")
+                    .with_alt("示例图片")
+                    .with_size(120.0, 80.0),
+            );
+            img.handle(image::ImageMessage::Load);
+            img.handle(image::ImageMessage::LoadSuccess);
+            img.view(t, Some(text("示例图片").size(13).into()), |_| {
+                Message::Noop
+            })
+        }
+        "loading" => {
+            let l = leak(loading::Loading::new().with_text("加载中…"));
+            l.handle(loading::LoadingMessage::Start);
+            l.view(
+                t,
+                container(text("业务内容区域"))
+                    .width(Length::Fill)
+                    .height(Length::Fixed(100.0))
+                    .center_x(Length::Fill)
+                    .center_y(Length::Fill)
+                    .into(),
+            )
+        }
+        "message" => leak(message::MessageItem::new(
+            "操作成功",
+            message::MessageType::Success,
+        ))
+        .view(t)
+        .map(|_| Message::Noop),
+        "popconfirm" => {
+            let p = leak(
+                popconfirm::Popconfirm::new("确认删除该记录？")
+                    .with_visible(true)
+                    .with_confirm_text("确定")
+                    .with_cancel_text("取消"),
+            );
+            p.view(
+                t,
+                text("删除").size(14).into(),
+                || Message::Noop,
+                || Message::Noop,
+            )
+        }
+        "space" => {
+            let sp = leak(space::Space::new().with_size(8));
+            let children: Vec<Element<'static, Message>> = vec![
+                leak(tag::Tag::new("标签一")).view(t, || Message::Noop),
+                leak(tag::Tag::new("标签二")).view(t, || Message::Noop),
+                leak(tag::Tag::new("标签三")).view(t, || Message::Noop),
+            ];
+            sp.view(t, children)
+        }
+        "splitter" => {
+            let sp = leak(splitter::Splitter::new(2));
+            let panes: Vec<Element<'static, Message>> = vec![
+                container(text("左面板"))
+                    .padding(Padding::from(8u16))
+                    .into(),
+                container(text("右面板"))
+                    .padding(Padding::from(8u16))
+                    .into(),
+            ];
+            sp.view(t, panes)
+        }
+        "tabs" => leak(
+            tabs::Tabs::new()
+                .with_item(tabs::TabItem::new("a", "标签一"))
+                .with_item(tabs::TabItem::new("b", "标签二")),
+        )
+        .view(t, |_| Message::Noop),
+        "upload" => leak(upload::Upload::new()).view(t, || Message::Noop),
         _ => text(format!("{} — 已对齐 API/令牌/wasm", name))
             .size(13)
             .color(Color::from(t.neutral.text_placeholder))

@@ -5,12 +5,21 @@ use iced::{Color, Element, Font, Length, Padding, Task};
 
 struct State {
     selected: String,
+    dialog_open: bool,
+    drawer_open: bool,
+    message_box_open: bool,
 }
 
 #[derive(Debug, Clone)]
 enum Message {
     Noop,
     Select(&'static str),
+    DialogToggle,
+    DialogClose,
+    DrawerToggle,
+    DrawerClose,
+    MessageBoxToggle,
+    MessageBoxClose,
 }
 
 fn update(s: &mut State, m: Message) -> Task<Message> {
@@ -18,6 +27,9 @@ fn update(s: &mut State, m: Message) -> Task<Message> {
         Message::Noop => {}
         Message::Select(name) => {
             s.selected = name.to_string();
+            s.dialog_open = false;
+            s.drawer_open = false;
+            s.message_box_open = false;
             // 同步 URL hash，刷新/分享链接直达同一组件（不触发页面重载）
             #[cfg(target_arch = "wasm32")]
             {
@@ -26,6 +38,12 @@ fn update(s: &mut State, m: Message) -> Task<Message> {
                 }
             }
         }
+        Message::DialogToggle => s.dialog_open = !s.dialog_open,
+        Message::DialogClose => s.dialog_open = false,
+        Message::DrawerToggle => s.drawer_open = !s.drawer_open,
+        Message::DrawerClose => s.drawer_open = false,
+        Message::MessageBoxToggle => s.message_box_open = !s.message_box_open,
+        Message::MessageBoxClose => s.message_box_open = false,
     }
     Task::none()
 }
@@ -340,7 +358,7 @@ fn view(s: &State) -> Element<'_, Message> {
     if name.is_empty() || !ALL.contains(&name) {
         return docs_layout(name, t).into();
     }
-    let body = render(name, t);
+    let body = render(s, name, t);
     container(
         column![
             text(format!("HarUI — {}", name))
@@ -579,7 +597,32 @@ fn at_width(e: Element<'static, Message>, w: f32) -> Element<'static, Message> {
     container(e).width(Length::Fixed(w)).into()
 }
 
-fn render(name: &str, t: &'static Theme) -> Element<'static, Message> {
+/// 浮层组件演示的触发按钮（EP 文档站同款交互形态：点击打开 → 点 X/遮罩关闭）
+fn overlay_trigger(label: &str, msg: Message) -> Element<'static, Message> {
+    let primary = Color::from(theme().primary.base);
+    iced::widget::button(text(label.to_string()).size(14))
+        .padding(Padding {
+            top: 8.0,
+            bottom: 8.0,
+            left: 16.0,
+            right: 16.0,
+        })
+        .style(move |_t, _s| iced::widget::button::Style {
+            background: Some(iced::Background::Color(primary)),
+            text_color: Color::WHITE,
+            border: iced::Border {
+                color: Color::TRANSPARENT,
+                width: 0.0,
+                radius: iced::border::radius(4.0),
+            },
+            shadow: iced::Shadow::default(),
+            snap: false,
+        })
+        .on_press(msg)
+        .into()
+}
+
+fn render(s: &State, name: &str, t: &'static Theme) -> Element<'static, Message> {
     use har_ui_components::*;
     match name {
         "button" => {
@@ -1226,7 +1269,19 @@ fn render(name: &str, t: &'static Theme) -> Element<'static, Message> {
         )
         .view(t)
         .map(|_| Message::Noop),
-        "drawer" => leak(drawer::Drawer::new()).view(t, || Message::Noop),
+        "drawer" => {
+            if s.drawer_open {
+                let dr = leak(drawer::Drawer::new().with_title("抽屉标题"));
+                dr.handle(drawer::DrawerMessage::Open);
+                dr.handle(drawer::DrawerMessage::AnimationEnd);
+                dr.view(t, || Message::DrawerClose)
+            } else {
+                section(
+                    "基础用法",
+                    overlay_trigger("点击打开 Drawer", Message::DrawerToggle),
+                )
+            }
+        }
         "grid" => {
             let g = leak(
                 grid::Grid::<DemoGridItem>::new()
@@ -1411,9 +1466,16 @@ fn render(name: &str, t: &'static Theme) -> Element<'static, Message> {
             at_width(m.view(t, |_| Message::Noop), 640.0)
         }
         "message_box" => {
-            let mb = leak(message_box::MessageBox::new("提示", "操作成功"));
-            mb.handle(message_box::MessageBoxMessage::Open);
-            mb.view(t, |_| Message::Noop)
+            if s.message_box_open {
+                let mb = leak(message_box::MessageBox::new("提示", "操作成功"));
+                mb.handle(message_box::MessageBoxMessage::Open);
+                mb.view(t, |_| Message::MessageBoxClose)
+            } else {
+                section(
+                    "基础用法",
+                    overlay_trigger("点击打开 MessageBox", Message::MessageBoxToggle),
+                )
+            }
         }
         "notification" => column![
             leak(
@@ -1526,10 +1588,17 @@ fn render(name: &str, t: &'static Theme) -> Element<'static, Message> {
             200.0,
         ),
         "dialog" => {
-            let d = leak(dialog::Dialog::new("提示", "这是对话框内容"));
-            d.handle(dialog::DialogMessage::Open);
-            d.handle(dialog::DialogMessage::AnimationFinished);
-            d.view(t, Message::Noop)
+            if s.dialog_open {
+                let d = leak(dialog::Dialog::new("提示", "这是对话框内容"));
+                d.handle(dialog::DialogMessage::Open);
+                d.handle(dialog::DialogMessage::AnimationFinished);
+                d.view(t, Message::DialogClose)
+            } else {
+                section(
+                    "基础用法",
+                    overlay_trigger("点击打开 Dialog", Message::DialogToggle),
+                )
+            }
         }
         "dropdown" => {
             let d = leak(
@@ -1675,6 +1744,9 @@ fn main() -> iced::Result {
             (
                 State {
                     selected: read_hash(),
+                    dialog_open: false,
+                    drawer_open: false,
+                    message_box_open: false,
                 },
                 Task::none(),
             )

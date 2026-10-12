@@ -317,6 +317,7 @@ struct DemoRow {
     id: String,
     name: String,
     price: String,
+    stock: String,
 }
 impl har_ui_components::table::Identifiable for DemoRow {
     fn id(&self) -> String {
@@ -327,6 +328,7 @@ fn demo_row_field(r: &DemoRow, prop: &str) -> String {
     match prop {
         "name" => r.name.clone(),
         "price" => r.price.clone(),
+        "stock" => r.stock.clone(),
         _ => String::new(),
     }
 }
@@ -768,9 +770,15 @@ fn render(name: &str, t: &'static Theme) -> Element<'static, Message> {
         .spacing(16)
         .padding(Padding::from(16u16))
         .into(),
-        "card" => leak(card::Card::new("卡片内容"))
+        "card" => at_width(
+            leak(
+                card::Card::new("今日销售额较昨日增长 12%，客单价 35.6 元。")
+                    .with_header("经营概况"),
+            )
             .view(t)
             .map(|_| Message::Noop),
+            480.0,
+        ),
         "switch" => row![
             leak(switch::Switch::new()).view(t, Message::Noop),
             leak(switch::Switch::with_value(true)).view(t, Message::Noop),
@@ -979,11 +987,32 @@ fn render(name: &str, t: &'static Theme) -> Element<'static, Message> {
         "text" => leak(text::Text::new().with_content("正文文字"))
             .view(t)
             .map(|_| Message::Noop),
-        "statistic" => leak(statistic::Statistic::new(statistic::StatisticValue::Float(
-            1234.56,
-        )))
-        .view(t)
-        .map(|_| Message::Noop),
+        "statistic" => row![
+            leak(
+                statistic::Statistic::new(statistic::StatisticValue::Int(65321))
+                    .with_title("今日订单")
+            )
+            .view(t)
+            .map(|_| Message::Noop),
+            leak(
+                statistic::Statistic::new(statistic::StatisticValue::Float(35.6))
+                    .with_title("客单价（元）")
+                    .with_precision(1)
+            )
+            .view(t)
+            .map(|_| Message::Noop),
+            leak(
+                statistic::Statistic::new(statistic::StatisticValue::Float(12.8))
+                    .with_title("同比增长")
+                    .with_suffix("%")
+                    .with_precision(1)
+            )
+            .view(t)
+            .map(|_| Message::Noop),
+        ]
+        .spacing(32)
+        .padding(Padding::from(16u16))
+        .into(),
         "skeleton" => leak(skeleton::Skeleton::new())
             .view(t)
             .map(|_| Message::Noop),
@@ -1068,8 +1097,16 @@ fn render(name: &str, t: &'static Theme) -> Element<'static, Message> {
         }
         "countdown" => leak(countdown::Countdown::new(60_000)).view(t, |_| Message::Noop),
         "input_number" => {
-            let i = leak(input_number::InputNumber::new());
-            i.view(t, |_| Message::Noop, Message::Noop, Message::Noop)
+            let i = leak(
+                input_number::InputNumber::new()
+                    .with_min(1.0)
+                    .with_max(10.0),
+            );
+            i.handle(input_number::InputNumberMessage::SetValue(3.0));
+            at_width(
+                i.view(t, |_| Message::Noop, Message::Noop, Message::Noop),
+                180.0,
+            )
         }
         "input_tag" => {
             let it = leak(input_tag::InputTag::new().with_placeholder("输入后回车"));
@@ -1077,7 +1114,7 @@ fn render(name: &str, t: &'static Theme) -> Element<'static, Message> {
                 "标签1".into(),
                 "标签2".into(),
             ]));
-            it.view(t, |_| Message::Noop)
+            at_width(it.view(t, |_| Message::Noop), 280.0)
         }
         "steps" => {
             let st = leak(
@@ -1103,7 +1140,7 @@ fn render(name: &str, t: &'static Theme) -> Element<'static, Message> {
                 "深圳".into(),
             ]));
             a.handle(autocomplete::AutocompleteMessage::Char('上'));
-            a.view(t, |_| Message::Noop)
+            at_width(a.view(t, |_| Message::Noop), 220.0)
         }
         "affix" => leak(affix::Affix::new()).view(t, text("固定内容").size(14).into()),
         "backtop" => leak(backtop::Backtop::new()).view(t, Message::Noop),
@@ -1130,7 +1167,7 @@ fn render(name: &str, t: &'static Theme) -> Element<'static, Message> {
                         cascader::CascaderNode::new("nanjing", "南京"),
                     ]),
                 ]));
-            cs.view(t, |_| Message::Noop)
+            at_width(cs.view(t, |_| Message::Noop), 220.0)
         }
         "color_picker" => leak(color_picker::ColorPicker::new())
             .view(t)
@@ -1198,7 +1235,12 @@ fn render(name: &str, t: &'static Theme) -> Element<'static, Message> {
             leak(hang_order::HangOrder::new()).view(t, |_| Message::Noop, |_| Message::Noop)
         }
         "keypad" => leak(keypad::Keypad::new()).view(t, |_| Message::Noop),
-        "page_header" => leak(page_header::PageHeader::new()).view(t, || Message::Noop),
+        "page_header" => leak(
+            page_header::PageHeader::new()
+                .with_title("返回上一级")
+                .with_content("门店详情"),
+        )
+        .view(t, || Message::Noop),
         "popover" => leak(popover::Popover::new())
             .view(t, text("气泡内容").size(13).into(), || Message::Noop)
             .map(|_| Message::Noop),
@@ -1230,7 +1272,10 @@ fn render(name: &str, t: &'static Theme) -> Element<'static, Message> {
         )
         .view(t)
         .map(|_| Message::Noop),
-        "time_picker" => leak(time_picker::TimePicker::new()).view(t, |_| Message::Noop),
+        "time_picker" => at_width(
+            leak(time_picker::TimePicker::new()).view(t, |_| Message::Noop),
+            200.0,
+        ),
         "tooltip" => {
             let tp = leak(tooltip::Tooltip::new("提示内容").with_visible(true));
             tp.view(t, text("悬停/点击查看提示").size(14).into())
@@ -1244,11 +1289,24 @@ fn render(name: &str, t: &'static Theme) -> Element<'static, Message> {
             tr.handle(tour::TourMessage::Open);
             tr.view(t, |_| Message::Noop)
         }
-        "transfer" => leak(transfer::Transfer::new(vec![
-            transfer::TransferItem::new("a", "选项A", transfer::Side::Left),
-            transfer::TransferItem::new("b", "选项B", transfer::Side::Left),
-        ]))
-        .view(t, |_| Message::Noop),
+        "transfer" => {
+            let tr = leak(
+                transfer::Transfer::new(vec![
+                    transfer::TransferItem::new("a", "有机蔬菜", transfer::Side::Left),
+                    transfer::TransferItem::new("b", "新鲜水果", transfer::Side::Left),
+                    transfer::TransferItem::new("c", "肉禽蛋品", transfer::Side::Left),
+                    transfer::TransferItem::new("d", "海鲜水产", transfer::Side::Left),
+                    transfer::TransferItem::new("e", "粮油副食", transfer::Side::Left),
+                    transfer::TransferItem::new("f", "休闲零食", transfer::Side::Left),
+                ])
+                .with_titles("全部类目", "已选类目"),
+            );
+            tr.handle(transfer::TransferMessage::ToggleCheckLeft("a".into()));
+            tr.handle(transfer::TransferMessage::ToggleCheckLeft("c".into()));
+            tr.handle(transfer::TransferMessage::ToRight);
+            tr.handle(transfer::TransferMessage::ToggleCheckLeft("a".into()));
+            at_width(tr.view(t, |_| Message::Noop), 640.0)
+        }
         "tree" => leak(tree::Tree::new().with_data(vec![
             tree::TreeNode::new("1", "一级 1").with_child(tree::TreeNode::new("1-1", "二级 1-1")
                 .with_child(tree::TreeNode::new("1-1-1", "三级 1-1-1"))),
@@ -1259,7 +1317,13 @@ fn render(name: &str, t: &'static Theme) -> Element<'static, Message> {
             ),
         ]))
         .view(t, |_| Message::Noop, |_| Message::Noop),
-        "tree_select" => leak(tree_select::TreeSelect::new()).view(t, |_| Message::Noop),
+        "tree_select" => {
+            let ts = leak(tree_select::TreeSelect::new().with_data(vec![
+                    tree::TreeNode::new("1", "一级 1")
+                        .with_child(tree::TreeNode::new("1-1", "二级 1-1")),
+                ]));
+            at_width(ts.view(t, |_| Message::Noop), 220.0)
+        }
         "watermark" => {
             let wm = leak(watermark::Watermark::new("HarUI 水印"));
             wm.view(
@@ -1275,17 +1339,31 @@ fn render(name: &str, t: &'static Theme) -> Element<'static, Message> {
         "form" => {
             let f = leak(
                 form::Form::new()
-                    .with_item(form::FormItem::new("name", "姓名"))
-                    .with_item(form::FormItem::new("phone", "手机号")),
+                    .with_item(form::FormItem::new("name", "活动名称"))
+                    .with_item(form::FormItem::new("region", "活动区域"))
+                    .with_item(form::FormItem::new("phone", "联系电话")),
             );
-            f.view(t, |item| text(item.label().to_string()).size(13).into())
+            at_width(
+                f.view(t, |item| {
+                    leak(input::Input::new().with_placeholder(format!("请输入{}", item.label())))
+                        .view(t, |_| Message::Noop)
+                }),
+                560.0,
+            )
         }
         "menu" => {
-            let m = leak(menu::MenuState::new());
+            let m = leak(menu::MenuState::new().with_mode(menu::MenuMode::Horizontal));
             m.register_item(menu::MenuItem::new("1", "首页"));
-            m.register_item(menu::MenuItem::new("2", "订单管理"));
-            m.register_item(menu::MenuItem::new("3", "设置"));
-            m.view(t, |_| Message::Noop)
+            m.register_item(
+                menu::MenuItem::new("2", "订单管理").with_child(
+                    menu::MenuItem::new("2-1", "订单列表")
+                        .with_child(menu::MenuItem::new("2-1-1", "待支付")),
+                ),
+            );
+            m.register_item(menu::MenuItem::new("3", "商品管理"));
+            m.register_item(menu::MenuItem::new("4", "会员中心"));
+            m.handle(menu::MenuMessage::Select("1".into()));
+            at_width(m.view(t, |_| Message::Noop), 640.0)
         }
         "message_box" => {
             let mb = leak(message_box::MessageBox::new("提示", "操作成功"));
@@ -1319,33 +1397,50 @@ fn render(name: &str, t: &'static Theme) -> Element<'static, Message> {
             leak(payment::Payment::new(100.0)).view(t, |_| Message::Noop, || Message::Noop)
         }
         "table" => {
+            let rows = vec![
+                DemoRow {
+                    id: "1".into(),
+                    name: "有机番茄".into(),
+                    price: "6.80".into(),
+                    stock: "128".into(),
+                },
+                DemoRow {
+                    id: "2".into(),
+                    name: "黄瓜".into(),
+                    price: "3.50".into(),
+                    stock: "76".into(),
+                },
+                DemoRow {
+                    id: "3".into(),
+                    name: "本地土鸡蛋".into(),
+                    price: "18.00".into(),
+                    stock: "42".into(),
+                },
+                DemoRow {
+                    id: "4".into(),
+                    name: "五花猪肉".into(),
+                    price: "26.50".into(),
+                    stock: "18".into(),
+                },
+                DemoRow {
+                    id: "5".into(),
+                    name: "鲜活鲫鱼".into(),
+                    price: "15.90".into(),
+                    stock: "9".into(),
+                },
+            ];
             let tb = leak(
                 table::Table::<DemoRow>::new()
                     .with_columns(vec![
-                        table::TableColumn::new("name", "名称").with_width(120.0),
-                        table::TableColumn::new("price", "价格").with_width(80.0),
+                        table::TableColumn::new("name", "名称").with_width(160.0),
+                        table::TableColumn::new("price", "单价（元）").with_width(120.0),
+                        table::TableColumn::new("stock", "库存").with_width(100.0),
                     ])
-                    .with_rows(vec![
-                        DemoRow {
-                            id: "1".into(),
-                            name: "商品A".into(),
-                            price: "10.00".into(),
-                        },
-                        DemoRow {
-                            id: "2".into(),
-                            name: "商品B".into(),
-                            price: "20.00".into(),
-                        },
-                        DemoRow {
-                            id: "3".into(),
-                            name: "商品C".into(),
-                            price: "30.00".into(),
-                        },
-                    ])
-                    .with_props(table::TableProps::new().with_border(true))
+                    .with_rows(rows)
+                    .with_props(table::TableProps::new().with_border(true).with_stripe(true))
                     .with_field_extractor(demo_row_field),
             );
-            tb.view(t, demo_row_field, |_| Message::Noop)
+            at_width(tb.view(t, demo_row_field, |_| Message::Noop), 480.0)
         }
         "badge" => row![
             leak(
@@ -1380,8 +1475,11 @@ fn render(name: &str, t: &'static Theme) -> Element<'static, Message> {
                 .with_separator("/"),
         )
         .view(t, |_| Message::Noop),
-        "date_picker" => leak(date_picker::DatePicker::new().with_placeholder("选择日期"))
-            .view(t, |_| Message::Noop),
+        "date_picker" => at_width(
+            leak(date_picker::DatePicker::new().with_placeholder("选择日期"))
+                .view(t, |_| Message::Noop),
+            200.0,
+        ),
         "dialog" => {
             let d = leak(dialog::Dialog::new("提示", "这是对话框内容"));
             d.handle(dialog::DialogMessage::Open);
@@ -1498,7 +1596,24 @@ fn render(name: &str, t: &'static Theme) -> Element<'static, Message> {
             tb.handle(tabs::TabsMessage::Select("b".into()));
             tb.view(t, |_| Message::Noop)
         }
-        "upload" => leak(upload::Upload::new()).view(t, || Message::Noop),
+        "upload" => {
+            let up = leak(upload::Upload::new());
+            up.handle(upload::UploadMessage::AddFile(upload::UploadFile::new(
+                "美食封面.jpg",
+                512_000,
+            )));
+            up.handle(upload::UploadMessage::AddFile(upload::UploadFile::new(
+                "商品清单.xlsx",
+                24_000,
+            )));
+            up.handle(upload::UploadMessage::AddFile(upload::UploadFile::new(
+                "店铺logo.png",
+                88_000,
+            )));
+            up.handle(upload::UploadMessage::UploadSuccess(0));
+            up.handle(upload::UploadMessage::UploadSuccess(1));
+            up.view(t, || Message::Noop)
+        }
         _ => text(format!("{} — 已对齐 API/令牌/wasm", name))
             .size(13)
             .color(Color::from(t.neutral.text_placeholder))

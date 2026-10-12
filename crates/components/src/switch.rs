@@ -274,10 +274,60 @@ impl Switch {
             text_regular
         };
 
-        // 滑块：ON 状态在右侧（●----），OFF 在左侧（----●）
-        // 用 Unicode 字符可视化：开=[●  ] 关=[  ●]
-        let slider_visual = if is_on { "[ ● ]" } else { "[   ]" };
-        let slider_text = text(slider_visual).color(track_color).size(16);
+        // 滑块：绘制式轨道 + 圆形旋钮（对齐 EP el-switch，不依赖字体字形）
+        let track_w = if self.width >= 40 {
+            self.width as f32
+        } else {
+            40.0
+        };
+        let off_disabled = Color::from(theme.neutral.border_lighter);
+        let track_fill = if self.disabled {
+            if is_on { text_disabled } else { off_disabled }
+        } else {
+            track_color
+        };
+        let knob = iced::widget::container(iced::widget::Space::new().width(Length::Fixed(0.0)))
+            .width(Length::Fixed(16.0))
+            .height(Length::Fixed(16.0))
+            .style(|_| iced::widget::container::Style {
+                background: Some(iced::Background::Color(Color::WHITE)),
+                border: iced::Border {
+                    color: Color::TRANSPARENT,
+                    width: 0.0,
+                    radius: iced::border::radius(8.0),
+                },
+                shadow: iced::Shadow {
+                    color: iced::Color::from_rgba8(0, 0, 0, 0.15),
+                    offset: iced::Vector::new(0.0, 1.0),
+                    blur_radius: 2.0,
+                },
+                ..Default::default()
+            });
+        let track_content: iced::Element<'a, Message> = if is_on {
+            iced::widget::Row::new()
+                .push(iced::widget::Space::new().width(Length::Fill))
+                .push(knob)
+                .into()
+        } else {
+            iced::widget::Row::new()
+                .push(knob)
+                .push(iced::widget::Space::new().width(Length::Fill))
+                .into()
+        };
+        let slider_visual = iced::widget::container(track_content)
+            .width(Length::Fixed(track_w))
+            .height(Length::Fixed(20.0))
+            .padding(Padding::from(2.0))
+            .align_y(iced::alignment::Vertical::Center)
+            .style(move |_| iced::widget::container::Style {
+                background: Some(iced::Background::Color(track_fill)),
+                border: iced::Border {
+                    color: Color::TRANSPARENT,
+                    width: 0.0,
+                    radius: iced::border::radius(10.0),
+                },
+                ..Default::default()
+            });
 
         // 文本描述（左侧 inactive_text / 右侧 active_text）
         let mut row = iced::widget::Row::new().align_y(iced::Alignment::Center);
@@ -288,7 +338,7 @@ impl Switch {
             row = row.push(iced::widget::Space::new().width(Length::Fixed(6.0)));
         }
 
-        row = row.push(slider_text);
+        row = row.push(slider_visual);
 
         // 右侧文本
         if let Some(t) = &self.active_text {
@@ -304,7 +354,7 @@ impl Switch {
 
         let mut btn =
             button(row)
-                .padding(Padding::from([6u16, 10u16]))
+                .padding(0)
                 .style(move |_t, _status| iced::widget::button::Style {
                     background: None,
                     text_color,

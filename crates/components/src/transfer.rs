@@ -284,16 +284,40 @@ impl Transfer {
         let left_panel = panel(&self.titles.0, self.left(), &self.checked_left);
         let right_panel = panel(&self.titles.1, self.right(), &self.checked_right);
 
+        // 搬移按钮：白底描边 + 主色箭头（不用 iced 默认按钮样式——那是蓝底实心块）
+        let move_btn = |arrow: &'static str, msg: Option<Message>| {
+            let enabled = msg.is_some();
+            let accent = if enabled { primary } else { text_disabled };
+            let mut b = iced::widget::button(text(arrow).size(13).color(accent))
+                .padding(Padding::from([2u16, 8u16]))
+                .style(move |_t, _s| iced::widget::button::Style {
+                    background: Some(iced::Background::Color(Color::WHITE)),
+                    text_color: accent,
+                    border: iced::Border {
+                        color: border,
+                        width: 1.0,
+                        radius: iced::border::radius(4.0),
+                    },
+                    shadow: iced::Shadow::default(),
+                    snap: false,
+                });
+            if enabled {
+                b = b.on_press_maybe(msg);
+            }
+            b
+        };
+        let can_right = !self.disabled && !self.checked_left.is_empty();
+        let can_left = !self.disabled && !self.checked_right.is_empty();
         let buttons = iced::widget::Column::new()
             .spacing(4)
-            .push(
-                iced::widget::button(text("→").size(13).color(primary))
-                    .on_press_maybe((!self.disabled).then(|| on_msg(TransferMessage::ToRight))),
-            )
-            .push(
-                iced::widget::button(text("←").size(13).color(primary))
-                    .on_press_maybe((!self.disabled).then(|| on_msg(TransferMessage::ToLeft))),
-            );
+            .push(move_btn(
+                "→",
+                can_right.then(|| on_msg(TransferMessage::ToRight)),
+            ))
+            .push(move_btn(
+                "←",
+                can_left.then(|| on_msg(TransferMessage::ToLeft)),
+            ));
 
         iced::widget::Row::new()
             .push(left_panel)

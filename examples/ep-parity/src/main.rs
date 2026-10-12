@@ -1597,7 +1597,7 @@ fn render(name: &str, t: &'static Theme) -> Element<'static, Message> {
             tb.view(t, |_| Message::Noop)
         }
         "upload" => {
-            let up = leak(upload::Upload::new());
+            let up = leak(upload::Upload::new().with_multiple(true));
             up.handle(upload::UploadMessage::AddFile(upload::UploadFile::new(
                 "美食封面.jpg",
                 512_000,

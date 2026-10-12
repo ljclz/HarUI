@@ -195,8 +195,9 @@ impl Avatar {
             AvatarShape::Circle => px / 2.0,
             AvatarShape::Square => 4.0,
         };
-        let bg = Color::from(theme.neutral.bg_overlay);
-        let text_color = Color::from(theme.neutral.text_primary);
+        // EP el-avatar 默认观感：#c0c4cc 灰底 + 白字（bg_overlay 在白页上不可见）
+        let bg = Color::from(theme.neutral.text_disabled);
+        let text_color = Color::WHITE;
 
         // 内容：按 source 选择 icon/text/image
         // iced 无内置 image widget，简化为占位字符（不依赖系统 emoji 字体）

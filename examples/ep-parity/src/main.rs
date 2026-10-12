@@ -1,7 +1,7 @@
 //! EP 全组件复刻对照页 — URL hash 选组件独立渲染
 use har_ui_core::theme::Theme;
 use iced::widget::{column, container, scrollable, text};
-use iced::{Color, Element, Length, Padding, Task};
+use iced::{Color, Element, Font, Length, Padding, Task};
 
 struct State {
     selected: String,
@@ -624,7 +624,11 @@ fn main() -> iced::Result {
             format!("HarUI — {}", s.selected)
         }
     })
-    // 注册中文字体子集（wasm 无系统字体回退，不注册则中文/符号渲染为豆腐块）
+    // 注册字体：中文子集 + Arial 度量兼容的 Arimo（wasm 无系统字体回退）
     .font(include_bytes!("../fonts/NotoSansSC-HarUI-subset.otf").as_slice())
+    .font(include_bytes!("../fonts/Arimo-Regular.ttf").as_slice())
+    // 默认字体切为 Arimo（Arial 度量兼容），使拉丁/数字宽度与 Element Plus 对齐；
+    // 中文仍由 Noto 子集回退渲染
+    .default_font(Font::with_name("Arimo"))
     .run()
 }

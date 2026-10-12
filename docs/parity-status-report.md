@@ -1,7 +1,8 @@
 # 71 组件对拍状态汇总报告
 
-> 生成日期：2026-10-11 ｜ EP 参照帧：64 页已捕获（docs/visual-baseline/ep/）
-> HarUI 帧：71 页全部捕获（docs/visual-baseline/harui/，ep-parity #组件名 路由）
+> 生成日期：2026-10-12 ｜ EP 参照帧：64 页已捕获（docs/visual-baseline/ep/）
+> HarUI 帧：71 页全部捕获（docs/visual-baseline/harui/，ep-parity #组件名 路由，
+> 默认字体已切 Arimo（Arial 度量兼容），scripts/capture_harui_frames.py 重拍）
 > 像素对照：64/71 已跑批（AE 全部 <100 PASS；SSIM 为整页口径，见下）
 > 12 道门禁全部通过；2187 项测试通过；native + wasm32 编译零错误
 

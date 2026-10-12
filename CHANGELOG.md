@@ -27,6 +27,18 @@
   loading 旋转改用 ◐◓◑◒ 半圆；rate 空星用 ☆；empty/avatar/text 占位改用 ▤/▩/◉；
   transfer 勾选标记改 ▣/▢；switch 加载指示改 ◐；showcase 同步复用新字体子集
 
+### Changed
+
+- **默认字体切为 Arimo（Arial 度量兼容）**：ep-parity 与 showcase 注册并默认使用
+  Arimo（Arial 度量兼容的 OFL 开源字体），拉丁字母/数字宽度从 Fira Sans 对齐到
+  Element Plus 的 Arial 渲染（Fira 比 Arial 同字号宽 4–10%，数字则窄 ~10%）；
+  中文仍由 NotoSansSC 子集回退渲染。71 组件帧已用新字体全量重拍并复跑像素对照
+  （docs/visual-baseline/harui/，64 组 AE 全部 <100 PASS）。
+  注意：Arimo 子集（pyftsubset 裁剪拉丁子集）作为默认字体会触发 cosmic-text
+  布局异常导致部分组件白屏，故采用完整静态 Arimo（~321KB）注册。
+- **新增批量截图脚本**：scripts/capture_harui_frames.py（headless Chrome 并行
+  捕获 71 组件帧，支持 --par/--budget 参数）
+
 ## [v1.4.0] — 2026-10-11
 
 ### Added

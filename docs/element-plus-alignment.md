@@ -73,13 +73,15 @@
   同名帧，输出 docs/parity-batch-result.md 汇总表
 - **参照帧**：EP 官网 **64 页**（docs/visual-baseline/ep/）+ HarUI 独立组件页 **71 页**
   （docs/visual-baseline/harui/，ep-parity `#组件名` 路由，agent-browser 截帧）
-- **全量结果（2026-10-11）**：64 组有参照帧的组件全部跑批——
+- **全量结果（2026-10-11，2026-10-12 Arimo 重拍复跑）**：64 组有参照帧的组件全部跑批——
   **AE 64/64 <100 PASS**；SSIM 0.68–0.91（整页口径，见下）
 - **Button 深度对拍（组件区域口径）**：固定高度 32px（EP 同款）+ 文字 14px +
   center()——行高 46→35→**32px**（三代迭代），SSIM 0.32→0.36→**0.36**。
   AE 64（色彩反锯齿差被紧裁剪放大）；高度/颜色/文案/类型/圆角已对齐，
   残余为**字体度量差异**（Fira Sans 比 PingFang/SF Pro 同字号更宽，iced/cosmic-text
-   vs 浏览器原生渲染），需自定义字体加载 PingFang 子集才能收敛——属长期项
+   vs 浏览器原生渲染）——**2026-10-12 已将默认字体切为 Arimo**（Arial 度量兼容，
+  对齐 EP 的 Arial 渲染），拉丁宽度差收敛；残余为中文 glyph 字形差异
+  （HarUI 用 NotoSansSC 子集 vs EP 官网在 Windows 上回退的微软雅黑），属长期项
 
 ## 四、补齐路线建议（按需启动，非当前迭代）
 

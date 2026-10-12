@@ -23,7 +23,7 @@ use har_ui_components::upload::{Upload, UploadFile, UploadMessage};
 use har_ui_core::Theme;
 use har_ui_core::devtools::fps_meter::FpsMeter;
 use iced::widget::{Space, button, column, container, row, scrollable, text, text_input};
-use iced::{Color, Element, Length, Padding, Task};
+use iced::{Color, Element, Font, Length, Padding, Task};
 
 const TABLE_ROW_HEIGHT: f32 = 30.0;
 const TABLE_VIEWPORT_HEIGHT: f32 = 240.0;
@@ -840,7 +840,11 @@ fn run_app() -> iced::Result {
         view,
     )
     .title(|_state: &State| String::from("HarUI Showcase"))
+    // 注册字体：中文子集 + Arial 度量兼容的 Arimo（wasm 无系统字体回退）
     .font(include_bytes!("../fonts/NotoSansSC-HarUI-subset.otf").as_slice())
+    .font(include_bytes!("../fonts/Arimo-Regular.ttf").as_slice())
+    // 默认字体切为 Arimo（Arial 度量兼容），使拉丁/数字宽度与 Element Plus 对齐
+    .default_font(Font::with_name("Arimo"))
     .window_size(iced::Size::new(1024.0, 700.0))
     .subscription(|_state| iced::window::frames().map(Message::Frame))
     .run()

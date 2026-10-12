@@ -6,6 +6,7 @@
 """
 import argparse
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -62,6 +63,13 @@ def main() -> int:
     out_dir.mkdir(parents=True, exist_ok=True)
 
     list_file = root / "scripts/_component_list.txt"
+    if not list_file.exists():
+        # 清单缺失时自动从 ep-parity main.rs 的 ALL 常量重新生成
+        src = (root / "examples/ep-parity/src/main.rs").read_text(encoding="utf-8")
+        block = src.split("const ALL", 1)[1].split("];", 1)[0]
+        names = re.findall(r'"([a-z_]+)"', block)
+        list_file.write_text("\n".join(names), encoding="utf-8")
+        print(f"regenerated {list_file} ({len(names)} components)")
     components = list_file.read_text(encoding="utf-8").split()
     print(f"capturing {len(components)} components -> {out_dir} (par={args.par})")
 

@@ -463,7 +463,7 @@ pub fn index_view(theme: &Theme) -> Element<'static, Message> {
                 match entry.level {
                     DemoLevel::Interactive => {
                         let cat = category_of(entry.name);
-                        let btn = button(text(format!("{} ▸", entry.name)).size(13).color(accent))
+                        let btn = button(text(format!("{} ›", entry.name)).size(13).color(accent))
                             .padding(Padding::from([4u16, 10u16]))
                             .style(move |_t, _s| button::Style {
                                 background: None,

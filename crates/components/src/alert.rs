@@ -206,7 +206,7 @@ impl Alert {
         row_children.push(text_col.into());
 
         if self.closable {
-            let close_btn = button(text("✕").color(desc_color).size(13.0))
+            let close_btn = button(text("×").color(desc_color).size(13.0))
                 .padding(Padding::from([2u16, 6u16]))
                 .style(move |_t, _status| iced::widget::button::Style {
                     background: None,

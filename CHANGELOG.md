@@ -36,6 +36,18 @@
   （docs/visual-baseline/harui/，64 组 AE 全部 <100 PASS）。
   注意：Arimo 子集（pyftsubset 裁剪拉丁子集）作为默认字体会触发 cosmic-text
   布局异常导致部分组件白屏，故采用完整静态 Arimo（~321KB）注册。
+- **ep-parity 落地页改版为 EP 文档站式布局**：无 hash 时不再竖排堆叠全部组件，
+  改为 顶栏 + 左侧分组侧栏（基础/布局/导航/数据录入/数据展示/反馈/配置/收银业务，
+  与 element-plus.org 目录一致）+ 右侧总览卡片栅格（组件 id + 中文名）；
+  点击侧栏/卡片即切到该组件独立对照页并同步 URL hash（可刷新/分享）；
+  未知 hash 回退总览并提示正确格式。`#组件名` 独立渲染分支保持不变，
+  像素对照基线管线不受影响。ep-parity 新增分组一致性测试（GROUPS 不重不漏覆盖 71 组件）
+- **组件豆腐块二次清理**（Noto Sans SC 无对应字形的三处渲染路径）：
+  alert 可关闭按钮 ✕→×；CheckboxGroup 指示器 ☑/☐ 文本改为与单 Checkbox 一致的
+  绘制式边框盒（✓）；showcase 目录箭头 ▸→›
+- **NotoSansSC 子集重建**（1050→1104 字形，436KB→226KB）：覆盖新增中文名
+  （栅格/固钉/锚点/面包屑/漫游式引导等）与文档站 UI 文案，校验旧子集字形零丢失；
+  capture_harui_frames.py 支持 _component_list.txt 缺失时自动从 main.rs ALL 常量重生成
 - **新增批量截图脚本**：scripts/capture_harui_frames.py（headless Chrome 并行
   捕获 71 组件帧，支持 --par/--budget 参数）
 

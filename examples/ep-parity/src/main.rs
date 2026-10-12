@@ -1,6 +1,6 @@
 //! EP 全组件复刻对照页 — URL hash 选组件独立渲染
 use har_ui_core::theme::Theme;
-use iced::widget::{column, container, scrollable, text};
+use iced::widget::{Space, column, container, mouse_area, row, scrollable, text};
 use iced::{Color, Element, Font, Length, Padding, Task};
 
 struct State {
@@ -10,9 +10,23 @@ struct State {
 #[derive(Debug, Clone)]
 enum Message {
     Noop,
+    Select(&'static str),
 }
 
-fn update(_s: &mut State, _m: Message) -> Task<Message> {
+fn update(s: &mut State, m: Message) -> Task<Message> {
+    match m {
+        Message::Noop => {}
+        Message::Select(name) => {
+            s.selected = name.to_string();
+            // 同步 URL hash，刷新/分享链接直达同一组件（不触发页面重载）
+            #[cfg(target_arch = "wasm32")]
+            {
+                if let Some(w) = web_sys::window() {
+                    let _ = w.location().set_hash(&format!("#{}", name));
+                }
+            }
+        }
+    }
     Task::none()
 }
 
@@ -105,6 +119,178 @@ const ALL: &[&str] = &[
     "watermark",
 ];
 
+/// EP 文档站分组（与 element-plus.org 侧栏目录一致；收银业务组件为 HarPOS 扩展组）
+const GROUPS: &[(&str, &[&str])] = &[
+    ("基础组件", &["button", "link", "text", "scrollbar"]),
+    ("布局", &["grid", "divider", "space", "splitter"]),
+    (
+        "导航",
+        &[
+            "affix",
+            "anchor",
+            "backtop",
+            "breadcrumb",
+            "dropdown",
+            "menu",
+            "page_header",
+            "pagination",
+            "steps",
+            "tabs",
+        ],
+    ),
+    (
+        "数据录入",
+        &[
+            "autocomplete",
+            "cascader",
+            "checkbox",
+            "color_picker",
+            "date_picker",
+            "form",
+            "input",
+            "input_number",
+            "input_tag",
+            "radio",
+            "rate",
+            "select",
+            "slider",
+            "switch",
+            "time_picker",
+            "transfer",
+            "tree_select",
+            "upload",
+        ],
+    ),
+    (
+        "数据展示",
+        &[
+            "avatar",
+            "badge",
+            "calendar",
+            "card",
+            "carousel",
+            "collapse",
+            "countdown",
+            "descriptions",
+            "empty",
+            "image",
+            "progress",
+            "result_page",
+            "skeleton",
+            "statistic",
+            "table",
+            "tag",
+            "timeline",
+            "tree",
+        ],
+    ),
+    (
+        "反馈",
+        &[
+            "alert",
+            "dialog",
+            "drawer",
+            "loading",
+            "message",
+            "message_box",
+            "notification",
+            "popconfirm",
+            "popover",
+            "tooltip",
+            "tour",
+        ],
+    ),
+    ("配置", &["watermark"]),
+    (
+        "收银业务",
+        &[
+            "customer_display",
+            "hang_order",
+            "keypad",
+            "payment",
+            "status_bar",
+        ],
+    ),
+];
+
+/// 组件中文名（与 Element Plus 官方命名一致；收银业务为业务命名）
+fn label(name: &str) -> &'static str {
+    match name {
+        "affix" => "固钉",
+        "alert" => "提示",
+        "anchor" => "锚点",
+        "autocomplete" => "自动补全",
+        "avatar" => "头像",
+        "backtop" => "返回顶部",
+        "badge" => "徽章",
+        "breadcrumb" => "面包屑",
+        "button" => "按钮",
+        "calendar" => "日历",
+        "card" => "卡片",
+        "carousel" => "走马灯",
+        "cascader" => "级联选择器",
+        "checkbox" => "多选框",
+        "collapse" => "折叠面板",
+        "color_picker" => "颜色选择器",
+        "countdown" => "倒计时",
+        "customer_display" => "客显屏",
+        "date_picker" => "日期选择器",
+        "descriptions" => "描述列表",
+        "dialog" => "对话框",
+        "divider" => "分割线",
+        "drawer" => "抽屉",
+        "dropdown" => "下拉菜单",
+        "empty" => "空状态",
+        "form" => "表单",
+        "grid" => "栅格",
+        "hang_order" => "挂单",
+        "image" => "图片",
+        "input" => "输入框",
+        "input_number" => "数字输入框",
+        "input_tag" => "输入标签",
+        "keypad" => "收银键盘",
+        "link" => "链接",
+        "loading" => "加载",
+        "menu" => "导航菜单",
+        "message" => "消息提示",
+        "message_box" => "弹框",
+        "notification" => "通知",
+        "page_header" => "页头",
+        "pagination" => "分页",
+        "payment" => "收银支付",
+        "popconfirm" => "气泡确认框",
+        "popover" => "气泡弹出框",
+        "progress" => "进度条",
+        "radio" => "单选框",
+        "rate" => "评分",
+        "result_page" => "结果页",
+        "scrollbar" => "滚动条",
+        "select" => "选择器",
+        "skeleton" => "骨架屏",
+        "slider" => "滑块",
+        "space" => "间距",
+        "splitter" => "分割面板",
+        "statistic" => "统计数值",
+        "status_bar" => "状态栏",
+        "steps" => "步骤条",
+        "switch" => "开关",
+        "table" => "表格",
+        "tabs" => "标签页",
+        "tag" => "标签",
+        "text" => "文本",
+        "time_picker" => "时间选择器",
+        "timeline" => "时间线",
+        "tooltip" => "文字提示",
+        "tour" => "漫游式引导",
+        "transfer" => "穿梭框",
+        "tree" => "树形控件",
+        "tree_select" => "树形选择器",
+        "upload" => "上传",
+        "watermark" => "水印",
+        _ => "",
+    }
+}
+
 static THEME: std::sync::OnceLock<Theme> = std::sync::OnceLock::new();
 fn theme() -> &'static Theme {
     THEME.get_or_init(Theme::element_light)
@@ -148,27 +334,9 @@ fn demo_row_field(r: &DemoRow, prop: &str) -> String {
 fn view(s: &State) -> Element<'_, Message> {
     let t = theme();
     let name = s.selected.as_str();
-    // 空 hash 或未知组件名 → 回退展示全组件列表，避免白屏
+    // 空 hash 或未知组件名 → 文档站式总览（侧栏 + 分组卡片），避免白屏/堆叠页
     if name.is_empty() || !ALL.contains(&name) {
-        let mut col = column![text("HarUI — All 71 Components").size(20)]
-            .spacing(8)
-            .padding(Padding::from(16));
-        if !name.is_empty() {
-            col = col.push(
-                text(format!(
-                    "未知组件 “{}”，已回退全列表（#button/#table/#form …）",
-                    name
-                ))
-                .size(12)
-                .color(Color::from(t.warning.base)),
-            );
-        }
-        for c in ALL {
-            col = col.push(text(*c).size(12).color(Color::from(t.primary.base)));
-            col = col.push(render(c, t));
-            col = col.push(iced::widget::Space::new().height(Length::Fixed(8.0)));
-        }
-        return scrollable(col).height(Length::Fill).into();
+        return docs_layout(name, t).into();
     }
     let body = render(name, t);
     container(
@@ -187,6 +355,196 @@ fn view(s: &State) -> Element<'_, Message> {
         background: Some(iced::Background::Color(Color::WHITE)),
         ..Default::default()
     })
+    .into()
+}
+
+/// 文档站式总览布局：顶栏 + 左侧 EP 分组侧栏 + 右侧总览卡片（点击进 #组件名 独立页）
+fn docs_layout(unknown: &str, t: &'static Theme) -> Element<'static, Message> {
+    let header = container(row![
+        text("HarUI").size(18).color(Color::from(t.primary.base)),
+        text(" 组件库")
+            .size(18)
+            .color(Color::from(t.neutral.text_primary)),
+        Space::new().width(Length::Fill),
+        text("71 组件 · 对齐 Element Plus 规格")
+            .size(12)
+            .color(Color::from(t.neutral.text_secondary)),
+    ])
+    .width(Length::Fill)
+    .height(Length::Fixed(48.0))
+    .padding(Padding {
+        top: 0.0,
+        bottom: 0.0,
+        left: 24.0,
+        right: 24.0,
+    });
+
+    let rule = |w: Length, h: Length| {
+        container(
+            Space::new()
+                .width(Length::Fixed(0.0))
+                .height(Length::Fixed(0.0)),
+        )
+        .width(w)
+        .height(h)
+        .style(move |_| container::Style {
+            background: Some(iced::Background::Color(Color::from(
+                t.neutral.border_lighter,
+            ))),
+            ..Default::default()
+        })
+    };
+
+    // 左侧栏：分组目录，点击切换组件
+    let mut side = column![];
+    for &(gname, items) in GROUPS {
+        side = side.push(
+            container(
+                text(gname)
+                    .size(12)
+                    .color(Color::from(t.neutral.text_placeholder)),
+            )
+            .width(Length::Fill)
+            .padding(Padding {
+                top: 18.0,
+                bottom: 6.0,
+                left: 24.0,
+                right: 24.0,
+            }),
+        );
+        for &id in items.iter() {
+            side = side.push(
+                mouse_area(
+                    container(
+                        text(label(id))
+                            .size(14)
+                            .color(Color::from(t.neutral.text_regular)),
+                    )
+                    .width(Length::Fill)
+                    .padding(Padding {
+                        top: 7.0,
+                        bottom: 7.0,
+                        left: 24.0,
+                        right: 24.0,
+                    }),
+                )
+                .on_press(Message::Select(id)),
+            );
+        }
+    }
+    let sidebar = scrollable(side)
+        .width(Length::Fixed(240.0))
+        .height(Length::Fill);
+
+    // 右侧总览：标题 + 分组卡片栅格（每行 4 张）
+    let mut main_col = column![].spacing(12).padding(Padding {
+        top: 28.0,
+        bottom: 32.0,
+        left: 32.0,
+        right: 32.0,
+    });
+    main_col = main_col.push(
+        text("HarUI 组件库")
+            .size(26)
+            .color(Color::from(t.neutral.text_primary)),
+    );
+    main_col = main_col.push(
+        text("71 组件 · 与 Element Plus 对齐 · 像素对照复刻页")
+            .size(14)
+            .color(Color::from(t.neutral.text_secondary)),
+    );
+    if !unknown.is_empty() {
+        main_col = main_col.push(
+            text(format!(
+                "未知组件 “{}”，已回退总览。正确格式：#button / #table / #form …",
+                unknown
+            ))
+            .size(13)
+            .color(Color::from(t.warning.base)),
+        );
+    }
+    main_col = main_col.push(
+        text("点击卡片进入组件独立对照页（URL hash 路由，可刷新/分享）")
+            .size(12)
+            .color(Color::from(t.neutral.text_placeholder)),
+    );
+    for &(gname, items) in GROUPS {
+        main_col = main_col.push(
+            row![
+                text(gname)
+                    .size(16)
+                    .color(Color::from(t.neutral.text_primary)),
+                text(format!(" {}", items.len()))
+                    .size(12)
+                    .color(Color::from(t.neutral.text_placeholder)),
+            ]
+            .spacing(2),
+        );
+        for chunk in items.chunks(4) {
+            let mut r = row![].spacing(12);
+            for &id in chunk.iter() {
+                r = r.push(component_card(id, t));
+            }
+            main_col = main_col.push(r);
+        }
+    }
+    main_col = main_col.push(
+        text("收银业务组件为 HarPOS 扩展（EP 无对应页）；对照基线帧存 docs/visual-baseline/。")
+            .size(12)
+            .color(Color::from(t.neutral.text_placeholder)),
+    );
+    let main_area = scrollable(main_col)
+        .width(Length::Fill)
+        .height(Length::Fill);
+
+    container(
+        column![
+            header,
+            rule(Length::Fill, Length::Fixed(1.0)),
+            row![sidebar, rule(Length::Fixed(1.0), Length::Fill), main_area].height(Length::Fill),
+        ]
+        .width(Length::Fill)
+        .height(Length::Fill),
+    )
+    .width(Length::Fill)
+    .height(Length::Fill)
+    .style(move |_| container::Style {
+        background: Some(iced::Background::Color(Color::WHITE)),
+        ..Default::default()
+    })
+    .into()
+}
+
+/// 总览页组件卡片：组件 id（主色）+ 中文名，点击进入 #组件名
+fn component_card(id: &'static str, t: &'static Theme) -> Element<'static, Message> {
+    mouse_area(
+        container(
+            column![
+                text(id).size(14).color(Color::from(t.primary.base)),
+                text(label(id))
+                    .size(12)
+                    .color(Color::from(t.neutral.text_secondary)),
+            ]
+            .spacing(4),
+        )
+        .width(Length::Fixed(224.0))
+        .padding(Padding {
+            top: 14.0,
+            bottom: 14.0,
+            left: 16.0,
+            right: 16.0,
+        })
+        .style(move |_| container::Style {
+            background: Some(iced::Background::Color(Color::WHITE)),
+            border: iced::Border {
+                color: Color::from(t.neutral.border_light),
+                width: 1.0,
+                radius: 6.0.into(),
+            },
+            ..Default::default()
+        }),
+    )
+    .on_press(Message::Select(id))
     .into()
 }
 
@@ -619,7 +977,7 @@ fn main() -> iced::Result {
     )
     .title(|s: &State| {
         if s.selected.is_empty() || !ALL.contains(&s.selected.as_str()) {
-            "HarUI — All Components".into()
+            "HarUI 组件库".into()
         } else {
             format!("HarUI — {}", s.selected)
         }
@@ -631,4 +989,31 @@ fn main() -> iced::Result {
     // 中文仍由 Noto 子集回退渲染
     .default_font(Font::with_name("Arimo"))
     .run()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// GROUPS 必须不重不漏覆盖 ALL 的全部 71 个组件
+    #[test]
+    fn groups_cover_all_components_exactly() {
+        let mut seen: Vec<&str> = Vec::new();
+        for &(_, items) in GROUPS {
+            for &id in items.iter() {
+                assert!(ALL.contains(&id), "GROUPS 里的 {} 不在 ALL 中", id);
+                assert!(!seen.contains(&id), "GROUPS 里 {} 重复", id);
+                seen.push(id);
+            }
+        }
+        assert_eq!(seen.len(), ALL.len(), "GROUPS 覆盖数 ≠ ALL（漏组件）");
+    }
+
+    /// 每个组件都要有中文名（总览卡片/侧栏展示用）
+    #[test]
+    fn every_component_has_label() {
+        for &id in ALL {
+            assert!(!label(id).is_empty(), "组件 {} 缺中文名", id);
+        }
+    }
 }

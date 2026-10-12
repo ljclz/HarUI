@@ -466,10 +466,33 @@ impl CheckboxGroup {
             } else {
                 text_regular
             };
-            let indicator = if is_checked { "☑" } else { "☐" };
+            // 框指示器：绘制边框盒 + ✓（与单 Checkbox 一致，不依赖字体 emoji 字形）
+            let box_side = size + 4.0;
+            let indicator = container(
+                text(if is_checked { "✓" } else { "" })
+                    .color(Color::WHITE)
+                    .size(size),
+            )
+            .width(Length::Fixed(box_side))
+            .height(Length::Fixed(box_side))
+            .align_x(iced::alignment::Horizontal::Center)
+            .align_y(iced::alignment::Vertical::Center)
+            .style(move |_| container::Style {
+                background: if is_checked {
+                    Some(iced::Background::Color(box_color))
+                } else {
+                    None
+                },
+                border: iced::Border {
+                    color: box_color,
+                    width: 1.0,
+                    radius: iced::border::radius(3.0),
+                },
+                ..Default::default()
+            });
 
             let content = iced::widget::Row::new()
-                .push(text(indicator).color(box_color).size(size + 2.0))
+                .push(indicator)
                 .push(iced::widget::Space::new().width(Length::Fixed(6.0)))
                 .push(text(label.to_string()).color(label_color).size(size))
                 .align_y(iced::Alignment::Center);

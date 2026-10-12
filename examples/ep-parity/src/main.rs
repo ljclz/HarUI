@@ -1013,9 +1013,18 @@ fn render(name: &str, t: &'static Theme) -> Element<'static, Message> {
         .spacing(32)
         .padding(Padding::from(16u16))
         .into(),
-        "skeleton" => leak(skeleton::Skeleton::new())
+        "skeleton" => at_width(
+            leak(
+                skeleton::Skeleton::new()
+                    .with_item(skeleton::SkeletonItem::paragraph())
+                    .with_item(skeleton::SkeletonItem::title())
+                    .with_item(skeleton::SkeletonItem::paragraph())
+                    .with_loading(true),
+            )
             .view(t)
             .map(|_| Message::Noop),
+            300.0,
+        ),
         "avatar" => row![
             leak(avatar::Avatar::new().with_text("U"))
                 .view(t)
@@ -1142,8 +1151,37 @@ fn render(name: &str, t: &'static Theme) -> Element<'static, Message> {
             a.handle(autocomplete::AutocompleteMessage::Char('上'));
             at_width(a.view(t, |_| Message::Noop), 220.0)
         }
-        "affix" => leak(affix::Affix::new()).view(t, text("固定内容").size(14).into()),
-        "backtop" => leak(backtop::Backtop::new()).view(t, Message::Noop),
+        "affix" => section(
+            "基础用法",
+            iced::widget::container(
+                leak(affix::Affix::new()).view(t, text("固定内容").size(14).into()),
+            )
+            .width(Length::Fill)
+            .height(Length::Fixed(120.0))
+            .align_y(iced::alignment::Vertical::Center)
+            .into(),
+        ),
+        "backtop" => {
+            let b = leak(backtop::Backtop::new().with_visibility_height(200));
+            b.handle(backtop::BacktopMessage::Scroll(400));
+            section(
+                "基础用法",
+                iced::widget::container(
+                    row![
+                        text("向下滚动后右下角出现返回顶部按钮")
+                            .size(13)
+                            .color(Color::from(t.neutral.text_secondary)),
+                        Space::new().width(Length::Fill),
+                        b.view(t, Message::Noop),
+                    ]
+                    .align_y(iced::Alignment::Center),
+                )
+                .width(Length::Fill)
+                .height(Length::Fixed(120.0))
+                .align_y(iced::alignment::Vertical::Center)
+                .into(),
+            )
+        }
         "calendar" => leak(calendar::Calendar::new(2026, 10)).view(t, |_| Message::Noop),
         "carousel" => {
             let c = leak(
@@ -1241,9 +1279,16 @@ fn render(name: &str, t: &'static Theme) -> Element<'static, Message> {
                 .with_content("门店详情"),
         )
         .view(t, || Message::Noop),
-        "popover" => leak(popover::Popover::new())
-            .view(t, text("气泡内容").size(13).into(), || Message::Noop)
-            .map(|_| Message::Noop),
+        "popover" => leak(
+            popover::Popover::new()
+                .with_visible(true)
+                .with_title("气泡标题")
+                .with_content("这是一段气泡内容，用于补充说明"),
+        )
+        .view(t, text("点击打开气泡").size(13).into(), || {
+            Message::Noop
+        })
+        .map(|_| Message::Noop),
         "scrollbar" => {
             let sb = leak(scrollbar::Scrollbar::new().with_height(100));
             let content = iced::widget::Column::with_children(
@@ -1500,13 +1545,16 @@ fn render(name: &str, t: &'static Theme) -> Element<'static, Message> {
             let img = leak(
                 image::Image::new("https://example.com/demo.png")
                     .with_alt("示例图片")
-                    .with_size(120.0, 80.0),
+                    .with_size(240.0, 160.0),
             );
             img.handle(image::ImageMessage::Load);
             img.handle(image::ImageMessage::LoadSuccess);
-            img.view(t, Some(text("示例图片").size(13).into()), |_| {
-                Message::Noop
-            })
+            at_width(
+                img.view(t, Some(text("示例图片").size(13).into()), |_| {
+                    Message::Noop
+                }),
+                280.0,
+            )
         }
         "loading" => {
             let l = leak(loading::Loading::new().with_text("加载中…"));

@@ -57,20 +57,27 @@ impl Watermark {
         self.opacity
     }
 
-    /// 渲染：`content` 为业务内容（原样透传），水印层叠放于上
+    /// 渲染：`content` 为业务内容（原样透传），水印层平铺叠放于上（EP 观感）
     pub fn view<'a, Message: Clone + 'a>(
         &'a self,
         _theme: &'a Theme,
         content: Element<'a, Message>,
     ) -> Element<'a, Message> {
         use iced::widget::stack;
-        let watermark = text(self.text.clone())
-            .size(self.font_size)
-            .color(iced::Color {
-                a: self.opacity,
-                ..iced::Color::BLACK
-            });
-        let layer = container(watermark)
+        let wm_color = iced::Color {
+            a: self.opacity,
+            ..iced::Color::BLACK
+        };
+        // 平铺 4×5 重复文字（不旋转——iced 文本旋转需 canvas，平铺已可达水印辨识度）
+        let mut col = iced::widget::Column::new().spacing(56);
+        for _ in 0..5 {
+            let mut r = iced::widget::Row::new().spacing(96);
+            for _ in 0..4 {
+                r = r.push(text(self.text.clone()).size(self.font_size).color(wm_color));
+            }
+            col = col.push(r);
+        }
+        let layer = iced::widget::container(col)
             .width(Length::Fill)
             .height(Length::Fill)
             .center_x(Length::Fill)

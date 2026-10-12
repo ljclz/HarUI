@@ -55,6 +55,12 @@ impl Rate {
         self
     }
 
+    /// 设置当前评分值（收敛到 [0,max]），对应 EP `model-value`
+    pub fn with_value(mut self, v: f64) -> Self {
+        self.value = v.clamp(0.0, self.max as f64);
+        self
+    }
+
     pub fn with_disabled(mut self, v: bool) -> Self {
         self.disabled = v;
         self

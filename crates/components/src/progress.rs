@@ -70,6 +70,12 @@ impl Progress {
         self
     }
 
+    /// 设置进度百分比（收敛到 0–100），对应 EP `percentage`
+    pub fn with_percentage(mut self, p: i32) -> Self {
+        self.percentage = p.clamp(0, 100);
+        self
+    }
+
     pub fn with_status(mut self, s: ProgressStatus) -> Self {
         self.manual_status = Some(s);
         self.status = s;

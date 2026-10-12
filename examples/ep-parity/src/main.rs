@@ -548,40 +548,434 @@ fn component_card(id: &'static str, t: &'static Theme) -> Element<'static, Messa
     .into()
 }
 
+/// EP 文档风格演示段：小节标题 + 带边框演示盒（对齐 element-plus.org 演示区观感）
+fn section(title: &str, body: Element<'static, Message>) -> Element<'static, Message> {
+    let t = theme();
+    column![
+        text(title.to_string())
+            .size(15)
+            .color(Color::from(t.neutral.text_primary)),
+        container(body)
+            .width(Length::Fill)
+            .padding(Padding::from(20u16))
+            .style(move |_| container::Style {
+                background: Some(iced::Background::Color(Color::WHITE)),
+                border: iced::Border {
+                    color: Color::from(t.neutral.border_lighter),
+                    width: 1.0,
+                    radius: iced::border::radius(4.0),
+                },
+                ..Default::default()
+            }),
+    ]
+    .spacing(10)
+    .into()
+}
+
+/// 固定宽度包裹（EP 输入类控件默认 ~180px，避免拉伸全宽）
+fn at_width(e: Element<'static, Message>, w: f32) -> Element<'static, Message> {
+    container(e).width(Length::Fixed(w)).into()
+}
+
 fn render(name: &str, t: &'static Theme) -> Element<'static, Message> {
     use har_ui_components::*;
     match name {
-        "button" => leak(button::Button::new("Default").with_type(button::ButtonType::Primary))
-            .view(t, Message::Noop),
-        "input" => {
-            let inp = leak(input::Input::new().with_placeholder("请输入"));
-            inp.handle(input::InputMessage::Char('H'));
-            inp.handle(input::InputMessage::Char('i'));
-            inp.view(t, |_| Message::Noop)
+        "button" => {
+            let names = ["Default", "Primary", "Success", "Info", "Warning", "Danger"];
+            let types = [
+                button::ButtonType::Default,
+                button::ButtonType::Primary,
+                button::ButtonType::Success,
+                button::ButtonType::Info,
+                button::ButtonType::Warning,
+                button::ButtonType::Danger,
+            ];
+            let row_of = |plain: bool, round: bool, disabled: bool| {
+                let mut r = row![].spacing(12);
+                for i in 0..6 {
+                    let mut b = button::Button::new(names[i].to_string()).with_type(types[i]);
+                    if plain {
+                        b = b.plain(true);
+                    }
+                    if round {
+                        b = b.round(true);
+                    }
+                    if disabled {
+                        b = b.disabled(true);
+                    }
+                    r = r.push(leak(b).view(t, Message::Noop));
+                }
+                r
+            };
+            column![
+                section("基础用法", row_of(false, false, false).into()),
+                section("朴素按钮", row_of(true, false, false).into()),
+                section("圆角按钮", row_of(false, true, false).into()),
+                section("禁用状态", row_of(false, false, true).into()),
+                section(
+                    "按钮尺寸",
+                    row![
+                        leak(button::Button::new("Large").with_size(button::ButtonSize::Large))
+                            .view(t, Message::Noop),
+                        leak(button::Button::new("Default")).view(t, Message::Noop),
+                        leak(button::Button::new("Small").with_size(button::ButtonSize::Small))
+                            .view(t, Message::Noop),
+                    ]
+                    .spacing(12)
+                    .into()
+                ),
+            ]
+            .spacing(16)
+            .padding(Padding::from(16u16))
+            .into()
         }
-        "tag" => leak(tag::Tag::new("标签一")).view(t, || Message::Noop),
-        "progress" => leak(progress::Progress::new())
-            .view(t)
-            .map(|_| Message::Noop),
+        "input" => column![
+            section(
+                "基础用法",
+                at_width(
+                    leak(input::Input::new().with_placeholder("Please input"))
+                        .view(t, |_| { Message::Noop }),
+                    180.0,
+                )
+            ),
+            section(
+                "禁用状态",
+                at_width(
+                    leak(
+                        input::Input::new()
+                            .with_placeholder("Please input")
+                            .disabled(true)
+                    )
+                    .view(t, |_| Message::Noop),
+                    180.0,
+                )
+            ),
+            section(
+                "可清空",
+                at_width(
+                    leak(
+                        input::Input::new()
+                            .with_placeholder("请输入内容")
+                            .with_clearable(true)
+                    )
+                    .view(t, |_| Message::Noop),
+                    180.0,
+                )
+            ),
+        ]
+        .spacing(16)
+        .padding(Padding::from(16u16))
+        .into(),
+        "tag" => {
+            let names = ["Default", "Primary", "Success", "Info", "Warning", "Danger"];
+            let types = [
+                tag::TagType::Default,
+                tag::TagType::Primary,
+                tag::TagType::Success,
+                tag::TagType::Info,
+                tag::TagType::Warning,
+                tag::TagType::Danger,
+            ];
+            let row_of = |effect: tag::TagEffect| {
+                let mut r = row![].spacing(12);
+                for i in 0..6 {
+                    r = r.push(
+                        leak(
+                            tag::Tag::new(names[i].to_string())
+                                .with_type(types[i])
+                                .with_effect(effect),
+                        )
+                        .view(t, || Message::Noop),
+                    );
+                }
+                r
+            };
+            column![
+                section("基础用法", row_of(tag::TagEffect::Light).into()),
+                section("Dark 主题", row_of(tag::TagEffect::Dark).into()),
+                section(
+                    "可关闭",
+                    row![
+                        leak(tag::Tag::new("标签一").with_closable(true)).view(t, || Message::Noop),
+                        leak(tag::Tag::new("标签二").with_closable(true)).view(t, || Message::Noop),
+                    ]
+                    .spacing(12)
+                    .into()
+                ),
+            ]
+            .spacing(16)
+            .padding(Padding::from(16u16))
+            .into()
+        }
+        "progress" => column![
+            section(
+                "线形进度条",
+                at_width(
+                    column![
+                        leak(progress::Progress::new().with_percentage(50))
+                            .view(t)
+                            .map(|_| Message::Noop),
+                        leak(
+                            progress::Progress::new()
+                                .with_percentage(70)
+                                .with_status(progress::ProgressStatus::Success)
+                        )
+                        .view(t)
+                        .map(|_| Message::Noop),
+                        leak(
+                            progress::Progress::new()
+                                .with_percentage(90)
+                                .with_status(progress::ProgressStatus::Warning)
+                        )
+                        .view(t)
+                        .map(|_| Message::Noop),
+                        leak(
+                            progress::Progress::new()
+                                .with_percentage(40)
+                                .with_status(progress::ProgressStatus::Exception)
+                        )
+                        .view(t)
+                        .map(|_| Message::Noop),
+                    ]
+                    .spacing(16)
+                    .into(),
+                    560.0,
+                )
+            ),
+            section(
+                "环形进度条",
+                row![
+                    leak(
+                        progress::Progress::new()
+                            .with_type(progress::ProgressType::Circle)
+                            .with_percentage(50)
+                    )
+                    .view(t)
+                    .map(|_| Message::Noop),
+                    leak(
+                        progress::Progress::new()
+                            .with_type(progress::ProgressType::Circle)
+                            .with_percentage(70)
+                            .with_status(progress::ProgressStatus::Success)
+                    )
+                    .view(t)
+                    .map(|_| Message::Noop),
+                ]
+                .spacing(16)
+                .into()
+            ),
+        ]
+        .spacing(16)
+        .padding(Padding::from(16u16))
+        .into(),
         "card" => leak(card::Card::new("卡片内容"))
             .view(t)
             .map(|_| Message::Noop),
-        "switch" => leak(switch::Switch::new()).view(t, Message::Noop),
-        "checkbox" => leak(checkbox::Checkbox::new("选项")).view(t, Message::Noop),
-        "radio" => leak(radio::Radio::new("选项")).view(t, Message::Noop),
-        "slider" => {
-            leak(slider::Slider::new().with_min(0.0).with_max(100.0)).view(t, |_| Message::Noop)
+        "switch" => row![
+            leak(switch::Switch::new()).view(t, Message::Noop),
+            leak(switch::Switch::with_value(true)).view(t, Message::Noop),
+            leak(switch::Switch::new().with_disabled(true)).view(t, Message::Noop),
+            leak(switch::Switch::with_value(true).with_disabled(true)).view(t, Message::Noop),
+            leak(
+                switch::Switch::with_value(true)
+                    .with_active_text("按月付费")
+                    .with_inactive_text("按日付费")
+            )
+            .view(t, Message::Noop),
+        ]
+        .spacing(16)
+        .padding(Padding::from(16u16))
+        .into(),
+        "checkbox" => column![
+            section(
+                "基础用法",
+                leak(checkbox::CheckboxGroup::new().with_value(vec!["a", "c"])).view(
+                    t,
+                    &[
+                        ("a", "选项A"),
+                        ("b", "选项B"),
+                        ("c", "选项C"),
+                        ("d", "选项D")
+                    ],
+                    |_| Message::Noop,
+                )
+            ),
+            section(
+                "禁用与选中",
+                row![
+                    leak(
+                        checkbox::Checkbox::new("选中且不可选")
+                            .with_checked(true)
+                            .with_disabled(true)
+                    )
+                    .view(t, Message::Noop),
+                    leak(checkbox::Checkbox::new("未选且不可选").with_disabled(true))
+                        .view(t, Message::Noop),
+                ]
+                .spacing(16)
+                .into()
+            ),
+        ]
+        .spacing(16)
+        .padding(Padding::from(16u16))
+        .into(),
+        "radio" => column![
+            section(
+                "基础用法",
+                leak(radio::RadioGroup::new().with_value("a")).view(
+                    t,
+                    &[("a", "选项A"), ("b", "选项B"), ("c", "选项C")],
+                    |_| Message::Noop,
+                )
+            ),
+            section(
+                "禁用与选中",
+                row![
+                    leak(
+                        radio::Radio::new("选中且不可选")
+                            .with_checked(true)
+                            .with_disabled(true)
+                    )
+                    .view(t, Message::Noop),
+                    leak(radio::Radio::new("未选且不可选").with_disabled(true))
+                        .view(t, Message::Noop),
+                ]
+                .spacing(16)
+                .into()
+            ),
+        ]
+        .spacing(16)
+        .padding(Padding::from(16u16))
+        .into(),
+        "slider" => column![
+            section(
+                "基础用法",
+                at_width(
+                    leak(
+                        slider::Slider::new()
+                            .with_min(0.0)
+                            .with_max(100.0)
+                            .with_value(30.0)
+                    )
+                    .view(t, |_| Message::Noop,),
+                    480.0,
+                )
+            ),
+            section(
+                "范围选择",
+                at_width(
+                    leak(
+                        slider::Slider::new()
+                            .with_min(0.0)
+                            .with_max(100.0)
+                            .with_range(true)
+                            .with_range_value(20.0, 70.0)
+                    )
+                    .view(t, |_| Message::Noop),
+                    480.0,
+                )
+            ),
+        ]
+        .spacing(16)
+        .padding(Padding::from(16u16))
+        .into(),
+        "rate" => column![
+            section(
+                "基础用法",
+                leak(rate::Rate::new().with_value(4.0)).view(t, |_| Message::Noop)
+            ),
+            section(
+                "允许半选",
+                leak(rate::Rate::new().with_value(3.5).with_allow_half(true))
+                    .view(t, |_| Message::Noop,)
+            ),
+        ]
+        .spacing(16)
+        .padding(Padding::from(16u16))
+        .into(),
+        "link" => {
+            let names = ["Default", "Primary", "Success", "Info", "Warning", "Danger"];
+            let types = [
+                link::LinkType::Default,
+                link::LinkType::Primary,
+                link::LinkType::Success,
+                link::LinkType::Info,
+                link::LinkType::Warning,
+                link::LinkType::Danger,
+            ];
+            let mut r1 = row![].spacing(16);
+            let mut r2 = row![].spacing(16);
+            for i in 0..6 {
+                r1 = r1.push(
+                    leak(
+                        link::Link::new()
+                            .with_text(names[i].to_string())
+                            .with_type(types[i]),
+                    )
+                    .view(t, Message::Noop),
+                );
+                r2 = r2.push(
+                    leak(
+                        link::Link::new()
+                            .with_text(names[i].to_string())
+                            .with_type(types[i])
+                            .with_disabled(true),
+                    )
+                    .view(t, Message::Noop),
+                );
+            }
+            column![
+                section("基础用法", r1.into()),
+                section("禁用状态", r2.into()),
+            ]
+            .spacing(16)
+            .padding(Padding::from(16u16))
+            .into()
         }
-        "rate" => leak(rate::Rate::new()).view(t, |_| Message::Noop),
-        "link" => leak(link::Link::new().with_text("链接文字")).view(t, Message::Noop),
         "divider" => leak(divider::Divider::new()).view(t).map(|_| Message::Noop),
-        "empty" => leak(empty::Empty::new()).view(t).map(|_| Message::Noop),
-        "alert" => leak(
-            alert::Alert::new()
-                .with_title("提示")
-                .with_description("描述信息"),
-        )
-        .view(t, || Message::Noop),
+        "empty" => leak(empty::Empty::new().with_description("暂无数据"))
+            .view(t)
+            .map(|_| Message::Noop),
+        "alert" => {
+            let al = |ty: alert::AlertType, title: &'static str, desc: &'static str| {
+                leak(
+                    alert::Alert::new()
+                        .with_type(ty)
+                        .with_title(title)
+                        .with_description(desc)
+                        .with_show_icon(true),
+                )
+                .view(t, || Message::Noop)
+            };
+            column![
+                section(
+                    "主题",
+                    column![
+                        al(alert::AlertType::Success, "成功提示", "成功状态的描述文字"),
+                        al(alert::AlertType::Warning, "警告提示", "警告状态的描述文字"),
+                        al(alert::AlertType::Info, "信息提示", "信息状态的描述文字"),
+                        al(alert::AlertType::Error, "错误提示", "错误状态的描述文字"),
+                    ]
+                    .spacing(12)
+                    .into()
+                ),
+                section(
+                    "可关闭",
+                    leak(
+                        alert::Alert::new()
+                            .with_type(alert::AlertType::Info)
+                            .with_title("可关闭提示")
+                            .with_description("点击右侧 × 关闭本条提示")
+                            .with_show_icon(true)
+                            .with_closable(true)
+                    )
+                    .view(t, || Message::Noop),
+                ),
+            ]
+            .spacing(16)
+            .padding(Padding::from(16u16))
+            .into()
+        }
         "text" => leak(text::Text::new().with_content("正文文字"))
             .view(t)
             .map(|_| Message::Noop),
@@ -593,29 +987,84 @@ fn render(name: &str, t: &'static Theme) -> Element<'static, Message> {
         "skeleton" => leak(skeleton::Skeleton::new())
             .view(t)
             .map(|_| Message::Noop),
-        "avatar" => leak(avatar::Avatar::new().with_text("U"))
+        "avatar" => row![
+            leak(avatar::Avatar::new().with_text("U"))
+                .view(t)
+                .map(|_| Message::Noop),
+            leak(
+                avatar::Avatar::new()
+                    .with_text("L")
+                    .with_shape(avatar::AvatarShape::Square)
+            )
             .view(t)
             .map(|_| Message::Noop),
+            leak(
+                avatar::Avatar::new()
+                    .with_text("大")
+                    .with_size(avatar::AvatarSize::Large)
+            )
+            .view(t)
+            .map(|_| Message::Noop),
+            leak(
+                avatar::Avatar::new()
+                    .with_text("小")
+                    .with_size(avatar::AvatarSize::Small)
+            )
+            .view(t)
+            .map(|_| Message::Noop),
+        ]
+        .spacing(16)
+        .padding(Padding::from(16u16))
+        .into(),
         "result_page" => leak(result_page::ResultPage::new().with_title("操作成功"))
             .view(t)
             .map(|_| Message::Noop),
         "pagination" => leak(pagination::Pagination::new(100, 10)).view(t, |_| Message::Noop),
         "collapse" => {
             let mut c = collapse::Collapse::new();
-            c.add_item(collapse::CollapseItem::new("i1", "面板一"));
-            c.add_item(collapse::CollapseItem::new("i2", "面板二"));
-            leak(c).view(t, |_| Message::Noop)
+            c.add_item(
+                collapse::CollapseItem::new("i1", "一致性 Consistency").with_content(
+                    "与现实生活一致：与现实生活的流程、逻辑保持一致，遵循用户习惯的语言和概念。",
+                ),
+            );
+            c.add_item(
+                collapse::CollapseItem::new("i2", "反馈 Feedback")
+                    .with_content("通过界面样式和交互动效让用户可以清晰的感知自己的操作。"),
+            );
+            c.add_item(
+                collapse::CollapseItem::new("i3", "效率 Efficiency")
+                    .with_content("简化用户操作流程，清晰明确的语言告知用户接下来要做的事情。"),
+            );
+            c.handle(collapse::CollapseMessage::Toggle("i1".into()));
+            at_width(leak(c).view(t, |_| Message::Noop), 640.0)
         }
-        "timeline" => leak(timeline::Timeline::new())
-            .view(t)
-            .map(|_| Message::Noop),
+        "timeline" => {
+            let tl = leak(timeline::Timeline::new());
+            tl.handle(timeline::TimelineMessage::AddItem(
+                timeline::TimelineItem::new("2026-10-01 09:00", "创建订单"),
+            ));
+            tl.handle(timeline::TimelineMessage::AddItem(
+                timeline::TimelineItem::new("2026-10-02 10:30", "审核通过")
+                    .with_type(timeline::TimelineItemType::Success),
+            ));
+            tl.handle(timeline::TimelineMessage::AddItem(
+                timeline::TimelineItem::new("2026-10-03 14:20", "库存不足预警")
+                    .with_type(timeline::TimelineItemType::Warning),
+            ));
+            tl.handle(timeline::TimelineMessage::AddItem(
+                timeline::TimelineItem::new("2026-10-04 18:00", "超时未支付，订单关闭")
+                    .with_type(timeline::TimelineItemType::Danger),
+            ));
+            at_width(tl.view(t).map(|_| Message::Noop), 560.0)
+        }
         "select" => {
             let s = leak(
                 select::Select::new()
                     .with_option(select::SelectOption::new("a", "选项A"))
-                    .with_option(select::SelectOption::new("b", "选项B")),
+                    .with_option(select::SelectOption::new("b", "选项B"))
+                    .with_option(select::SelectOption::new("c", "选项C")),
             );
-            s.view(t, |_| Message::Noop)
+            at_width(s.view(t, |_| Message::Noop), 220.0)
         }
         "countdown" => leak(countdown::Countdown::new(60_000)).view(t, |_| Message::Noop),
         "input_number" => {
@@ -630,7 +1079,17 @@ fn render(name: &str, t: &'static Theme) -> Element<'static, Message> {
             ]));
             it.view(t, |_| Message::Noop)
         }
-        "steps" => leak(steps::Steps::new()).view(t).map(|_| Message::Noop),
+        "steps" => {
+            let st = leak(
+                steps::Steps::new()
+                    .with_step(steps::Step::new("步骤 1").with_description("填写订单信息"))
+                    .with_step(steps::Step::new("步骤 2").with_description("确认订单"))
+                    .with_step(steps::Step::new("步骤 3").with_description("在线支付"))
+                    .with_step(steps::Step::new("步骤 4").with_description("完成")),
+            );
+            st.handle(steps::StepsMessage::JumpTo(2));
+            at_width(st.view(t).map(|_| Message::Noop), 640.0)
+        }
         "anchor" => leak(
             anchor::Anchor::new()
                 .with_link("s1", "第一章")
@@ -649,7 +1108,18 @@ fn render(name: &str, t: &'static Theme) -> Element<'static, Message> {
         "affix" => leak(affix::Affix::new()).view(t, text("固定内容").size(14).into()),
         "backtop" => leak(backtop::Backtop::new()).view(t, Message::Noop),
         "calendar" => leak(calendar::Calendar::new(2026, 10)).view(t, |_| Message::Noop),
-        "carousel" => leak(carousel::Carousel::new()).view(t, || Message::Noop, || Message::Noop),
+        "carousel" => {
+            let c = leak(
+                carousel::Carousel::new()
+                    .with_slide("第 1 页 — 新品上市")
+                    .with_slide("第 2 页 — 限时折扣")
+                    .with_slide("第 3 页 — 会员日活动")
+                    .with_slide("第 4 页 — 满减优惠")
+                    .with_autoplay(true)
+                    .with_interval(3000),
+            );
+            at_width(c.view(t, || Message::Noop, || Message::Noop), 640.0)
+        }
         "cascader" => {
             let cs = leak(cascader::Cascader::new().with_options(vec![
                     cascader::CascaderNode::new("zhejiang", "浙江").with_children(vec![
@@ -670,9 +1140,14 @@ fn render(name: &str, t: &'static Theme) -> Element<'static, Message> {
             .map(|_| Message::Noop),
         "descriptions" => leak(
             descriptions::Descriptions::new()
-                .with_title("用户信息")
-                .with_item(descriptions::DescriptionsItem::new("姓名", "张三"))
-                .with_item(descriptions::DescriptionsItem::new("手机", "138****8888")),
+                .with_title("订单信息")
+                .with_item(descriptions::DescriptionsItem::new(
+                    "订单号",
+                    "SO20261012001",
+                ))
+                .with_item(descriptions::DescriptionsItem::new("收货人", "张三"))
+                .with_item(descriptions::DescriptionsItem::new("手机", "138****8888"))
+                .with_item(descriptions::DescriptionsItem::new("状态", "已发货")),
         )
         .view(t)
         .map(|_| Message::Noop),
@@ -775,7 +1250,13 @@ fn render(name: &str, t: &'static Theme) -> Element<'static, Message> {
         ]))
         .view(t, |_| Message::Noop),
         "tree" => leak(tree::Tree::new().with_data(vec![
-            tree::TreeNode::new("1", "根节点").with_child(tree::TreeNode::new("1-1", "子节点")),
+            tree::TreeNode::new("1", "一级 1").with_child(tree::TreeNode::new("1-1", "二级 1-1")
+                .with_child(tree::TreeNode::new("1-1-1", "三级 1-1-1"))),
+            tree::TreeNode::new("2", "一级 2").with_child(
+                tree::TreeNode::new("2-1", "二级 2-1")
+                    .with_child(tree::TreeNode::new("2-1-1", "三级 2-1-1"))
+                    .with_child(tree::TreeNode::new("2-1-2", "三级 2-1-2")),
+            ),
         ]))
         .view(t, |_| Message::Noop, |_| Message::Noop),
         "tree_select" => leak(tree_select::TreeSelect::new()).view(t, |_| Message::Noop),
@@ -811,12 +1292,29 @@ fn render(name: &str, t: &'static Theme) -> Element<'static, Message> {
             mb.handle(message_box::MessageBoxMessage::Open);
             mb.view(t, |_| Message::Noop)
         }
-        "notification" => leak(
-            notification::Notification::new("通知标题", "这是一条通知内容")
-                .with_type(notification::NotificationType::Success),
-        )
-        .view(t)
-        .map(|_| Message::Noop),
+        "notification" => column![
+            leak(
+                notification::Notification::new("成功通知", "这是一条成功的通知消息")
+                    .with_type(notification::NotificationType::Success)
+            )
+            .view(t)
+            .map(|_| Message::Noop),
+            leak(
+                notification::Notification::new("警告通知", "这是一条警告的通知消息")
+                    .with_type(notification::NotificationType::Warning)
+            )
+            .view(t)
+            .map(|_| Message::Noop),
+            leak(
+                notification::Notification::new("错误通知", "这是一条错误的通知消息")
+                    .with_type(notification::NotificationType::Error)
+            )
+            .view(t)
+            .map(|_| Message::Noop),
+        ]
+        .spacing(12)
+        .padding(Padding::from(16u16))
+        .into(),
         "payment" => {
             leak(payment::Payment::new(100.0)).view(t, |_| Message::Noop, || Message::Noop)
         }
@@ -849,13 +1347,31 @@ fn render(name: &str, t: &'static Theme) -> Element<'static, Message> {
             );
             tb.view(t, demo_row_field, |_| Message::Noop)
         }
-        "badge" => leak(
-            badge::Badge::new(badge::BadgeValue::Number(5))
-                .with_max(99)
-                .with_position(badge::BadgePosition::TopRight),
-        )
-        .view(t)
-        .map(|_| Message::Noop),
+        "badge" => row![
+            leak(
+                badge::Badge::new(badge::BadgeValue::Number(12))
+                    .with_max(99)
+                    .with_position(badge::BadgePosition::TopRight)
+            )
+            .view(t)
+            .map(|_| Message::Noop),
+            leak(
+                badge::Badge::new(badge::BadgeValue::Text("hot".into()))
+                    .with_position(badge::BadgePosition::TopRight)
+            )
+            .view(t)
+            .map(|_| Message::Noop),
+            leak(
+                badge::Badge::new(badge::BadgeValue::Number(200))
+                    .with_max(99)
+                    .with_position(badge::BadgePosition::TopRight)
+            )
+            .view(t)
+            .map(|_| Message::Noop),
+        ]
+        .spacing(24)
+        .padding(Padding::from(16u16))
+        .into(),
         "breadcrumb" => leak(
             breadcrumb::Breadcrumb::new()
                 .with_item(breadcrumb::BreadcrumbItem::new("首页"))
@@ -907,12 +1423,35 @@ fn render(name: &str, t: &'static Theme) -> Element<'static, Message> {
                     .into(),
             )
         }
-        "message" => leak(message::MessageItem::new(
-            "操作成功",
-            message::MessageType::Success,
-        ))
-        .view(t)
-        .map(|_| Message::Noop),
+        "message" => column![
+            leak(message::MessageItem::new(
+                "成功消息",
+                message::MessageType::Success
+            ))
+            .view(t)
+            .map(|_| Message::Noop),
+            leak(message::MessageItem::new(
+                "警告消息",
+                message::MessageType::Warning
+            ))
+            .view(t)
+            .map(|_| Message::Noop),
+            leak(message::MessageItem::new(
+                "消息消息",
+                message::MessageType::Info
+            ))
+            .view(t)
+            .map(|_| Message::Noop),
+            leak(message::MessageItem::new(
+                "错误消息",
+                message::MessageType::Error
+            ))
+            .view(t)
+            .map(|_| Message::Noop),
+        ]
+        .spacing(12)
+        .padding(Padding::from(16u16))
+        .into(),
         "popconfirm" => {
             let p = leak(
                 popconfirm::Popconfirm::new("确认删除该记录？")
@@ -948,12 +1487,17 @@ fn render(name: &str, t: &'static Theme) -> Element<'static, Message> {
             ];
             sp.view(t, panes)
         }
-        "tabs" => leak(
-            tabs::Tabs::new()
-                .with_item(tabs::TabItem::new("a", "标签一"))
-                .with_item(tabs::TabItem::new("b", "标签二")),
-        )
-        .view(t, |_| Message::Noop),
+        "tabs" => {
+            let tb = leak(
+                tabs::Tabs::new()
+                    .with_item(tabs::TabItem::new("a", "用户管理"))
+                    .with_item(tabs::TabItem::new("b", "配置管理"))
+                    .with_item(tabs::TabItem::new("c", "角色管理"))
+                    .with_item(tabs::TabItem::new("d", "日志管理")),
+            );
+            tb.handle(tabs::TabsMessage::Select("b".into()));
+            tb.view(t, |_| Message::Noop)
+        }
         "upload" => leak(upload::Upload::new()).view(t, || Message::Noop),
         _ => text(format!("{} — 已对齐 API/令牌/wasm", name))
             .size(13)

@@ -74,6 +74,19 @@ impl Slider {
         self
     }
 
+    /// 设置单值滑块当前值（收敛到 [min,max]），对应 EP `model-value`
+    pub fn with_value(mut self, v: f64) -> Self {
+        self.value = v.clamp(self.min, self.max);
+        self
+    }
+
+    /// 设置范围滑块当前区间（lo>hi 自动交换，收敛到 [min,max]），对应 EP range 双值
+    pub fn with_range_value(mut self, lo: f64, hi: f64) -> Self {
+        let (lo, hi) = if lo <= hi { (lo, hi) } else { (hi, lo) };
+        self.range_value = (lo.clamp(self.min, self.max), hi.clamp(self.min, self.max));
+        self
+    }
+
     pub fn with_disabled(mut self, v: bool) -> Self {
         self.disabled = v;
         self

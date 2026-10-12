@@ -27,6 +27,7 @@ pub enum CollapseMessage {
 pub struct CollapseItem {
     name: String,
     title: String,
+    content: String,
     disabled: bool,
     default_active: bool,
 }
@@ -36,9 +37,16 @@ impl CollapseItem {
         Self {
             name: name.into(),
             title: title.into(),
+            content: String::new(),
             disabled: false,
             default_active: false,
         }
+    }
+
+    /// 设置展开区内容（空则回退占位文本）
+    pub fn with_content(mut self, c: impl Into<String>) -> Self {
+        self.content = c.into();
+        self
     }
 
     pub fn with_disabled(mut self, v: bool) -> Self {
@@ -251,26 +259,31 @@ impl Collapse {
             });
             item_children.push(header_wrap.into());
 
-            // 展开内容（占位）
+            // 展开内容
             if is_active {
-                let content = container(
+                let body = if item.content.is_empty() {
                     text("[content]")
                         .color(Color::from(theme.neutral.text_placeholder))
-                        .size(13.0),
-                )
-                .width(Length::Fill)
-                .padding(Padding::from([12u16, 40u16]))
-                .style(move |_t| iced::widget::container::Style {
-                    text_color: None,
-                    background: None,
-                    border: iced::Border {
-                        color: border_lighter,
-                        width: 1.0,
-                        radius: iced::border::radius(0.0),
-                    },
-                    shadow: iced::Shadow::default(),
-                    snap: false,
-                });
+                        .size(13.0)
+                } else {
+                    text(item.content.clone())
+                        .color(Color::from(theme.neutral.text_regular))
+                        .size(13.0)
+                };
+                let content = container(body)
+                    .width(Length::Fill)
+                    .padding(Padding::from([12u16, 40u16]))
+                    .style(move |_t| iced::widget::container::Style {
+                        text_color: None,
+                        background: None,
+                        border: iced::Border {
+                            color: border_lighter,
+                            width: 1.0,
+                            radius: iced::border::radius(0.0),
+                        },
+                        shadow: iced::Shadow::default(),
+                        snap: false,
+                    });
                 item_children.push(content.into());
             }
 

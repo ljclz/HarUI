@@ -286,10 +286,15 @@ impl Switch {
         } else {
             track_color
         };
+        // 旋钮投影：主题主文字色 + 15% 透明度（EP 阴影 rgba(0,0,0,.15) 的令牌派生）
+        let knob_shadow = iced::Color {
+            a: 0.15,
+            ..Color::from(theme.neutral.text_primary)
+        };
         let knob = iced::widget::container(iced::widget::Space::new().width(Length::Fixed(0.0)))
             .width(Length::Fixed(16.0))
             .height(Length::Fixed(16.0))
-            .style(|_| iced::widget::container::Style {
+            .style(move |_| iced::widget::container::Style {
                 background: Some(iced::Background::Color(Color::WHITE)),
                 border: iced::Border {
                     color: Color::TRANSPARENT,
@@ -297,7 +302,7 @@ impl Switch {
                     radius: iced::border::radius(8.0),
                 },
                 shadow: iced::Shadow {
-                    color: iced::Color::from_rgba8(0, 0, 0, 0.15),
+                    color: knob_shadow,
                     offset: iced::Vector::new(0.0, 1.0),
                     blur_radius: 2.0,
                 },

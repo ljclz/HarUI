@@ -8,7 +8,7 @@
 //! 防篡改提示：watermark 配置仅是装饰层，不能阻止内容被复制。
 
 use har_ui_core::theme::Theme;
-use iced::widget::{container, text};
+use iced::widget::text;
 use iced::{Element, Length};
 
 /// 水印配置

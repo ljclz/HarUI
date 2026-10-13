@@ -18,8 +18,8 @@ enum Message {
     DialogClose,
     DrawerToggle,
     DrawerClose,
-    MessageBoxToggle,
-    MessageBoxClose,
+    MsgBoxToggle,
+    MsgBoxClose,
 }
 
 fn update(s: &mut State, m: Message) -> Task<Message> {
@@ -42,8 +42,8 @@ fn update(s: &mut State, m: Message) -> Task<Message> {
         Message::DialogClose => s.dialog_open = false,
         Message::DrawerToggle => s.drawer_open = !s.drawer_open,
         Message::DrawerClose => s.drawer_open = false,
-        Message::MessageBoxToggle => s.message_box_open = !s.message_box_open,
-        Message::MessageBoxClose => s.message_box_open = false,
+        Message::MsgBoxToggle => s.message_box_open = !s.message_box_open,
+        Message::MsgBoxClose => s.message_box_open = false,
     }
     Task::none()
 }
@@ -356,7 +356,7 @@ fn view(s: &State) -> Element<'_, Message> {
     let name = s.selected.as_str();
     // 空 hash 或未知组件名 → 文档站式总览（侧栏 + 分组卡片），避免白屏/堆叠页
     if name.is_empty() || !ALL.contains(&name) {
-        return docs_layout(name, t).into();
+        return docs_layout(name, t);
     }
     let body = render(s, name, t);
     container(
@@ -1469,11 +1469,11 @@ fn render(s: &State, name: &str, t: &'static Theme) -> Element<'static, Message>
             if s.message_box_open {
                 let mb = leak(message_box::MessageBox::new("提示", "操作成功"));
                 mb.handle(message_box::MessageBoxMessage::Open);
-                mb.view(t, |_| Message::MessageBoxClose)
+                mb.view(t, |_| Message::MsgBoxClose)
             } else {
                 section(
                     "基础用法",
-                    overlay_trigger("点击打开 MessageBox", Message::MessageBoxToggle),
+                    overlay_trigger("点击打开 MessageBox", Message::MsgBoxToggle),
                 )
             }
         }

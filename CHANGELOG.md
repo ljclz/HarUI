@@ -3,7 +3,7 @@
 本项目遵循 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 格式与
 [SemVer](https://semver.org/lang/zh-CN/) 语义化版本。
 
-## [Unreleased]
+## [v1.5.0] — 2026-10-13
 
 ### Added
 
@@ -17,6 +17,10 @@
   64 组 AE 全部 <100 PASS；parity-status-report 更新为 71 组件全状态表
 - **未知 hash 回退全组件列表**：ep-parity 输入非组件名（如 `#hash`）不再白屏，
   自动回退展示 71 组件全列表并提示正确格式
+- **EP 文档风格演示段**：ep-parity `section()`（小节标题 + 边框演示盒）与
+  `at_width()`（输入类 180–280px）辅助，演示结构与 element-plus.org 一致
+- **浮层组件交互化**：dialog/drawer/message_box 默认渲染触发按钮，
+  点击真实打开浮层、点 X 关闭（State 开关标志 + Message 全接线）
 
 ### Fixed
 
@@ -26,6 +30,11 @@
   ✕/ℹ/✅/❌/⚠️ 改为字体可渲染的 ×/ⓘ/✓/⚠；checkbox 改为绘制式边框盒（✓/－）；
   loading 旋转改用 ◐◓◑◒ 半圆；rate 空星用 ☆；empty/avatar/text 占位改用 ▤/▩/◉；
   transfer 勾选标记改 ▣/▢；switch 加载指示改 ◐；showcase 同步复用新字体子集
+- **switch 绘制化**：ASCII 占位 `[●]` 改为圆角轨道 + 白色圆钮（EP el-switch 同款三态）
+- **avatar 默认观感**：白底不可见 → EP 同款灰底（#c0c4cc）白字
+- **transfer 搬移按钮**：脱离 iced 默认蓝底实心样式 → 白底描边 + 主色箭头 + 空勾选置灰
+- **watermark 平铺化**：单字居中改 4×5 平铺重复文字层（EP 水印观感）
+- **CollapseItem 内容占位**：展开区渲染字面量 `[content]` → 支持 `with_content` 真实文本
 
 ### Changed
 
@@ -45,11 +54,21 @@
 - **组件豆腐块二次清理**（Noto Sans SC 无对应字形的三处渲染路径）：
   alert 可关闭按钮 ✕→×；CheckboxGroup 指示器 ☑/☐ 文本改为与单 Checkbox 一致的
   绘制式边框盒（✓）；showcase 目录箭头 ▸→›
-- **NotoSansSC 子集重建**（1050→1104 字形，436KB→226KB）：覆盖新增中文名
-  （栅格/固钉/锚点/面包屑/漫游式引导等）与文档站 UI 文案，校验旧子集字形零丢失；
-  capture_harui_frames.py 支持 _component_list.txt 缺失时自动从 main.rs ALL 常量重生成
-- **新增批量截图脚本**：scripts/capture_harui_frames.py（headless Chrome 并行
-  捕获 71 组件帧，支持 --par/--budget 参数）
+- **NotoSansSC 子集重建**（1050→1104+ 字形，436KB→226KB）：覆盖新增中文名
+  与文档站 UI 文案，校验旧子集字形零丢失；capture_harui_frames.py 支持
+  _component_list.txt 缺失时自动从 main.rs ALL 常量重生成
+- **库 API 补齐 EP 语义 setter**：`Progress::with_percentage`、
+  `Slider::with_value`/`with_range_value`、`Rate::with_value`、
+  `CollapseItem::with_content`
+- **20+ 组件演示内容对齐 Element Plus 文档站**：button 6 类型×5 组 / input 三态 /
+  checkbox+radio 分组禁用 / switch 5 态 / slider 单值+范围 / rate 半选 /
+  tag Light+Dark+可关闭 / link 6 类型 / alert 4 主题 / message+notification 四类型 /
+  progress 线形 4 态+环形 / timeline 4 事件 / steps 4 步 / carousel 4 slide /
+  table 三列斑马纹 / upload 文件列表 / transfer 勾选搬移 / menu Horizontal+子菜单 /
+  card / statistic / form / tree_select / tree 三级 / tabs 4 页 / badge / avatar /
+  empty / descriptions / page_header / input_number 等
+
+## [Unreleased]
 
 ## [v1.4.0] — 2026-10-11
 

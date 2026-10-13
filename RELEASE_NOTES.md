@@ -1,3 +1,29 @@
+## v1.5.0 — 2026-10-13（Arimo 字体度量对齐 + 文档站式对照站 + 富演示版）
+
+### Highlights
+- **默认字体 Arimo（Arial 度量兼容）**：拉丁/数字宽度与 Element Plus 的 Arial
+  渲染对齐，收束 Fira Sans 偏宽导致的按钮/文本度量漂移
+- **ep-parity 文档站式对照站**：顶栏 + 分组侧栏（8 组）+ 总览卡片栅格，
+  点击直达 `#组件名`；未知 hash 回退总览
+- **64 组件富演示对齐 EP 文档**：button 6 类型×5 组、progress 线形+环形、
+  timeline/steps/carousel/table/upload/transfer/menu/form 等 30+ 页重写，
+  浮层组件（dialog/drawer/message_box）触发按钮可交互
+- **组件修复**：switch 绘制化（轨道+圆钮）、avatar 灰底白字、transfer 按钮样式、
+  watermark 4×5 平铺、alert 关闭键 ×、CheckboxGroup 绘制式指示器、collapse 真实内容
+- **新增 EP 语义 API**：Progress::with_percentage、Slider::with_value/with_range_value、
+  Rate::with_value、CollapseItem::with_content
+- **像素对照**：71 帧全量重拍，64 组 AE 全部 <100 PASS（dialog 98.56→5.98）
+- **2189 测试 0 失败，12 关门禁全过**；table 状态层 bench 较基线再快 ~5%
+
+### Upgrade
+```toml
+har-ui-core = { git = "https://github.com/ljclz/HarUI", tag = "v1.5.0" }
+har-ui-components = { git = "https://github.com/ljclz/HarUI", tag = "v1.5.0" }
+iced = "0.14"
+```
+
+---
+
 ## v1.4.0 — 2026-10-11（EP 对齐清零版，W9 完结）
 
 ### Highlights
